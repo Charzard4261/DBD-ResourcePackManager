@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -26,6 +27,8 @@ namespace DBD_ResourcePacks
         public static readonly string TEMP_WRITING_JSON = "Writing Pack json";
         public static readonly string TEMP_DOWNLOADING_BANNER = "Downloading Banner";
         public static readonly string TEMP_DOWNLOADING_PACK = "Downloading Pack";
+        public static readonly string TEMP_EXTRACTING_PACK = "Extracting Pack";
+        public static readonly string TEMP_DELETING_PACK = "Deleting Pack";
 
         Dictionary<string, ResourcePack> _packRegistry = new();
         Dictionary<string, ResourcePack> _downloadedRegistry = new();
@@ -35,6 +38,7 @@ namespace DBD_ResourcePacks
 
         List<string> _packsBrowse;
         int _currentBrowsePage = 0;
+        Dictionary<string, string> _browseState = new();
 
         public MainWindow()
         {
@@ -73,7 +77,11 @@ namespace DBD_ResourcePacks
             using (StreamReader r = new StreamReader(JSON_PACKS))
             {
                 foreach (ResourcePack pack in JsonConvert.DeserializeObject<List<ResourcePack>>(r.ReadToEnd()))
+                {
+                    pack.PackState = "Download";
+                    pack.PackActionable = true;
                     _packRegistry.Add(pack.uniqueKey, pack);
+                }
                 _packsBrowse = _packRegistry.Keys.ToList();
             }
 
@@ -99,7 +107,33 @@ namespace DBD_ResourcePacks
                 if (File.Exists($"{DIR_DOWNLOADED}{pack.uniqueKey}/temp.txt"))
                     DownloadPack(pack.uniqueKey);
                 else
+                {
                     _downloadedRegistry.Add(pack.uniqueKey, pack);
+
+                    if (_packRegistry.ContainsKey(pack.uniqueKey))
+                    {
+                        ResourcePack registryPack = _packRegistry[pack.uniqueKey];
+                        registryPack.PackState = "Downloaded";
+                        registryPack.PackActionable = false;
+
+                        if (registryPack.chapter > pack.chapter ||
+                            (registryPack.chapter == pack.chapter && registryPack.packVersion > pack.packVersion))
+                        {
+                            pack.PackState = "Update";
+                            pack.PackActionable = true;
+                        }
+                        else
+                        {
+                            pack.PackState = "Up To Date";
+                            pack.PackActionable = false;
+                        }
+                    }
+                    else
+                    {
+                        pack.PackState = "No Longer Available";
+                        pack.PackActionable = false;
+                    }
+                }
             }
             _packsDownloaded = _downloadedRegistry.Keys.ToList();
 
@@ -183,24 +217,13 @@ namespace DBD_ResourcePacks
                 ResourcePack packInfo = _packRegistry[_packsBrowse[index]];
                 packUI.PackInfo = packInfo;
 
-                if (_downloadedRegistry.ContainsKey(packInfo.uniqueKey))
-                {
-                    packUI.action.Content = "Downloaded";
-                    packUI.action.IsEnabled = false;
-                }
-                else
-                {
-                    packUI.action.Content = "Download";
-                    packUI.action.IsEnabled = true;
-                }
-
                 if (packInfo.bannerLink != "")
                 {
                     string extension = Path.GetExtension(packInfo.bannerLink);
                     string uniqueFile = $"{DIR_CACHE_BROWSE}{packInfo.uniqueKey}_{Regex.Replace(packInfo.bannerLink.Substring(0, packInfo.bannerLink.Length - extension.Length), "[^A-Za-z0-9-_]", "")}{extension}";
                     if (File.Exists(uniqueFile))
                     {
-                        packUI.banner.Source = new BitmapImage(new Uri(Path.Combine(Environment.CurrentDirectory, uniqueFile)));
+                        packUI.banner.Source = new WriteableBitmap(new BitmapImage(new Uri(Path.Combine(Environment.CurrentDirectory, uniqueFile))));
                         packUI.banner.Visibility = 0;
                     }
                     else
@@ -221,13 +244,11 @@ namespace DBD_ResourcePacks
 
         async void DownloadPack(Pack packUI)
         {
-            string key = packUI.PackInfo.uniqueKey;
-            packUI.action.IsEnabled = false;
-            packUI.action.Content = "Downloading...";
-            await DownloadPack(key);
-            _packsDownloaded.Add(key);
-            if (packUI.PackInfo.uniqueKey == key)
-                packUI.action.Content = "Downloaded";
+            ResourcePack resourcePack = packUI.PackInfo;
+            resourcePack.PackActionable = false;
+            resourcePack.PackState = "Downloading...";
+            await DownloadPack(resourcePack.uniqueKey);
+            _packsDownloaded.Add(resourcePack.uniqueKey);
         }
 
         private void LoadDownloadedPage(int page)
@@ -285,10 +306,13 @@ namespace DBD_ResourcePacks
                     return;
                 noPacksDownloaded.Visibility = Visibility.Hidden;
 
+                if (!_downloadedRegistry.ContainsKey(_packsDownloaded[index]))
+                    continue;
+
                 ResourcePack packInfo = _downloadedRegistry[_packsDownloaded[index]];
                 packUI.PackInfo = packInfo;
 
-                if (_packRegistry.ContainsKey(packInfo.uniqueKey))
+                /*if (_packRegistry.ContainsKey(packInfo.uniqueKey))
                 {
                     ResourcePack registryPack = _packRegistry[packInfo.uniqueKey];
                     if (registryPack.chapter > packInfo.chapter || (registryPack.chapter == packInfo.chapter && registryPack.packVersion > packInfo.packVersion))
@@ -306,14 +330,16 @@ namespace DBD_ResourcePacks
                 {
                     packUI.action.Content = "Pack No Longer Available";
                     packUI.action.IsEnabled = false;
-                }
+                }*/
 
-                if (File.Exists($"{DIR_DOWNLOADED}{packInfo.uniqueKey}/banner{Path.GetExtension(packInfo.bannerLink)}"))
+                string extension = Path.GetExtension(packInfo.bannerLink);
+                string uniqueFile = $"{Regex.Replace(packInfo.bannerLink.Substring(0, packInfo.bannerLink.Length - extension.Length), "[^A-Za-z0-9-_]", "")}{extension}";
+                if (File.Exists($"{DIR_DOWNLOADED}{packInfo.uniqueKey}/{uniqueFile}"))
                 {
-                    packUI.banner.Source = new BitmapImage(new Uri(
+                    packUI.banner.Source = new WriteableBitmap(new BitmapImage(new Uri(
                         Path.Combine(Environment.CurrentDirectory,
-                        $"{DIR_DOWNLOADED}{packInfo.uniqueKey}/banner{Path.GetExtension(packInfo.bannerLink)}"
-                        )));
+                        $"{DIR_DOWNLOADED}{packInfo.uniqueKey}/{uniqueFile}"
+                        ))));
                     packUI.banner.Visibility = 0;
                 }
             }
@@ -331,27 +357,15 @@ namespace DBD_ResourcePacks
 
         async void UpdatePack(Pack packUI)
         {
-            string key = packUI.PackInfo.uniqueKey;
-            packUI.action.IsEnabled = false;
-            packUI.action.Content = "Updating...";
+            ResourcePack pack = packUI.PackInfo;
+            string key = pack.uniqueKey;
+            pack.PackActionable = false;
+            pack.PackState = "Updating...";
             _downloadedRegistry.Remove(key);
             await DownloadPack(key);
-            if (packUI.PackInfo.uniqueKey == key)
-            {
-                packUI.PackInfo = _downloadedRegistry[key];
-                packUI.action.Content = "Updated";
-                packUI.action.IsEnabled = false;
-
-                if (File.Exists($"{DIR_DOWNLOADED}{key}/banner{Path.GetExtension(packUI.PackInfo.bannerLink)}"))
-                {
-                    packUI.banner.Source = new BitmapImage(
-                        new Uri(
-                        Path.Combine(Environment.CurrentDirectory,
-                        $"{DIR_DOWNLOADED}{packUI.PackInfo.uniqueKey}/banner{Path.GetExtension(packUI.PackInfo.bannerLink)}"
-                        )));
-                    packUI.banner.Visibility = 0;
-                }
-            }
+            if (!_packRegistry.ContainsKey(key))
+                return;
+            _packRegistry[key].PackState = "Updated";
         }
 
         public async void DownloadBanner(string url, string destinationFile, ResourcePack packInfo, Pack pack)
@@ -361,7 +375,7 @@ namespace DBD_ResourcePacks
                 await client.DownloadFileTaskAsync(new Uri(url), destinationFile);
                 if (packInfo != pack.PackInfo)
                     return;
-                pack.banner.Source = new BitmapImage(new Uri(Path.Combine(Environment.CurrentDirectory, destinationFile)));
+                pack.banner.Source = new WriteableBitmap(new BitmapImage(new Uri(Path.Combine(Environment.CurrentDirectory, destinationFile))));
                 pack.banner.Visibility = 0;
             }
         }
@@ -375,21 +389,35 @@ namespace DBD_ResourcePacks
                 return;
 
             Directory.CreateDirectory($"{DIR_DOWNLOADED}{pack.uniqueKey}");
-            File.WriteAllText($"{DIR_DOWNLOADED}{pack.uniqueKey}/temp.txt", TEMP_WRITING_JSON);
+            File.WriteAllText($"{DIR_DOWNLOADED}{pack.uniqueKey}/temp.txt", "Placeholder file whilst the pack is still downloading");
             File.WriteAllText($"{DIR_DOWNLOADED}{pack.uniqueKey}/pack.json", JsonConvert.SerializeObject(pack, Formatting.Indented));
 
             using (WebClient client = new WebClient())
             {
-                File.WriteAllText($"{DIR_DOWNLOADED}{pack.uniqueKey}/temp.txt", TEMP_DOWNLOADING_BANNER);
-                if (pack.bannerLink != "")
-                    await client.DownloadFileTaskAsync(new Uri(pack.bannerLink), $"{DIR_DOWNLOADED}{pack.uniqueKey}/banner{Path.GetExtension(pack.bannerLink)}");
-                File.WriteAllText($"{DIR_DOWNLOADED}{pack.uniqueKey}/temp.txt", TEMP_DOWNLOADING_PACK);
+                pack.PackState = "Downloading Banner";
+                string extension = Path.GetExtension(pack.bannerLink);
+                string uniqueFile = $"{Regex.Replace(pack.bannerLink.Substring(0, pack.bannerLink.Length - extension.Length), "[^A-Za-z0-9-_]", "")}{extension}";
+                if (pack.bannerLink != "" && !File.Exists($"{DIR_DOWNLOADED}{pack.uniqueKey}/{uniqueFile}"))
+                    await client.DownloadFileTaskAsync(new Uri(pack.bannerLink), $"{DIR_DOWNLOADED}{pack.uniqueKey}/{uniqueFile}");
+                pack.PackState = "Downloading Zip";
                 await client.DownloadFileTaskAsync(new Uri(pack.downloadLink), $"{DIR_DOWNLOADED}{pack.uniqueKey}/pack.zip");
+
+                if (Directory.Exists($"{DIR_DOWNLOADED}{pack.uniqueKey}/Pack"))
+                {
+                    pack.PackState = "Deleting Old Pack";
+                    Directory.Delete($"{DIR_DOWNLOADED}{pack.uniqueKey}/Pack", true);
+                }
+
+                pack.PackState = "Unzipping";
+                ZipFile.ExtractToDirectory($"{DIR_DOWNLOADED}{pack.uniqueKey}/pack.zip", $"{DIR_DOWNLOADED}{pack.uniqueKey}/Pack");
+                pack.PackState = "Deleting Zip";
+                File.Delete($"{DIR_DOWNLOADED}{pack.uniqueKey}/pack.zip");
             }
+            pack.PackState = "Finishing";
             File.Delete($"{DIR_DOWNLOADED}{pack.uniqueKey}/temp.txt");
             _downloadedRegistry.Add(pack.uniqueKey, pack);
+            pack.PackState = "Downloaded";
         }
-
 
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

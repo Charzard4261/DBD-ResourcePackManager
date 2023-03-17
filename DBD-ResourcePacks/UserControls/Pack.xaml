@@ -5,7 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DBD_ResourcePacks"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800"
+             x:Name="PackUC">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*" />
@@ -24,7 +25,7 @@
         <Label x:Name="chapter" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Right" VerticalAlignment="Center"/>
         <Label x:Name="credits" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" VerticalAlignment="Center"/>
         <Label x:Name="version" Grid.Row="4" Grid.Column="0" Style="{StaticResource Obscured}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <Button x:Name="action" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Button x:Name="action" Content="{Binding Path=PackInfo.PackState, ElementName=PackUC}" IsEnabled="{Binding Path=PackInfo.PackActionable, ElementName=PackUC}" Grid.Row="4" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
         <Button x:Name="action2" Grid.Row="4" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Hidden"/>
     </Grid>
 </UserControl>

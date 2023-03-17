@@ -1,17 +1,20 @@
-﻿using System.Text.RegularExpressions;
-using System.Text;
-using System;
+﻿using System.Text;
 using System.Windows.Controls;
-using System.Windows.Media.Imaging;
-using System.IO;
-using System.Net;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace DBD_ResourcePacks.UserControls
 {
-    public partial class Pack : UserControl
+    public partial class Pack : UserControl, INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler PropertyChanged;
+        private void NotifyPropertyChanged([CallerMemberName] string propertyName = "") { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); }
+
         public ResourcePack _packInfo;
-        public ResourcePack PackInfo { get => _packInfo; set
+        public ResourcePack PackInfo
+        {
+            get => _packInfo;
+            set
             {
                 _packInfo = value;
                 name.Content = _packInfo.name;
@@ -28,8 +31,9 @@ namespace DBD_ResourcePacks.UserControls
                 }
                 credits.Content = creditsBuilder.ToString();
                 banner.Visibility = (System.Windows.Visibility)1;
-                action.IsEnabled = _packInfo.downloadLink != "";
+                //action.IsEnabled = _packInfo.downloadLink != "";
                 Visibility = 0;
+                NotifyPropertyChanged();
             }
         }
 
