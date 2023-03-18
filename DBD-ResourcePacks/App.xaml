@@ -45,7 +45,7 @@
 
         <Style TargetType="{x:Type TabControl}">
             <Setter Property="BorderBrush" Value="{x:Null}"/>
-            <Setter Property="BorderBrush" Value="{x:Null}"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
 
             <Style.Triggers>
@@ -180,6 +180,10 @@
                     <Setter Property="Foreground" Value="{StaticResource LightThemeForegroundDisabled}"/>
                 </DataTrigger>
             </Style.Triggers>
+        </Style>
+
+        <Style TargetType="{x:Type Image}">
+            <Setter Property="RenderOptions.BitmapScalingMode" Value="HighQuality"/>
         </Style>
 
     </Application.Resources>

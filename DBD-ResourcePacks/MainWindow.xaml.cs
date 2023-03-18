@@ -1,51 +1,72 @@
-﻿using DBD_ResourcePacks.Properties;
+﻿using DBD_ResourcePacks.Classes;
+using DBD_ResourcePacks.Properties;
 using DBD_ResourcePacks.UserControls;
 using Microsoft.Win32;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Security.Policy;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
+using System.Windows.Data;
 using System.Windows.Media.Imaging;
 
 namespace DBD_ResourcePacks
 {
     public partial class MainWindow : Window
     {
-        public static readonly string JSON_PACKS = "packs.json";
         public static readonly string DIR_CACHE = "Cache/";
         public static readonly string DIR_CACHE_UI = "Cache/UI Images/";
         public static readonly string DIR_CACHE_BROWSE = "Cache/Browse Cache/";
         public static readonly string DIR_DOWNLOADED = "Downloaded/";
-        public static readonly string TEMP_WRITING_JSON = "Writing Pack json";
-        public static readonly string TEMP_DOWNLOADING_BANNER = "Downloading Banner";
-        public static readonly string TEMP_DOWNLOADING_PACK = "Downloading Pack";
-        public static readonly string TEMP_EXTRACTING_PACK = "Extracting Pack";
-        public static readonly string TEMP_DELETING_PACK = "Deleting Pack";
+        public static readonly string DIR_RESOURCES = "Resources/";
+        public static readonly string DIR_RESOURCES_DEFAULT_ICONS = "Resources/Default Images/";
+        public static readonly string FILE_PACKS = "packs.json";
+        public static readonly string FILE_SURVIVORS = $"{DIR_RESOURCES}survivors.json";
+        public static readonly string FILE_KILLERS = $"{DIR_RESOURCES}killers.json";
 
+        public static readonly int PACKS_WIDTH = 4;
+        public static readonly int PACKS_HEIGHT = 4;
+
+        #region Packs
         Dictionary<string, ResourcePack> _packRegistry = new();
         Dictionary<string, ResourcePack> _downloadedRegistry = new();
 
-        List<string> _packsDownloaded;
+        List<PackUC> _downloadedPackUCs = new();
+        List<string> _downloadedPacks;
         int _currentDownloadPage = 0;
 
-        List<string> _packsBrowse;
+        List<PackUC> _browsePackUCs = new();
+        List<string> _browsePacks;
         int _currentBrowsePage = 0;
-        Dictionary<string, string> _browseState = new();
+        #endregion
+
+        #region Customise
+        // Data
+        Dictionary<string, Survivor> _survivors = new();
+        List<Perk> _commonSurvivorPerks = new();
+        Dictionary<string, Killer> _killers = new();
+        List<Perk> _commonKillerPerks = new();
+
+        // UI
+        Dictionary<string, CharacterUC> _survivorUCs = new();
+        Dictionary<string, CharacterUC> _killerUCs = new();
+        #endregion
 
         public MainWindow()
         {
             switch (Settings.Default.ThemeSetting)
             {
                 case 0: // Auto
-                    if ((int)Registry.GetValue("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", "AppsUseLightTheme", 1) == 1)
+                    object? v = Registry.GetValue("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", "AppsUseLightTheme", 1);
+                    if ((v == null) || (int)v == 1)
                         Settings.Default.ThemeActual = "Light";
                     else
                         Settings.Default.ThemeActual = "Dark";
@@ -64,17 +85,83 @@ namespace DBD_ResourcePacks
             Directory.CreateDirectory(DIR_CACHE_UI);
             Directory.CreateDirectory(DIR_CACHE_BROWSE);
             Directory.CreateDirectory(DIR_DOWNLOADED);
+            Directory.CreateDirectory(DIR_RESOURCES);
+            Directory.CreateDirectory(DIR_RESOURCES_DEFAULT_ICONS);
 
-            if (!File.Exists(JSON_PACKS))
+            #region Default Resources
+            if (Directory.Exists(DIR_RESOURCES))
             {
-                // TODO Download
+                // TODO Download Resources
+            }
+            else
+            {
+                // TODO Check Resources Version for Update
+            }
+
+            using (StreamReader r = new StreamReader(FILE_SURVIVORS))
+            {
+                JObject file = JsonConvert.DeserializeObject<JObject>(r.ReadToEnd());
+                foreach (KeyValuePair<string, JToken> entry in file)
+                {
+                    // Common Perks
+                    if (entry.Key == "common_perks")
+                    {
+                        List<Perk> perks = entry.Value.ToObject<List<Perk>>();
+                        foreach (Perk perk in perks)
+                            _commonSurvivorPerks.Add(perk);
+                        continue;
+                    }
+                    Survivor survivor = entry.Value.ToObject<Survivor>();
+                    _survivors.Add(entry.Key, survivor);
+
+                    CharacterUC characterUC = new CharacterUC();
+                    characterUC.CharacterInfo = survivor;
+
+                    Grid.SetColumn(characterUC, _survivorUCs.Count % 4);
+                    Grid.SetRow(characterUC, _survivorUCs.Count / 4);
+                    _survivorUCs.Add(entry.Key, characterUC);
+                }
+            }
+
+            using (StreamReader r = new StreamReader(FILE_KILLERS))
+            {
+                JObject file = JsonConvert.DeserializeObject<JObject>(r.ReadToEnd());
+                foreach (KeyValuePair<string, JToken> entry in file)
+                {
+                    // Common Perks
+                    if (entry.Key == "common_perks")
+                    {
+                        List<Perk> perks = entry.Value.ToObject<List<Perk>>();
+                        foreach (Perk perk in perks)
+                            _commonSurvivorPerks.Add(perk);
+                        continue;
+                    }
+                    Killer killer = entry.Value.ToObject<Killer>();
+                    _killers.Add(entry.Key, killer);
+
+                    CharacterUC characterUC = new CharacterUC();
+                    characterUC.CharacterInfo = killer;
+
+                    Grid.SetColumn(characterUC, _killerUCs.Count % 4 + 5);
+                    Grid.SetRow(characterUC, _killerUCs.Count / 4);
+                    _killerUCs.Add(entry.Key, characterUC);
+                }
+            }
+
+            DownloadAndSetImages();
+            #endregion
+
+            #region Packs
+            if (!File.Exists(FILE_PACKS))
+            {
+                // TODO Download JSON
             }
             else
             {
                 // TODO Check latest version
             }
 
-            using (StreamReader r = new StreamReader(JSON_PACKS))
+            using (StreamReader r = new StreamReader(FILE_PACKS))
             {
                 foreach (ResourcePack pack in JsonConvert.DeserializeObject<List<ResourcePack>>(r.ReadToEnd()))
                 {
@@ -82,7 +169,7 @@ namespace DBD_ResourcePacks
                     pack.PackActionable = true;
                     _packRegistry.Add(pack.uniqueKey, pack);
                 }
-                _packsBrowse = _packRegistry.Keys.ToList();
+                _browsePacks = _packRegistry.Keys.ToList();
             }
 
             foreach (DirectoryInfo potentialPack in new DirectoryInfo(DIR_DOWNLOADED).EnumerateDirectories())
@@ -135,181 +222,113 @@ namespace DBD_ResourcePacks
                     }
                 }
             }
-            _packsDownloaded = _downloadedRegistry.Keys.ToList();
+            _downloadedPacks = _downloadedRegistry.Keys.ToList();
+            #endregion
 
             InitializeComponent();
 
-            browse0.action.Click += new RoutedEventHandler(DownloadPack0);
-            browse1.action.Click += new RoutedEventHandler(DownloadPack1);
-            browse2.action.Click += new RoutedEventHandler(DownloadPack2);
-            browse3.action.Click += new RoutedEventHandler(DownloadPack3);
-            browse4.action.Click += new RoutedEventHandler(DownloadPack4);
-            browse5.action.Click += new RoutedEventHandler(DownloadPack5);
-            browse6.action.Click += new RoutedEventHandler(DownloadPack6);
-            browse7.action.Click += new RoutedEventHandler(DownloadPack7);
-            browse8.action.Click += new RoutedEventHandler(DownloadPack8);
+            for (int i = 0; i < PACKS_WIDTH * PACKS_HEIGHT; i++)
+            {
+                PackUC packUC = new PackUC();
+                packUC.Visibility = Visibility.Hidden;
+                packUC.action.Click += new RoutedEventHandler(UpdatePack);
+                packUC.action.Tag = i;
+                packUC.action2.Content = "x";
+                packUC.action2.Click += new RoutedEventHandler(DeletePack);
+                packUC.action2.Tag = i;
+                packUC.action2.Visibility = Visibility.Visible;
+                Grid.SetColumn(packUC, i % PACKS_WIDTH);
+                Grid.SetRow(packUC, i / PACKS_WIDTH);
+                downloadedGrid.Children.Add(packUC);
+                _downloadedPackUCs.Add(packUC);
+            }
 
-            downloaded0.action.Click += new RoutedEventHandler(UpdatePack0);
-            downloaded1.action.Click += new RoutedEventHandler(UpdatePack1);
-            downloaded2.action.Click += new RoutedEventHandler(UpdatePack2);
-            downloaded3.action.Click += new RoutedEventHandler(UpdatePack3);
-            downloaded4.action.Click += new RoutedEventHandler(UpdatePack4);
-            downloaded5.action.Click += new RoutedEventHandler(UpdatePack5);
-            downloaded6.action.Click += new RoutedEventHandler(UpdatePack6);
-            downloaded7.action.Click += new RoutedEventHandler(UpdatePack7);
-            downloaded8.action.Click += new RoutedEventHandler(UpdatePack8);
+            for (int i = 0; i < PACKS_WIDTH * PACKS_HEIGHT; i++)
+            {
+                PackUC packUC = new PackUC();
+                packUC.Visibility = Visibility.Hidden;
+                packUC.action.Click += new RoutedEventHandler(DownloadPack);
+                packUC.action.Tag = i;
+                Grid.SetColumn(packUC, i % PACKS_WIDTH);
+                Grid.SetRow(packUC, i / PACKS_WIDTH);
+                browseGrid.Children.Add(packUC);
+                _browsePackUCs.Add(packUC);
+            }
+
+            for (int i = 0; i < (Math.Max(_survivorUCs.Count, _killerUCs.Count) / 4) + 1; i++)
+            {
+                RowDefinition row = new RowDefinition();
+                //row.Height = new GridLength(1, GridUnitType.Auto);
+                characterGrid.RowDefinitions.Add(row);
+            }
+            characterGrid.RowDefinitions.Add(new RowDefinition());
+
+            foreach (CharacterUC characterUC in _survivorUCs.Values)
+                characterGrid.Children.Add(characterUC);
+            foreach (CharacterUC characterUC in _killerUCs.Values)
+                characterGrid.Children.Add(characterUC);
         }
 
         private void LoadBrowsePage(int page)
         {
             _currentBrowsePage = page;
 
-            browse0.Visibility = Visibility.Hidden;
-            browse1.Visibility = Visibility.Hidden;
-            browse2.Visibility = Visibility.Hidden;
-            browse3.Visibility = Visibility.Hidden;
-            browse4.Visibility = Visibility.Hidden;
-            browse5.Visibility = Visibility.Hidden;
-            browse6.Visibility = Visibility.Hidden;
-            browse7.Visibility = Visibility.Hidden;
-            browse8.Visibility = Visibility.Hidden;
+            foreach (PackUC packUC in _browsePackUCs)
+                packUC.Visibility = Visibility.Hidden;
 
-            Pack packUI;
-            for (int packNum = 0; packNum < 9; packNum++)
+            for (int packNum = 0; packNum < PACKS_WIDTH * PACKS_HEIGHT; packNum++)
             {
-                switch (packNum)
-                {
-                    case 0:
-                        packUI = browse0;
-                        break;
-                    case 1:
-                        packUI = browse1;
-                        break;
-                    case 2:
-                        packUI = browse2;
-                        break;
-                    case 3:
-                        packUI = browse3;
-                        break;
-                    case 4:
-                        packUI = browse4;
-                        break;
-                    case 5:
-                        packUI = browse5;
-                        break;
-                    case 6:
-                        packUI = browse6;
-                        break;
-                    case 7:
-                        packUI = browse7;
-                        break;
-                    case 8:
-                        packUI = browse8;
-                        break;
-                    default:
-                        return;
-                }
+                PackUC packUI = _browsePackUCs[packNum];
 
                 int index = page * 9 + packNum;
-                if (index >= _packsBrowse.Count)
+                if (index >= _browsePacks.Count)
                     return;
 
-                ResourcePack packInfo = _packRegistry[_packsBrowse[index]];
+                ResourcePack packInfo = _packRegistry[_browsePacks[index]];
                 packUI.PackInfo = packInfo;
 
                 if (packInfo.bannerLink != "")
                 {
-                    string extension = Path.GetExtension(packInfo.bannerLink);
-                    string uniqueFile = $"{DIR_CACHE_BROWSE}{packInfo.uniqueKey}_{Regex.Replace(packInfo.bannerLink.Substring(0, packInfo.bannerLink.Length - extension.Length), "[^A-Za-z0-9-_]", "")}{extension}";
+                    string uniqueFile = $"{DIR_CACHE_BROWSE}{packInfo.uniqueKey}_{GetUniqueFilename(packInfo.bannerLink)}";
                     if (File.Exists(uniqueFile))
                     {
-                        packUI.banner.Source = new WriteableBitmap(new BitmapImage(new Uri(Path.Combine(Environment.CurrentDirectory, uniqueFile))));
+                        packUI.banner.Source = LoadImage(Path.Combine(Environment.CurrentDirectory, uniqueFile));
                         packUI.banner.Visibility = 0;
                     }
                     else
-                        DownloadBanner(packInfo.bannerLink, uniqueFile, packInfo, packUI);
+                        _ = DownloadBanner(packInfo.bannerLink, uniqueFile, packInfo, packUI);
                 }
             }
         }
-
-        void DownloadPack0(object sender, RoutedEventArgs e) { DownloadPack(browse0); }
-        void DownloadPack1(object sender, RoutedEventArgs e) { DownloadPack(browse1); }
-        void DownloadPack2(object sender, RoutedEventArgs e) { DownloadPack(browse2); }
-        void DownloadPack3(object sender, RoutedEventArgs e) { DownloadPack(browse3); }
-        void DownloadPack4(object sender, RoutedEventArgs e) { DownloadPack(browse4); }
-        void DownloadPack5(object sender, RoutedEventArgs e) { DownloadPack(browse5); }
-        void DownloadPack6(object sender, RoutedEventArgs e) { DownloadPack(browse6); }
-        void DownloadPack7(object sender, RoutedEventArgs e) { DownloadPack(browse7); }
-        void DownloadPack8(object sender, RoutedEventArgs e) { DownloadPack(browse8); }
-
-        async void DownloadPack(Pack packUI)
+        async void DownloadPack(object sender, RoutedEventArgs e)
         {
-            ResourcePack resourcePack = packUI.PackInfo;
+            ResourcePack resourcePack = _browsePackUCs[(int)((Button)sender).Tag].PackInfo;
             resourcePack.PackActionable = false;
             resourcePack.PackState = "Downloading...";
             await DownloadPack(resourcePack.uniqueKey);
-            _packsDownloaded.Add(resourcePack.uniqueKey);
+            _downloadedPacks.Add(resourcePack.uniqueKey);
         }
 
         private void LoadDownloadedPage(int page)
         {
             _currentDownloadPage = page;
 
-            downloaded0.Visibility = Visibility.Hidden;
-            downloaded1.Visibility = Visibility.Hidden;
-            downloaded2.Visibility = Visibility.Hidden;
-            downloaded3.Visibility = Visibility.Hidden;
-            downloaded4.Visibility = Visibility.Hidden;
-            downloaded5.Visibility = Visibility.Hidden;
-            downloaded6.Visibility = Visibility.Hidden;
-            downloaded7.Visibility = Visibility.Hidden;
-            downloaded8.Visibility = Visibility.Hidden;
+            foreach (PackUC packUC in _downloadedPackUCs)
+                packUC.Visibility = Visibility.Hidden;
 
-            Pack packUI;
-            for (int packNum = 0; packNum < 9; packNum++)
+            for (int packNum = 0; packNum < PACKS_WIDTH * PACKS_HEIGHT; packNum++)
             {
-                switch (packNum)
-                {
-                    case 0:
-                        packUI = downloaded0;
-                        break;
-                    case 1:
-                        packUI = downloaded1;
-                        break;
-                    case 2:
-                        packUI = downloaded2;
-                        break;
-                    case 3:
-                        packUI = downloaded3;
-                        break;
-                    case 4:
-                        packUI = downloaded4;
-                        break;
-                    case 5:
-                        packUI = downloaded5;
-                        break;
-                    case 6:
-                        packUI = downloaded6;
-                        break;
-                    case 7:
-                        packUI = downloaded7;
-                        break;
-                    case 8:
-                        packUI = downloaded8;
-                        break;
-                    default:
-                        return;
-                }
+                PackUC packUI = _downloadedPackUCs[packNum];
 
                 int index = page * 9 + packNum;
-                if (index >= _packsDownloaded.Count)
+                if (index >= _downloadedPacks.Count)
                     return;
                 noPacksDownloaded.Visibility = Visibility.Hidden;
 
-                if (!_downloadedRegistry.ContainsKey(_packsDownloaded[index]))
+                if (!_downloadedRegistry.ContainsKey(_downloadedPacks[index]))
                     continue;
 
-                ResourcePack packInfo = _downloadedRegistry[_packsDownloaded[index]];
+                ResourcePack packInfo = _downloadedRegistry[_downloadedPacks[index]];
                 packUI.PackInfo = packInfo;
 
                 /*if (_packRegistry.ContainsKey(packInfo.uniqueKey))
@@ -332,50 +351,69 @@ namespace DBD_ResourcePacks
                     packUI.action.IsEnabled = false;
                 }*/
 
-                string extension = Path.GetExtension(packInfo.bannerLink);
-                string uniqueFile = $"{Regex.Replace(packInfo.bannerLink.Substring(0, packInfo.bannerLink.Length - extension.Length), "[^A-Za-z0-9-_]", "")}{extension}";
-                if (File.Exists($"{DIR_DOWNLOADED}{packInfo.uniqueKey}/{uniqueFile}"))
+                string uniqueFile = $"{DIR_DOWNLOADED}{packInfo.uniqueKey}/{GetUniqueFilename(packInfo.bannerLink)}";
+                if (File.Exists(uniqueFile))
                 {
-                    packUI.banner.Source = new WriteableBitmap(new BitmapImage(new Uri(
-                        Path.Combine(Environment.CurrentDirectory,
-                        $"{DIR_DOWNLOADED}{packInfo.uniqueKey}/{uniqueFile}"
-                        ))));
+                    packUI.banner.Source = LoadImage(Path.Combine(Environment.CurrentDirectory, uniqueFile));
                     packUI.banner.Visibility = 0;
                 }
             }
         }
-
-        void UpdatePack0(object sender, RoutedEventArgs e) { UpdatePack(downloaded0); }
-        void UpdatePack1(object sender, RoutedEventArgs e) { UpdatePack(downloaded1); }
-        void UpdatePack2(object sender, RoutedEventArgs e) { UpdatePack(downloaded2); }
-        void UpdatePack3(object sender, RoutedEventArgs e) { UpdatePack(downloaded3); }
-        void UpdatePack4(object sender, RoutedEventArgs e) { UpdatePack(downloaded4); }
-        void UpdatePack5(object sender, RoutedEventArgs e) { UpdatePack(downloaded5); }
-        void UpdatePack6(object sender, RoutedEventArgs e) { UpdatePack(downloaded6); }
-        void UpdatePack7(object sender, RoutedEventArgs e) { UpdatePack(downloaded7); }
-        void UpdatePack8(object sender, RoutedEventArgs e) { UpdatePack(downloaded8); }
-
-        async void UpdatePack(Pack packUI)
+        async void UpdatePack(object sender, RoutedEventArgs e)
         {
-            ResourcePack pack = packUI.PackInfo;
-            string key = pack.uniqueKey;
-            pack.PackActionable = false;
-            pack.PackState = "Updating...";
+            ResourcePack resourcePack = _downloadedPackUCs[(int)((Button)sender).Tag].PackInfo;
+            string key = resourcePack.uniqueKey;
+            resourcePack.PackActionable = false;
+            resourcePack.PackState = "Updating...";
             _downloadedRegistry.Remove(key);
             await DownloadPack(key);
             if (!_packRegistry.ContainsKey(key))
                 return;
             _packRegistry[key].PackState = "Updated";
         }
+        async void DeletePack(object sender, RoutedEventArgs e)
+        {
+            int id = (int)((Button)sender).Tag;
+            PackUC packUC = _downloadedPackUCs[id];
+            packUC.Visibility = Visibility.Hidden;
 
-        public async void DownloadBanner(string url, string destinationFile, ResourcePack packInfo, Pack pack)
+            ResourcePack resourcePack = packUC.PackInfo;
+
+            resourcePack.PackActionable = false;
+            resourcePack.PackState = "Deleting...";
+
+            _downloadedPacks.Remove(resourcePack.uniqueKey);
+            _downloadedRegistry.Remove(resourcePack.uniqueKey);
+            Directory.Delete($"{DIR_DOWNLOADED}{resourcePack.uniqueKey}", true);
+
+            if (_packRegistry.ContainsKey(resourcePack.uniqueKey))
+            {
+                ResourcePack registryPack = _packRegistry[resourcePack.uniqueKey];
+                registryPack.PackActionable = true;
+                registryPack.PackState = "Download";
+            }
+        }
+
+        public async Task DownloadImage(string url, string directory)
+        {
+            string uniqueFile = $"{directory}{GetUniqueFilename(url)}";
+
+            if (File.Exists(uniqueFile))
+                return;
+
+            using (WebClient client = new WebClient())
+            {
+                await client.DownloadFileTaskAsync(new Uri(url), uniqueFile);
+            }
+        }
+        public async Task DownloadBanner(string url, string destinationFile, ResourcePack packInfo, PackUC pack)
         {
             using (WebClient client = new WebClient())
             {
                 await client.DownloadFileTaskAsync(new Uri(url), destinationFile);
                 if (packInfo != pack.PackInfo)
                     return;
-                pack.banner.Source = new WriteableBitmap(new BitmapImage(new Uri(Path.Combine(Environment.CurrentDirectory, destinationFile))));
+                pack.banner.Source = LoadImage(Path.Combine(Environment.CurrentDirectory, destinationFile));
                 pack.banner.Visibility = 0;
             }
         }
@@ -395,10 +433,9 @@ namespace DBD_ResourcePacks
             using (WebClient client = new WebClient())
             {
                 pack.PackState = "Downloading Banner";
-                string extension = Path.GetExtension(pack.bannerLink);
-                string uniqueFile = $"{Regex.Replace(pack.bannerLink.Substring(0, pack.bannerLink.Length - extension.Length), "[^A-Za-z0-9-_]", "")}{extension}";
-                if (pack.bannerLink != "" && !File.Exists($"{DIR_DOWNLOADED}{pack.uniqueKey}/{uniqueFile}"))
-                    await client.DownloadFileTaskAsync(new Uri(pack.bannerLink), $"{DIR_DOWNLOADED}{pack.uniqueKey}/{uniqueFile}");
+                string bannerFile = $"{DIR_DOWNLOADED}{pack.uniqueKey}/{GetUniqueFilename(pack.bannerLink)}";
+                if (pack.bannerLink != "" && !File.Exists(bannerFile))
+                    await client.DownloadFileTaskAsync(new Uri(pack.bannerLink), bannerFile);
                 pack.PackState = "Downloading Zip";
                 await client.DownloadFileTaskAsync(new Uri(pack.downloadLink), $"{DIR_DOWNLOADED}{pack.uniqueKey}/pack.zip");
 
@@ -415,8 +452,74 @@ namespace DBD_ResourcePacks
             }
             pack.PackState = "Finishing";
             File.Delete($"{DIR_DOWNLOADED}{pack.uniqueKey}/temp.txt");
-            _downloadedRegistry.Add(pack.uniqueKey, pack);
+            ResourcePack copy = JsonConvert.DeserializeObject<ResourcePack>(JsonConvert.SerializeObject(pack));
+            _downloadedRegistry.Add(pack.uniqueKey, copy);
+            copy.PackActionable = false;
+            copy.PackState = "Up To Date";
             pack.PackState = "Downloaded";
+        }
+
+        public async void DownloadAndSetImages()
+        {
+            foreach (Survivor survivor in _survivors.Values)
+            {
+                // Try and download the potrait (exits early if already cached)
+                await DownloadImage(survivor.defaultPortrait, DIR_RESOURCES_DEFAULT_ICONS);
+                // Set the Image property to the downloaded (or cached) file
+                survivor.PortraitImage = new WriteableBitmap(new BitmapImage(new Uri(
+                    Path.Combine(Environment.CurrentDirectory, $"{DIR_RESOURCES_DEFAULT_ICONS}{GetUniqueFilename(survivor.defaultPortrait)}"))));
+
+                // Iterating over a temp list to prevent code duplication
+                foreach (Perk perk in new List<Perk>() { survivor.PerkA, survivor.PerkB, survivor.PerkC })
+                {
+                    // Try and download the perk (exits early if already cached)
+                    await DownloadImage(perk.defaultImage, DIR_RESOURCES_DEFAULT_ICONS);
+                    // Set the Image property to the downloaded (or cached) file
+                    perk.Image = new WriteableBitmap(new BitmapImage(new Uri(
+                        Path.Combine(Environment.CurrentDirectory, $"{DIR_RESOURCES_DEFAULT_ICONS}{GetUniqueFilename(perk.defaultImage)}"))));
+                }
+            }
+
+            foreach (Perk perk in _commonSurvivorPerks)
+            {
+                // Try and download the perk (exits early if already cached)
+                await DownloadImage(perk.defaultImage, DIR_RESOURCES_DEFAULT_ICONS);
+                // Set the Image property to the downloaded (or cached) file
+                perk.Image = new WriteableBitmap(new BitmapImage(new Uri(
+                    Path.Combine(Environment.CurrentDirectory, $"{DIR_RESOURCES_DEFAULT_ICONS}{GetUniqueFilename(perk.defaultImage)}"))));
+            }
+
+            foreach (Killer killer in _killers.Values)
+            {
+                // Try and download the potrait (exits early if already cached)
+                await DownloadImage(killer.defaultPortrait, DIR_RESOURCES_DEFAULT_ICONS);
+                // Set the Image property to the downloaded (or cached) file
+                killer.PortraitImage = new WriteableBitmap(new BitmapImage(new Uri(
+                    Path.Combine(Environment.CurrentDirectory, $"{DIR_RESOURCES_DEFAULT_ICONS}{GetUniqueFilename(killer.defaultPortrait)}"))));
+
+                // Iterating over a temp list to prevent code duplication
+                foreach (Perk perk in new List<Perk>() { killer.PerkA, killer.PerkB, killer.PerkC })
+                {
+                    // Try and download the perk (exits early if already cached)
+                    await DownloadImage(perk.defaultImage, DIR_RESOURCES_DEFAULT_ICONS);
+                    // Set the Image property to the downloaded (or cached) file
+                    perk.Image = new WriteableBitmap(new BitmapImage(new Uri(
+                        Path.Combine(Environment.CurrentDirectory, $"{DIR_RESOURCES_DEFAULT_ICONS}{GetUniqueFilename(perk.defaultImage)}"))));
+                }
+
+                // TODO Addons
+            }
+
+            foreach (Perk perk in _commonKillerPerks)
+            {
+                // Try and download the perk (exits early if already cached)
+                await DownloadImage(perk.defaultImage, DIR_RESOURCES_DEFAULT_ICONS);
+                // Set the Image property to the downloaded (or cached) file
+                perk.Image = new WriteableBitmap(new BitmapImage(new Uri(
+                    Path.Combine(Environment.CurrentDirectory, $"{DIR_RESOURCES_DEFAULT_ICONS}{GetUniqueFilename(perk.defaultImage)}"))));
+            }
+
+            // TODO Set Overrides
         }
 
         private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -437,6 +540,21 @@ namespace DBD_ResourcePacks
                 default:
                     break;
             }
+        }
+
+        public static string GetUniqueFilename(string filePath)
+        {
+            string extension = Path.GetExtension(filePath);
+            return $"{Regex.Replace(filePath.Substring(0, filePath.Length - extension.Length), "[^A-Za-z0-9-_]", "")}{extension}";
+        }
+        public static BitmapImage LoadImage(string filePath)
+        {
+            BitmapImage image = new BitmapImage();
+            image.BeginInit();
+            image.CacheOption = BitmapCacheOption.OnLoad;
+            image.UriSource = new Uri(filePath);
+            image.EndInit();
+            return image;
         }
     }
 }

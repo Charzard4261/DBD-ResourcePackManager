@@ -6,41 +6,35 @@
         xmlns:local="clr-namespace:DBD_ResourcePacks"
         xmlns:uc="clr-namespace:DBD_ResourcePacks.UserControls"
         mc:Ignorable="d"
-        Title="DBD Resource Packs" Height="600" Width="1200"
-        SnapsToDevicePixels="True" ResizeMode="NoResize">
+        Title="DBD Resource Pack Manager" MinHeight="600" MinWidth="1200"
+        SnapsToDevicePixels="True">
     <DockPanel>
         <Button DockPanel.Dock="Top" Style="{StaticResource Ghost}" Content="Settings" HorizontalAlignment="Left"/>
 
         <TabControl TabStripPlacement="Left" SelectionChanged="TabControl_SelectionChanged">
             <TabItem Header="Downloaded">
-                <Grid>
+                <Grid x:Name="downloadedGrid">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="1*" />
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="1*" />
-                        <RowDefinition Height="1*" />
-                        <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
+                        <RowDefinition Height="1*"/>
                     </Grid.RowDefinitions>
-                    <uc:Pack x:Name="downloaded0" Visibility="Hidden" Grid.Row="0" Grid.Column="0"/>
-                    <uc:Pack x:Name="downloaded1" Visibility="Hidden" Grid.Row="0" Grid.Column="1"/>
-                    <uc:Pack x:Name="downloaded2" Visibility="Hidden" Grid.Row="0" Grid.Column="2"/>
-                    <uc:Pack x:Name="downloaded3" Visibility="Hidden" Grid.Row="1" Grid.Column="0"/>
-                    <uc:Pack x:Name="downloaded4" Visibility="Hidden" Grid.Row="1" Grid.Column="1"/>
-                    <uc:Pack x:Name="downloaded5" Visibility="Hidden" Grid.Row="1" Grid.Column="2"/>
-                    <uc:Pack x:Name="downloaded6" Visibility="Hidden" Grid.Row="2" Grid.Column="0"/>
-                    <uc:Pack x:Name="downloaded7" Visibility="Hidden" Grid.Row="2" Grid.Column="1"/>
-                    <uc:Pack x:Name="downloaded8" Visibility="Hidden" Grid.Row="2" Grid.Column="2"/>
-                    <Label x:Name="noPacksDownloaded" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Label x:Name="noPacksDownloaded" Grid.RowSpan="99" Grid.ColumnSpan="99" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <TextBlock TextAlignment="Center">No Packs downloaded.<LineBreak/>Head to Browse to discover some!</TextBlock>
                     </Label>
                 </Grid>
             </TabItem>
             <TabItem Header="Browse">
-                <Grid>
+                <Grid x:Name="browseGrid">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*" />
                         <ColumnDefinition Width="1*" />
                         <ColumnDefinition Width="1*" />
                         <ColumnDefinition Width="1*" />
@@ -49,20 +43,26 @@
                         <RowDefinition Height="1*" />
                         <RowDefinition Height="1*" />
                         <RowDefinition Height="1*" />
+                        <RowDefinition Height="1*" />
                     </Grid.RowDefinitions>
-                    <uc:Pack x:Name="browse0" Visibility="Hidden" Grid.Row="0" Grid.Column="0"/>
-                    <uc:Pack x:Name="browse1" Visibility="Hidden" Grid.Row="0" Grid.Column="1"/>
-                    <uc:Pack x:Name="browse2" Visibility="Hidden" Grid.Row="0" Grid.Column="2"/>
-                    <uc:Pack x:Name="browse3" Visibility="Hidden" Grid.Row="1" Grid.Column="0"/>
-                    <uc:Pack x:Name="browse4" Visibility="Hidden" Grid.Row="1" Grid.Column="1"/>
-                    <uc:Pack x:Name="browse5" Visibility="Hidden" Grid.Row="1" Grid.Column="2"/>
-                    <uc:Pack x:Name="browse6" Visibility="Hidden" Grid.Row="2" Grid.Column="0"/>
-                    <uc:Pack x:Name="browse7" Visibility="Hidden" Grid.Row="2" Grid.Column="1"/>
-                    <uc:Pack x:Name="browse8" Visibility="Hidden" Grid.Row="2" Grid.Column="2"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Customise">
-
+                <ScrollViewer>
+                    <Grid x:Name="characterGrid" VerticalAlignment="Top">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="80" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                    </Grid>
+                </ScrollViewer>
             </TabItem>
         </TabControl>
 
