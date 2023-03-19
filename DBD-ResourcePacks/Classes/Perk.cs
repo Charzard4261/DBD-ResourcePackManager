@@ -14,6 +14,11 @@ namespace DBD_ResourcePacks.Classes
         [JsonIgnore]
         public WriteableBitmap Image { get => _image; set { _image = value; NotifyPropertyChanged(); } }
 
+        [JsonIgnore]
+        public bool forSurvivor;
+        [JsonIgnore]
+        public Character fromCharacter;
+
         public string key = "";
         public string filePath = "";
         public string defaultImage = "";

@@ -1,12 +1,95 @@
-﻿<UserControl x:Class="DBD_ResourcePacks.UserControls.SettingsPopup"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:DBD_ResourcePacks.UserControls"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-            
-    </Grid>
-</UserControl>
+﻿<Window x:Class="DBD_ResourcePacks.UserControls.SettingsPopup"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DBD_ResourcePacks.UserControls"
+        mc:Ignorable="d"
+        Title="DBD Resource Pack Manager Settings"
+        Height="600" Width="500" ResizeMode="NoResize"
+        SnapsToDevicePixels="True">
+    <DockPanel>
+        <TabControl TabStripPlacement="Left">
+            <TabItem Header="Program">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition Width="1*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Label   Grid.Row="0" Grid.Column="0" Content="Game Installation Path"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" KeyUp="GamePath_KeyUp" ToolTip="Press Enter to save" x:Name="GamePath"/>
+
+                    <Label    Grid.Row="1" Grid.Column="0" Content="Theme"/>
+                    <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" SelectionChanged="Theme_SelectionChanged" x:Name="Theme">
+                        <ComboBoxItem Content="Auto"/>
+                        <ComboBoxItem Content="Light"/>
+                        <ComboBoxItem Content="Dark"/>
+                    </ComboBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Cache">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="20"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Label  Grid.Row="0" Grid.Column="0" Content="Clear Browse Image Cache"/>
+                    <Button Grid.Row="0" Grid.Column="1" Content="Clear" Click="ClearBrowseCache_Click"/>
+
+                    <Label  Grid.Row="2" Grid.Column="0" Content="Clear Old Download Pack Banners"/>
+                    <Button Grid.Row="2" Grid.Column="1" Content="Clear" Click="ClearOldDownloadBanners_Click"/>
+
+                    <Label  Grid.Row="1" Grid.Column="0" Content="Clear UI Image Cache (Requires Restart)"/>
+                    <Button Grid.Row="1" Grid.Column="1" Content="Clear" Click="ClearUICache_Click"/>
+
+                    <Label  Grid.Row="4" Grid.Column="0" Content="Delete All Packs"/>
+                    <Button Grid.Row="4" Grid.Column="1" Content="Delete" Click="DeletePacks_Click"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Updates">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="1*"/>
+                        <ColumnDefinition Width="auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Label  Grid.Row="0" Grid.Column="0" Content="Packs Version: "/>
+                    <Label  Grid.Row="0" Grid.Column="1" HorizontalAlignment="Center" x:Name="packsVersionLabel"/>
+                    <Button Grid.Row="0" Grid.Column="2" Click="CheckUpdatePacks" HorizontalAlignment="Right" Content="Check for Update"/>
+
+                    <Label  Grid.Row="1" Grid.Column="0" Content="Packs Version:"/>
+                    <Label  Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" x:Name="resourcesVersionLabel"/>
+                    <Button Grid.Row="1" Grid.Column="2" Click="CheckUpdateResources" HorizontalAlignment="Right" Content="Check for Update"/>
+
+                    <Label  Grid.Row="2" Grid.Column="0" Content="Program Version: "/>
+                    <Label  Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" x:Name="programVersionLabel"/>
+                    <Button Grid.Row="2" Grid.Column="2" Click="CheckUpdateProgram" HorizontalAlignment="Right" Content="Check for Update"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>

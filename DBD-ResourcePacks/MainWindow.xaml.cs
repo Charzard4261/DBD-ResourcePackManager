@@ -10,12 +10,11 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
-using System.Security.Policy;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
+using System.Windows.Input;
 using System.Windows.Media.Imaging;
 
 namespace DBD_ResourcePacks
@@ -32,8 +31,8 @@ namespace DBD_ResourcePacks
         public static readonly string FILE_SURVIVORS = $"{DIR_RESOURCES}survivors.json";
         public static readonly string FILE_KILLERS = $"{DIR_RESOURCES}killers.json";
 
-        public static readonly int PACKS_WIDTH = 4;
-        public static readonly int PACKS_HEIGHT = 4;
+        public static readonly int PACKS_WIDTH = 2;
+        public static readonly int PACKS_HEIGHT = 2;
 
         #region Packs
         Dictionary<string, ResourcePack> _packRegistry = new();
@@ -50,10 +49,7 @@ namespace DBD_ResourcePacks
 
         #region Customise
         // Data
-        Dictionary<string, Survivor> _survivors = new();
-        List<Perk> _commonSurvivorPerks = new();
-        Dictionary<string, Killer> _killers = new();
-        List<Perk> _commonKillerPerks = new();
+        private Customiser _customiser;
 
         // UI
         Dictionary<string, CharacterUC> _survivorUCs = new();
@@ -62,24 +58,7 @@ namespace DBD_ResourcePacks
 
         public MainWindow()
         {
-            switch (Settings.Default.ThemeSetting)
-            {
-                case 0: // Auto
-                    object? v = Registry.GetValue("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", "AppsUseLightTheme", 1);
-                    if ((v == null) || (int)v == 1)
-                        Settings.Default.ThemeActual = "Light";
-                    else
-                        Settings.Default.ThemeActual = "Dark";
-                    break;
-                case 1: // Light
-                    Settings.Default.ThemeActual = "Light";
-                    break;
-                case 2: // Dark
-                    Settings.Default.ThemeActual = "Dark";
-                    break;
-                default:
-                    break;
-            }
+            UpdateTheme();
 
             Directory.CreateDirectory(DIR_CACHE);
             Directory.CreateDirectory(DIR_CACHE_UI);
@@ -98,6 +77,8 @@ namespace DBD_ResourcePacks
                 // TODO Check Resources Version for Update
             }
 
+            List<Perk> commonSurvivorPerks = new();
+            Dictionary<string, Survivor> survivors = new();
             using (StreamReader r = new StreamReader(FILE_SURVIVORS))
             {
                 JObject file = JsonConvert.DeserializeObject<JObject>(r.ReadToEnd());
@@ -108,11 +89,20 @@ namespace DBD_ResourcePacks
                     {
                         List<Perk> perks = entry.Value.ToObject<List<Perk>>();
                         foreach (Perk perk in perks)
-                            _commonSurvivorPerks.Add(perk);
+                        {
+                            perk.forSurvivor = true;
+                            commonSurvivorPerks.Add(perk);
+                        }
                         continue;
                     }
                     Survivor survivor = entry.Value.ToObject<Survivor>();
-                    _survivors.Add(entry.Key, survivor);
+                    survivor.PerkA.forSurvivor = true;
+                    survivor.PerkA.fromCharacter = survivor;
+                    survivor.PerkB.forSurvivor = true;
+                    survivor.PerkB.fromCharacter = survivor;
+                    survivor.PerkC.forSurvivor = true;
+                    survivor.PerkC.fromCharacter = survivor;
+                    survivors.Add(entry.Key, survivor);
 
                     CharacterUC characterUC = new CharacterUC();
                     characterUC.CharacterInfo = survivor;
@@ -123,6 +113,8 @@ namespace DBD_ResourcePacks
                 }
             }
 
+            List<Perk> commonKillerPerks = new();
+            Dictionary<string, Killer> killers = new();
             using (StreamReader r = new StreamReader(FILE_KILLERS))
             {
                 JObject file = JsonConvert.DeserializeObject<JObject>(r.ReadToEnd());
@@ -133,11 +125,20 @@ namespace DBD_ResourcePacks
                     {
                         List<Perk> perks = entry.Value.ToObject<List<Perk>>();
                         foreach (Perk perk in perks)
-                            _commonSurvivorPerks.Add(perk);
+                        {
+                            perk.forSurvivor = false;
+                            commonKillerPerks.Add(perk);
+                        }
                         continue;
                     }
                     Killer killer = entry.Value.ToObject<Killer>();
-                    _killers.Add(entry.Key, killer);
+                    killer.PerkA.forSurvivor = false;
+                    killer.PerkA.fromCharacter = killer;
+                    killer.PerkB.forSurvivor = false;
+                    killer.PerkB.fromCharacter = killer;
+                    killer.PerkC.forSurvivor = false;
+                    killer.PerkC.fromCharacter = killer;
+                    killers.Add(entry.Key, killer);
 
                     CharacterUC characterUC = new CharacterUC();
                     characterUC.CharacterInfo = killer;
@@ -148,7 +149,8 @@ namespace DBD_ResourcePacks
                 }
             }
 
-            DownloadAndSetImages();
+            _customiser = new Customiser(this, survivors, commonSurvivorPerks, killers, commonKillerPerks);
+            _customiser.DownloadAndSetImages();
             #endregion
 
             #region Packs
@@ -227,6 +229,40 @@ namespace DBD_ResourcePacks
 
             InitializeComponent();
 
+            // Fill out the downloaded & browse grids with columns
+            for (int i = 0; i < PACKS_HEIGHT; i++)
+            {
+                ColumnDefinition dColumnStar = new ColumnDefinition();
+                dColumnStar.Width = new GridLength(1, GridUnitType.Star);
+                downloadedGrid.ColumnDefinitions.Add(dColumnStar);
+
+                ColumnDefinition bColumnStar = new ColumnDefinition();
+                bColumnStar.Width = new GridLength(1, GridUnitType.Star);
+                browseGrid.ColumnDefinitions.Add(bColumnStar);
+            }
+
+            // Fill out the downloaded & browse grids with rows
+            for (int i = 0; i < PACKS_WIDTH; i++)
+            {
+                RowDefinition dRowStar = new RowDefinition();
+                dRowStar.Height = new GridLength(1, GridUnitType.Star);
+                downloadedGrid.RowDefinitions.Add(dRowStar);
+
+                RowDefinition bRowStar = new RowDefinition();
+                bRowStar.Height = new GridLength(1, GridUnitType.Star);
+                browseGrid.RowDefinitions.Add(bRowStar);
+            }
+            // Add the auto row for the download page naviagation
+            RowDefinition dRowAuto = new RowDefinition();
+            dRowAuto.Height = new GridLength(1, GridUnitType.Auto);
+            downloadedGrid.RowDefinitions.Add(dRowAuto);
+
+            // Add the auto row for the browse page naviagation
+            RowDefinition bRowAuto = new RowDefinition();
+            bRowAuto.Height = new GridLength(1, GridUnitType.Auto);
+            browseGrid.RowDefinitions.Add(bRowAuto);
+
+            // Create a Pack User Control for each slot in the download grid
             for (int i = 0; i < PACKS_WIDTH * PACKS_HEIGHT; i++)
             {
                 PackUC packUC = new PackUC();
@@ -243,6 +279,7 @@ namespace DBD_ResourcePacks
                 _downloadedPackUCs.Add(packUC);
             }
 
+            // Create a Pack User Control for each slot in the browse grid
             for (int i = 0; i < PACKS_WIDTH * PACKS_HEIGHT; i++)
             {
                 PackUC packUC = new PackUC();
@@ -255,23 +292,33 @@ namespace DBD_ResourcePacks
                 _browsePackUCs.Add(packUC);
             }
 
+            // Fill out the customise grid with enough roughs for all characters to fit
             for (int i = 0; i < (Math.Max(_survivorUCs.Count, _killerUCs.Count) / 4) + 1; i++)
             {
                 RowDefinition row = new RowDefinition();
-                //row.Height = new GridLength(1, GridUnitType.Auto);
                 characterGrid.RowDefinitions.Add(row);
             }
             characterGrid.RowDefinitions.Add(new RowDefinition());
 
+            // Add all the Survivors to the customise grid
             foreach (CharacterUC characterUC in _survivorUCs.Values)
                 characterGrid.Children.Add(characterUC);
+            // Add all the Killers to the customise grid
             foreach (CharacterUC characterUC in _killerUCs.Values)
                 characterGrid.Children.Add(characterUC);
         }
 
         private void LoadBrowsePage(int page)
         {
+            int pageCount = _browsePacks.Count / (PACKS_WIDTH * PACKS_HEIGHT);
+            if (page < 0 || page > pageCount)
+                return;
             _currentBrowsePage = page;
+
+            browsePageLeft.IsEnabled = page > 0;
+            browsePageSelect.Text = $"{page + 1}";
+            browsePageTotal.Content = $"/{pageCount + 1}";
+            browsePageRight.IsEnabled = page < pageCount;
 
             foreach (PackUC packUC in _browsePackUCs)
                 packUC.Visibility = Visibility.Hidden;
@@ -280,7 +327,7 @@ namespace DBD_ResourcePacks
             {
                 PackUC packUI = _browsePackUCs[packNum];
 
-                int index = page * 9 + packNum;
+                int index = page * PACKS_WIDTH * PACKS_HEIGHT + packNum;
                 if (index >= _browsePacks.Count)
                     return;
 
@@ -309,9 +356,17 @@ namespace DBD_ResourcePacks
             _downloadedPacks.Add(resourcePack.uniqueKey);
         }
 
-        private void LoadDownloadedPage(int page)
+        private void LoadDownloadPage(int page)
         {
+            int pageCount = _downloadedPacks.Count / (PACKS_WIDTH * PACKS_HEIGHT);
+            if (page < 0 || page > pageCount)
+                return;
             _currentDownloadPage = page;
+
+            downloadPageLeft.IsEnabled = page > 0;
+            downloadPageSelect.Text = $"{page + 1}";
+            downloadPageTotal.Content = $"/{pageCount + 1}";
+            downloadPageRight.IsEnabled = page < pageCount;
 
             foreach (PackUC packUC in _downloadedPackUCs)
                 packUC.Visibility = Visibility.Hidden;
@@ -394,18 +449,6 @@ namespace DBD_ResourcePacks
             }
         }
 
-        public async Task DownloadImage(string url, string directory)
-        {
-            string uniqueFile = $"{directory}{GetUniqueFilename(url)}";
-
-            if (File.Exists(uniqueFile))
-                return;
-
-            using (WebClient client = new WebClient())
-            {
-                await client.DownloadFileTaskAsync(new Uri(url), uniqueFile);
-            }
-        }
         public async Task DownloadBanner(string url, string destinationFile, ResourcePack packInfo, PackUC pack)
         {
             using (WebClient client = new WebClient())
@@ -459,89 +502,18 @@ namespace DBD_ResourcePacks
             pack.PackState = "Downloaded";
         }
 
-        public async void DownloadAndSetImages()
+        public static async Task DownloadImage(string url, string directory)
         {
-            foreach (Survivor survivor in _survivors.Values)
-            {
-                // Try and download the potrait (exits early if already cached)
-                await DownloadImage(survivor.defaultPortrait, DIR_RESOURCES_DEFAULT_ICONS);
-                // Set the Image property to the downloaded (or cached) file
-                survivor.PortraitImage = new WriteableBitmap(new BitmapImage(new Uri(
-                    Path.Combine(Environment.CurrentDirectory, $"{DIR_RESOURCES_DEFAULT_ICONS}{GetUniqueFilename(survivor.defaultPortrait)}"))));
+            string uniqueFile = $"{directory}{GetUniqueFilename(url)}";
 
-                // Iterating over a temp list to prevent code duplication
-                foreach (Perk perk in new List<Perk>() { survivor.PerkA, survivor.PerkB, survivor.PerkC })
-                {
-                    // Try and download the perk (exits early if already cached)
-                    await DownloadImage(perk.defaultImage, DIR_RESOURCES_DEFAULT_ICONS);
-                    // Set the Image property to the downloaded (or cached) file
-                    perk.Image = new WriteableBitmap(new BitmapImage(new Uri(
-                        Path.Combine(Environment.CurrentDirectory, $"{DIR_RESOURCES_DEFAULT_ICONS}{GetUniqueFilename(perk.defaultImage)}"))));
-                }
-            }
-
-            foreach (Perk perk in _commonSurvivorPerks)
-            {
-                // Try and download the perk (exits early if already cached)
-                await DownloadImage(perk.defaultImage, DIR_RESOURCES_DEFAULT_ICONS);
-                // Set the Image property to the downloaded (or cached) file
-                perk.Image = new WriteableBitmap(new BitmapImage(new Uri(
-                    Path.Combine(Environment.CurrentDirectory, $"{DIR_RESOURCES_DEFAULT_ICONS}{GetUniqueFilename(perk.defaultImage)}"))));
-            }
-
-            foreach (Killer killer in _killers.Values)
-            {
-                // Try and download the potrait (exits early if already cached)
-                await DownloadImage(killer.defaultPortrait, DIR_RESOURCES_DEFAULT_ICONS);
-                // Set the Image property to the downloaded (or cached) file
-                killer.PortraitImage = new WriteableBitmap(new BitmapImage(new Uri(
-                    Path.Combine(Environment.CurrentDirectory, $"{DIR_RESOURCES_DEFAULT_ICONS}{GetUniqueFilename(killer.defaultPortrait)}"))));
-
-                // Iterating over a temp list to prevent code duplication
-                foreach (Perk perk in new List<Perk>() { killer.PerkA, killer.PerkB, killer.PerkC })
-                {
-                    // Try and download the perk (exits early if already cached)
-                    await DownloadImage(perk.defaultImage, DIR_RESOURCES_DEFAULT_ICONS);
-                    // Set the Image property to the downloaded (or cached) file
-                    perk.Image = new WriteableBitmap(new BitmapImage(new Uri(
-                        Path.Combine(Environment.CurrentDirectory, $"{DIR_RESOURCES_DEFAULT_ICONS}{GetUniqueFilename(perk.defaultImage)}"))));
-                }
-
-                // TODO Addons
-            }
-
-            foreach (Perk perk in _commonKillerPerks)
-            {
-                // Try and download the perk (exits early if already cached)
-                await DownloadImage(perk.defaultImage, DIR_RESOURCES_DEFAULT_ICONS);
-                // Set the Image property to the downloaded (or cached) file
-                perk.Image = new WriteableBitmap(new BitmapImage(new Uri(
-                    Path.Combine(Environment.CurrentDirectory, $"{DIR_RESOURCES_DEFAULT_ICONS}{GetUniqueFilename(perk.defaultImage)}"))));
-            }
-
-            // TODO Set Overrides
-        }
-
-        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (e.Source is not TabControl tabControl)
+            if (File.Exists(uniqueFile))
                 return;
 
-            switch (tabControl.SelectedIndex)
+            using (WebClient client = new WebClient())
             {
-                case 0: // Installed
-                    LoadDownloadedPage(_currentDownloadPage);
-                    break;
-                case 1: // Browse
-                    LoadBrowsePage(_currentBrowsePage);
-                    break;
-                case 2: // Customise
-                    break;
-                default:
-                    break;
+                await client.DownloadFileTaskAsync(new Uri(url), uniqueFile);
             }
         }
-
         public static string GetUniqueFilename(string filePath)
         {
             string extension = Path.GetExtension(filePath);
@@ -556,5 +528,103 @@ namespace DBD_ResourcePacks
             image.EndInit();
             return image;
         }
+        public static bool IsValidGamePath(string folderPath)
+        {
+            if (!File.Exists($"{folderPath}{(folderPath.EndsWith("/") || folderPath.EndsWith("\\") ? "" : "/")}DeadByDaylight.exe"))
+            {
+                MessageBox.Show("Invalid Game Path", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
+            }
+
+            Settings.Default.GameInstallationPath = folderPath;
+            Settings.Default.Save();
+            return true;
+        }
+        public static void UpdateTheme()
+        {
+            switch (Settings.Default.ThemeSetting)
+            {
+                case 0: // Auto
+                    object? v = Registry.GetValue("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", "AppsUseLightTheme", 1);
+                    if ((v == null) || (int)v == 1)
+                        Settings.Default.ThemeActual = "Light";
+                    else
+                        Settings.Default.ThemeActual = "Dark";
+                    break;
+                case 1: // Light
+                    Settings.Default.ThemeActual = "Light";
+                    break;
+                case 2: // Dark
+                    Settings.Default.ThemeActual = "Dark";
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        #region Element Events
+        private void OpenSettings(object sender, RoutedEventArgs e) { new SettingsPopup().ShowDialog(); }
+        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.Source is not TabControl tabControl)
+                return;
+
+            switch (tabControl.SelectedIndex)
+            {
+                case 0: // Installed
+                    LoadDownloadPage(_currentDownloadPage);
+                    break;
+                case 1: // Browse
+                    LoadBrowsePage(_currentBrowsePage);
+                    break;
+                case 2: // Customise
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void DownloadPageLeft_Click(object sender, RoutedEventArgs e) { LoadDownloadPage(_currentDownloadPage - 1); }
+        private void DownloadPageRight_Click(object sender, RoutedEventArgs e) { LoadDownloadPage(_currentDownloadPage + 1); }
+        private void DownloadPageSelect_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter) return;
+
+            e.Handled = true;
+            if (int.TryParse(((TextBox)sender).Text, out int page))
+                LoadDownloadPage(page - 1);
+        }
+
+        private void BrowsePageLeft_Click(object sender, RoutedEventArgs e) { LoadBrowsePage(_currentBrowsePage - 1); }
+        private void BrowsePageRight_Click(object sender, RoutedEventArgs e) { LoadBrowsePage(_currentBrowsePage + 1); }
+        private void BrowsePageSelect_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter) return;
+
+            e.Handled = true;
+            if (int.TryParse(((TextBox)sender).Text, out int page))
+                LoadBrowsePage(page - 1);
+        }
+
+        private void SetAllEverything(object sender, RoutedEventArgs e) { }
+        private void SetAllPortraits(object sender, RoutedEventArgs e) { }
+        private void SetAllPerks(object sender, RoutedEventArgs e) { }
+        private void SetAllItems(object sender, RoutedEventArgs e) { }
+        private void SetAllItemAddons(object sender, RoutedEventArgs e) { }
+        private void SetAllPowers(object sender, RoutedEventArgs e) { }
+        private void SetAllPowerAddons(object sender, RoutedEventArgs e) { }
+        private void SetAllOfferings(object sender, RoutedEventArgs e) { }
+        private void SetAllMiscUI(object sender, RoutedEventArgs e) { }
+
+        private void SetAllSurvivorEverything(object sender, RoutedEventArgs e) { }
+        private void SetAllSurvivorPortraits(object sender, RoutedEventArgs e) { }
+        private void SetAllSurvivorPerks(object sender, RoutedEventArgs e) { }
+        private void SetAllSurvivorOfferings(object sender, RoutedEventArgs e) { }
+
+        private void SetAllKillerEverything(object sender, RoutedEventArgs e) { }
+        private void SetAllKillerPortraits(object sender, RoutedEventArgs e) { }
+        private void SetAllKillerPerks(object sender, RoutedEventArgs e) { }
+        private void SetAllKillerOfferings(object sender, RoutedEventArgs e) { }
+        #endregion
     }
 }

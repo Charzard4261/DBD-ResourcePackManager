@@ -10,13 +10,13 @@
     <Grid>
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*" />
-                <ColumnDefinition Width="1*" />
-                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
-                <RowDefinition Height="2*" />
-                <RowDefinition Height="1*" />
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="1*"/>
             </Grid.RowDefinitions>
             <Viewbox Grid.ColumnSpan="3" Grid.RowSpan="2" Stretch="UniformToFill" HorizontalAlignment="Center">
                 <Image x:Name="Portrait" Source="{Binding Path=CharacterInfo.PortraitImage, ElementName=myCharacterUC}"/>

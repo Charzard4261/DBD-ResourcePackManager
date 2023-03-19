@@ -15,7 +15,7 @@ namespace DBD_ResourcePacks.Classes
         [JsonIgnore]
         public WriteableBitmap PowerImage { get => _powerImage; set { _powerImage = value; NotifyPropertyChanged(); } }
 
-        public string power = "";
+        public List<string> powers;
         public string defaultPower = "";
 
         public List<Addon> addons;

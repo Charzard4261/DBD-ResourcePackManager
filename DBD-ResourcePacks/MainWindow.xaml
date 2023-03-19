@@ -6,65 +6,177 @@
         xmlns:local="clr-namespace:DBD_ResourcePacks"
         xmlns:uc="clr-namespace:DBD_ResourcePacks.UserControls"
         mc:Ignorable="d"
-        Title="DBD Resource Pack Manager" MinHeight="600" MinWidth="1200"
+        Title="DBD Resource Pack Manager"
+        MinHeight="600" MinWidth="1200"
         SnapsToDevicePixels="True">
     <DockPanel>
-        <Button DockPanel.Dock="Top" Style="{StaticResource Ghost}" Content="Settings" HorizontalAlignment="Left"/>
+        <Button DockPanel.Dock="Top" Style="{StaticResource Ghost}" Content="Settings" HorizontalAlignment="Left" Click="OpenSettings"/>
 
         <TabControl TabStripPlacement="Left" SelectionChanged="TabControl_SelectionChanged">
             <TabItem Header="Downloaded">
                 <Grid x:Name="downloadedGrid">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="1*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="1*"/>
-                    </Grid.RowDefinitions>
                     <Label x:Name="noPacksDownloaded" Grid.RowSpan="99" Grid.ColumnSpan="99" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <TextBlock TextAlignment="Center">No Packs downloaded.<LineBreak/>Head to Browse to discover some!</TextBlock>
                     </Label>
+                    <Grid Grid.Row="99" Grid.ColumnSpan="99" HorizontalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Button  x:Name="downloadPageLeft"   Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Content="&lt;" Click="DownloadPageLeft_Click"/>
+                        <TextBox x:Name="downloadPageSelect" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="15" KeyUp="DownloadPageSelect_KeyUp"/>
+                        <Label   x:Name="downloadPageTotal"  Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Button  x:Name="downloadPageRight"  Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" Content=">" Click="DownloadPageRight_Click"/>
+                    </Grid>
                 </Grid>
             </TabItem>
             <TabItem Header="Browse">
                 <Grid x:Name="browseGrid">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="1*" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="1*" />
-                        <RowDefinition Height="1*" />
-                        <RowDefinition Height="1*" />
-                        <RowDefinition Height="1*" />
-                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="99" Grid.ColumnSpan="99" HorizontalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Button  x:Name="browsePageLeft"   Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Content="&lt;" Click="BrowsePageLeft_Click"/>
+                        <TextBox x:Name="browsePageSelect" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="15" KeyUp="BrowsePageSelect_KeyUp"/>
+                        <Label   x:Name="browsePageTotal"  Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Button  x:Name="browsePageRight"  Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center" Content=">" Click="BrowsePageRight_Click"/>
+                    </Grid>
                 </Grid>
             </TabItem>
             <TabItem Header="Customise">
                 <ScrollViewer>
                     <Grid x:Name="characterGrid" VerticalAlignment="Top">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="80" />
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="1*" />
-                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1.5*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
+                        <!-- Middle Column Controls -->
+                        <Grid Grid.Column="4" Grid.RowSpan="99" VerticalAlignment="Top">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="20"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="20"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="20"/>
+                                <RowDefinition Height="1*"/>
+                            </Grid.RowDefinitions>
+                            <!-- Set All -->
+                            <Grid Grid.Row="0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.ColumnSpan="99" Content="Set Base" HorizontalContentAlignment="Center"/>
+                                <Button Grid.Row="1" Grid.Column="0" Content="Everything" Click="SetAllEverything"/>
+                                <Label Grid.Row="1" Grid.Column="1" x:Name="labelAll"/>
+                            </Grid>
+                            <!-- Set All -->
+                            <Grid Grid.Row="2">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.ColumnSpan="99" Content="Override All" HorizontalContentAlignment="Center"/>
+                                <Button Grid.Row="1" Grid.Column="0" Content="Portraits" Click="SetAllPortraits"/>
+                                <Label Grid.Row="1" Grid.Column="1" x:Name="labelAllPortraits"/>
+                                <Button Grid.Row="2" Grid.Column="0" Content="Perks" Click="SetAllPerks"/>
+                                <Label Grid.Row="2" Grid.Column="1" x:Name="labelAllPerks"/>
+                                <Button Grid.Row="3" Grid.Column="0" Content="Items" Click="SetAllItems"/>
+                                <Label Grid.Row="3" Grid.Column="1" x:Name="labelAllItems"/>
+                                <Button Grid.Row="4" Grid.Column="0" Content="Item Addons" Click="SetAllItemAddons"/>
+                                <Label Grid.Row="4" Grid.Column="1" x:Name="labelAllItemAddons"/>
+                                <Button Grid.Row="5" Grid.Column="0" Content="Killer Powers" Click="SetAllPowers"/>
+                                <Label Grid.Row="5" Grid.Column="1" x:Name="labelAllPowers"/>
+                                <Button Grid.Row="6" Grid.Column="0" Content="Killer Addons" Click="SetAllPowerAddons"/>
+                                <Label Grid.Row="6" Grid.Column="1" x:Name="labelAllKillerAddons"/>
+                                <Button Grid.Row="7" Grid.Column="0" Content="Offerings" Click="SetAllOfferings"/>
+                                <Label Grid.Row="7" Grid.Column="1" x:Name="labelAllOfferings"/>
+                                <Button Grid.Row="8" Grid.Column="0" Content="Misc. UI" Click="SetAllMiscUI"/>
+                                <Label Grid.Row="8" Grid.Column="1" x:Name="labelAllMiscUI"/>
+                            </Grid>
+                            <!-- Set All Survivor -->
+                            <Grid Grid.Row="4">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="10"/>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="1*"/>
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.ColumnSpan="99" Content="Override Survivor" HorizontalContentAlignment="Center"/>
+                                <Button Grid.Row="1" Grid.Column="0" Content="Everything" Click="SetAllSurvivorEverything"/>
+                                <Label Grid.Row="1" Grid.Column="1" x:Name="labelSurvivorAll"/>
+                                <Button Grid.Row="3" Grid.Column="0" Content="Portraits" Click="SetAllSurvivorPortraits"/>
+                                <Label Grid.Row="3" Grid.Column="1" x:Name="labelSurvivorPortraits"/>
+                                <Button Grid.Row="4" Grid.Column="0" Content="Perks" Click="SetAllSurvivorPerks"/>
+                                <Label Grid.Row="4" Grid.Column="1" x:Name="labelSurvivorPerks"/>
+                                <Button Grid.Row="5" Grid.Column="0" Content="Offerings" Click="SetAllSurvivorOfferings"/>
+                                <Label Grid.Row="5" Grid.Column="1" x:Name="labelSurvivorOfferings"/>
+                            </Grid>
+                            <!-- Set All Killer -->
+                            <Grid Grid.Row="6">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="10"/>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="auto"/>
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+                                <Label Grid.ColumnSpan="99" Content="Override Killer" HorizontalContentAlignment="Center"/>
+                                <Button Grid.Row="1" Grid.Column="0" Content="Everything" Click="SetAllKillerEverything"/>
+                                <Label Grid.Row="1" Grid.Column="1" x:Name="labelKillerAll"/>
+                                <Button Grid.Row="3" Grid.Column="0" Content="Portraits" Click="SetAllKillerPortraits"/>
+                                <Label Grid.Row="3" Grid.Column="1" x:Name="labelKillerPortraits"/>
+                                <Button Grid.Row="4" Grid.Column="0" Content="Perks" Click="SetAllKillerPerks"/>
+                                <Label Grid.Row="4" Grid.Column="1" x:Name="labelKillerPerks"/>
+                                <Button Grid.Row="5" Grid.Column="0" Content="Offerings" Click="SetAllKillerOfferings"/>
+                                <Label Grid.Row="5" Grid.Column="1" x:Name="labelKillerOfferings"/>
+                            </Grid>
+                        </Grid>
                     </Grid>
                 </ScrollViewer>
             </TabItem>
         </TabControl>
-
     </DockPanel>
 </Window>

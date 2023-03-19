@@ -1,28 +1,57 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using DBD_ResourcePacks.Properties;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace DBD_ResourcePacks.UserControls
 {
-    /// <summary>
-    /// Interaction logic for SettingsPopup.xaml
-    /// </summary>
-    public partial class SettingsPopup : UserControl
+    public partial class SettingsPopup : Window
     {
         public SettingsPopup()
         {
             InitializeComponent();
+            GamePath.Text = Settings.Default.GameInstallationPath;
+            Theme.SelectedIndex = Settings.Default.ThemeSetting;
+
+            packsVersionLabel.Content = "x.x.x";
+            resourcesVersionLabel.Content = "x.x.x";
+            programVersionLabel.Content = "x.x.x";
         }
+
+        private void GamePath_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Enter) return;
+
+            e.Handled = true;
+            string path = ((TextBox)sender).Text;
+
+            if (!MainWindow.IsValidGamePath(path))
+            {
+                ((TextBox)sender).Text = Settings.Default.GameInstallationPath;
+                return;
+            }
+
+            Settings.Default.GameInstallationPath = path;
+            Settings.Default.Save();
+        }
+
+        private void Theme_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.Source is not ComboBox comboBox)
+                return;
+
+            Settings.Default.ThemeSetting = comboBox.SelectedIndex;
+            Settings.Default.Save();
+            MainWindow.UpdateTheme();
+        }
+
+        private void CheckUpdatePacks(object sender, RoutedEventArgs e) { }
+        private void CheckUpdateResources(object sender, RoutedEventArgs e) { }
+        private void CheckUpdateProgram(object sender, RoutedEventArgs e) { }
+
+        private void ClearBrowseCache_Click(object sender, RoutedEventArgs e) { }
+        private void ClearOldDownloadBanners_Click(object sender, RoutedEventArgs e) { }
+        private void ClearUICache_Click(object sender, RoutedEventArgs e) { }
+        private void DeletePacks_Click(object sender, RoutedEventArgs e) { }
     }
 }

@@ -1,10 +1,7 @@
 ﻿using System.Windows.Controls;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System;
 using DBD_ResourcePacks.Classes;
-using System.Windows.Media.Imaging;
-using System.IO;
 
 namespace DBD_ResourcePacks.UserControls
 {
