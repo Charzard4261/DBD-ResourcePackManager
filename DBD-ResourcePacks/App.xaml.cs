@@ -10,10 +10,5 @@ namespace DBD_ResourcePackManager
 {
     public partial class App : Application
     {
-        public static string[] Args;
-        void App_Startup(object sender, StartupEventArgs e)
-        {
-            Args = e.Args;
-        }
     }
 }

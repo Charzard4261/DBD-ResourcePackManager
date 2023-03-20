@@ -367,18 +367,10 @@ namespace DBD_ResourcePackManager
             foreach (CharacterUC characterUC in _killerUCs.Values)
                 characterGrid.Children.Add(characterUC);
 
-            if (App.Args.Length > 0)
+            if (Environment.GetCommandLineArgs().Length > 0)
             {
-                switch (App.Args[0])
-                {
-                    case "showpack":
-                        if (App.Args.Length < 2)
-                            break;
-                        Register.BrowseSearch = App.Args[1];
-                        break;
-                    default:
-                        break;
-                }
+                tabs.SelectedIndex = 1;
+                browseSearch.Text = Environment.GetCommandLineArgs()[0];
             }
         }
 
@@ -621,7 +613,7 @@ namespace DBD_ResourcePackManager
             }
             catch (Exception)
             {
-                MessageBox.Show("An error occured checking for Program updates.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("An error occured checking for Resources updates.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             return false;
         }
@@ -643,7 +635,7 @@ namespace DBD_ResourcePackManager
             }
             catch (Exception)
             {
-                MessageBox.Show("An error occured checking for Program updates.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("An error occured checking for Pack updates.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             return false;
         }
@@ -652,7 +644,7 @@ namespace DBD_ResourcePackManager
         #region Element Events
         void OpenSettings(object sender, RoutedEventArgs e) { new SettingsPopup(this).ShowDialog(); }
         void OpenGitHub(object sender, RoutedEventArgs e) { Process.Start(new ProcessStartInfo() { FileName = $"https://github.com/{Constants.GITHUB_OWNER}/{Constants.REPO_PROGRAM}", UseShellExecute = true }); }
-        void OpenSubmitPack(object sender, RoutedEventArgs e) { Process.Start(new ProcessStartInfo() { FileName = "https://github.com/Charzard4261/DBD-ResourcePackManager", UseShellExecute = true }); }
+        void OpenSubmitPack(object sender, RoutedEventArgs e) { Process.Start(new ProcessStartInfo() { FileName = Constants.LINK_SUBMISSION, UseShellExecute = true }); }
         void OpenReportPack(object sender, RoutedEventArgs e) { Process.Start(new ProcessStartInfo() { FileName = $"https://github.com/{Constants.GITHUB_OWNER}/{Constants.REPO_PROGRAM}/issues", UseShellExecute = true }); }
         void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {

@@ -18,6 +18,8 @@ namespace DBD_ResourcePackManager.Classes
         public const string REPO_RESOURCES = "DBD-ResourcePackManager-Resources";
         public const string REPO_PACKS     = "DBD-ResourcePackManager-Packs";
 
+        public const string LINK_SUBMISSION = "https://forms.gle/U1ZXY65Am4UuJ2Xc7";
+
         public const string DIR_CACHE         = "Cache";
         public const string DIR_CACHE_BROWSE  = "Cache/Browse Cache";
         public const string DIR_DEFAULT_ICONS = "Cache/Default Images";
@@ -52,6 +54,7 @@ namespace DBD_ResourcePackManager.Classes
         public const string TAG_ADDONS    = "addons";
         public const string TAG_POWERS    = "powers";
         public const string TAG_OFFERINGS = "offerings";
+        public const string TAG_MISC_UI   = "misc_ui";
 
 
         public static async Task DownloadImage(string url, string directory)

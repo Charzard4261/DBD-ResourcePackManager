@@ -20,7 +20,7 @@
             </MenuItem>
         </Menu>
 
-        <TabControl TabStripPlacement="Left" SelectionChanged="TabControl_SelectionChanged">
+        <TabControl TabStripPlacement="Left" SelectionChanged="TabControl_SelectionChanged" x:Name="tabs">
             <TabItem Header="Downloaded">
                 <Grid x:Name="downloadedGrid">
                     <Grid.RowDefinitions>

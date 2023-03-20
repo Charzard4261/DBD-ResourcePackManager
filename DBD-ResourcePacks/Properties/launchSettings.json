@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DBD-ResourcePackManager": {
+      "commandName": "Project",
+      "commandLineArgs": "amn"
+    }
+  }
+}

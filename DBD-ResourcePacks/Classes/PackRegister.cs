@@ -99,7 +99,7 @@ namespace DBD_ResourcePackManager.Classes
                     if (!filtered.Contains(pack.uniqueKey))
                         filtered.Add(pack.uniqueKey);
             if (_downloadMiscUI)
-                foreach (ResourcePack pack in packs.Where(pack => pack.tags.Contains(Constants.TAG_OFFERINGS)))
+                foreach (ResourcePack pack in packs.Where(pack => pack.tags.Contains(Constants.TAG_MISC_UI)))
                     if (!filtered.Contains(pack.uniqueKey))
                         filtered.Add(pack.uniqueKey);
 
@@ -149,7 +149,7 @@ namespace DBD_ResourcePackManager.Classes
                     if (!filtered.Contains(pack.uniqueKey))
                         filtered.Add(pack.uniqueKey);
             if (_browseMiscUI)
-                foreach (ResourcePack pack in packs.Where(pack => pack.tags.Contains(Constants.TAG_OFFERINGS)))
+                foreach (ResourcePack pack in packs.Where(pack => pack.tags.Contains(Constants.TAG_MISC_UI)))
                     if (!filtered.Contains(pack.uniqueKey))
                         filtered.Add(pack.uniqueKey);
 

@@ -182,15 +182,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:DBD Resource Pack Manager"
-        "ProductCode" = "8:{B2AD8011-7DA4-4503-BCFC-8C83342C98ED}"
-        "PackageCode" = "8:{ACABBEA4-33C9-4EC8-A32A-10DA979E3954}"
+        "ProductCode" = "8:{2A3FF98E-F63A-490D-861B-3C0257D107E4}"
+        "PackageCode" = "8:{5C380D2A-8EA9-4761-A34F-D00E4E8F4E33}"
         "UpgradeCode" = "8:{09C73CE5-FBAA-458A-9DF3-79FE2A701937}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:0.0.1"
+        "ProductVersion" = "8:0.0.4"
         "Manufacturer" = "8:Charzard4261"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -283,6 +283,86 @@
             {
                 "Keys"
                 {
+                    "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_457D20ADF9DC401D894D65506AC71C67"
+                    {
+                    "Name" = "8:DBD-ResourcePackManager"
+                    "Condition" = "8:"
+                    "AlwaysCreate" = "11:FALSE"
+                    "DeleteAtUninstall" = "11:FALSE"
+                    "Transitive" = "11:FALSE"
+                        "Keys"
+                        {
+                            "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_02CBF5150C2047D8B7B8A5D034AA3F8F"
+                            {
+                            "Name" = "8:shell"
+                            "Condition" = "8:"
+                            "AlwaysCreate" = "11:FALSE"
+                            "DeleteAtUninstall" = "11:FALSE"
+                            "Transitive" = "11:FALSE"
+                                "Keys"
+                                {
+                                    "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_1DB77BB1DAEA4758A56F25F8E7BA2776"
+                                    {
+                                    "Name" = "8:open"
+                                    "Condition" = "8:"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "DeleteAtUninstall" = "11:FALSE"
+                                    "Transitive" = "11:FALSE"
+                                        "Keys"
+                                        {
+                                            "{60EA8692-D2D5-43EB-80DC-7906BF13D6EF}:_3526778F5DBA45B88242FEE3D53D79C6"
+                                            {
+                                            "Name" = "8:command"
+                                            "Condition" = "8:"
+                                            "AlwaysCreate" = "11:FALSE"
+                                            "DeleteAtUninstall" = "11:FALSE"
+                                            "Transitive" = "11:FALSE"
+                                                "Keys"
+                                                {
+                                                }
+                                                "Values"
+                                                {
+                                                    "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_11A046007103477083E25EB48464C7C5"
+                                                    {
+                                                    "Name" = "8:"
+                                                    "Condition" = "8:"
+                                                    "Transitive" = "11:FALSE"
+                                                    "ValueTypes" = "3:1"
+                                                    "Value" = "8:\"[TARGETDIR]DBD-ResourcePackManager.exe\" \"%1\""
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        "Values"
+                                        {
+                                        }
+                                    }
+                                }
+                                "Values"
+                                {
+                                }
+                            }
+                        }
+                        "Values"
+                        {
+                            "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_681D33747DF24C7DA38FD7AA9443FDE2"
+                            {
+                            "Name" = "8:"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "ValueTypes" = "3:1"
+                            "Value" = "8:URL:DBD-ResourcePackManager"
+                            }
+                            "{ADCFDA98-8FDD-45E4-90BC-E3D20B029870}:_B85DE53FE30444D1AEE14E74D478785B"
+                            {
+                            "Name" = "8:URL Protocol"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "ValueTypes" = "3:1"
+                            "Value" = "8:"
+                            }
+                        }
+                    }
                 }
             }
             "HKU"
@@ -718,7 +798,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_E57323355F7343E5B230E5519BF656B8"
             {
-            "SourcePath" = "8:..\\DBD-ResourcePacks\\obj\\Debug\\net6.0-windows\\apphost.exe"
+            "SourcePath" = "8:..\\DBD-ResourcePacks\\obj\\x86\\Release\\net6.0-windows\\apphost.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_5E2BFFA49EBF439597D59615929AD485"

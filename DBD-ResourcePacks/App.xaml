@@ -3,8 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:DBD_ResourcePackManager"
              xmlns:properties="clr-namespace:DBD_ResourcePackManager.Properties"
-             StartupUri="MainWindow.xaml"
-             Startup="App_Startup">
+             StartupUri="MainWindow.xaml">
     <Application.Resources>
         <SolidColorBrush x:Key="DarkThemeBorderHover" Color="#707070"/>
         <SolidColorBrush x:Key="DarkThemeBackgroundA" Color="#1E1F22"/>
