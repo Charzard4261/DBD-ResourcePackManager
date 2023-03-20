@@ -12,19 +12,21 @@ namespace DBD_ResourcePackManager.Classes
 {
     public class Constants
     {
+        public const string GITHUB_OWNER = "Charzard4261";
+
         public const string REPO_PROGRAM   = "DBD-ResourcePackManager";
         public const string REPO_RESOURCES = "DBD-ResourcePackManager-Resources";
         public const string REPO_PACKS     = "DBD-ResourcePackManager-Packs";
 
-        public const string DIR_CACHE                   = "Cache";
-        public const string DIR_CACHE_BROWSE            = "Cache/Browse Cache";
-        public const string DIR_DOWNLOADED              = "Downloaded";
-        public const string DIR_RESOURCES               = "Resources";
-        public const string DIR_RESOURCES_DEFAULT_ICONS = "Resources/Default Images";
-        public const string FILE_PACKS                  = "packs.json";
-        public const string FILE_SURVIVORS              = $"{DIR_RESOURCES}/survivors.json";
-        public const string FILE_KILLERS                = $"{DIR_RESOURCES}/killers.json";
-        public const string FILE_CUSTOMISER             = $"custom.json";
+        public const string DIR_CACHE         = "Cache";
+        public const string DIR_CACHE_BROWSE  = "Cache/Browse Cache";
+        public const string DIR_DEFAULT_ICONS = "Cache/Default Images";
+        public const string DIR_DOWNLOADED    = "Downloaded";
+        public const string DIR_RESOURCES     = "Resources";
+        public const string FILE_PACKS        = "packs.json";
+        public const string FILE_SURVIVORS    = $"{DIR_RESOURCES}/survivors.json";
+        public const string FILE_KILLERS      = $"{DIR_RESOURCES}/killers.json";
+        public const string FILE_CUSTOMISER   = $"custom.json";
 
         public const int PACKS_WIDTH  = 3;
         public const int PACKS_HEIGHT = 3;

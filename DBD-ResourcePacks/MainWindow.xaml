@@ -11,10 +11,14 @@
         Height="800"
         SnapsToDevicePixels="True">
     <DockPanel>
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
-            <Button Style="{StaticResource Ghost}" Content="Settings" Click="OpenSettings"/>
-            <Button Style="{StaticResource Ghost}" Content="About" Click="OpenAbout"/>
-        </StackPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Settings" Click="OpenSettings"/>
+            <MenuItem Header="Help">
+                <MenuItem Header="GitHub" Click="OpenGitHub"/>
+                <MenuItem Header="Submit Pack" Click="OpenSubmitPack"/>
+                <MenuItem Header="Report Pack" Click="OpenReportPack"/>
+            </MenuItem>
+        </Menu>
 
         <TabControl TabStripPlacement="Left" SelectionChanged="TabControl_SelectionChanged">
             <TabItem Header="Downloaded">

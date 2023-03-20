@@ -126,7 +126,7 @@ namespace DBD_ResourcePackManager.Classes
                 folder = save.overrides[perk.key];
 
             if (folder == "" || folder == "default")
-                return $"{_mainWindow.appFolder}\\{Constants.DIR_RESOURCES_DEFAULT_ICONS}\\{Constants.GetUniqueFilename(perk.defaultImage)}";
+                return $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}\\{Constants.GetUniqueFilename(perk.defaultImage)}";
             return $"{first}{folder}{second}";
         }
         /// <summary>
@@ -171,7 +171,7 @@ namespace DBD_ResourcePackManager.Classes
                 folder = save.overrides[character.key];
 
             if (folder == "" || folder == "default")
-                return $"{_mainWindow.appFolder}\\{Constants.DIR_RESOURCES_DEFAULT_ICONS}\\{Constants.GetUniqueFilename(character.defaultPortrait)}";
+                return $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}\\{Constants.GetUniqueFilename(character.defaultPortrait)}";
             return $"{first}{folder}{second}";
         }
         /// <summary>
@@ -202,7 +202,7 @@ namespace DBD_ResourcePackManager.Classes
                 folder = save.overrides[character.powers[0]];
 
             if (folder == "" || folder == "default")
-                return $"{_mainWindow.appFolder}\\{Constants.DIR_RESOURCES_DEFAULT_ICONS}\\{Constants.GetUniqueFilename(character.defaultPower)}";
+                return $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}\\{Constants.GetUniqueFilename(character.defaultPower)}";
             return $"{first}{folder}{second}";
         }
 
@@ -221,42 +221,42 @@ namespace DBD_ResourcePackManager.Classes
             foreach (Survivor survivor in _survivors.Values)
             {
                 // Try and download the potrait (exits early if already cached)
-                await Constants.DownloadImage(survivor.defaultPortrait, $"{_mainWindow.appFolder}\\{Constants.DIR_RESOURCES_DEFAULT_ICONS}");
+                await Constants.DownloadImage(survivor.defaultPortrait, $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}");
 
                 // Iterating over a temp list to prevent code duplication
                 foreach (Perk perk in new List<Perk>() { survivor.PerkA, survivor.PerkB, survivor.PerkC })
                 {
                     // Try and download the perk (exits early if already cached)
-                    await Constants.DownloadImage(perk.defaultImage, $"{_mainWindow.appFolder}\\{Constants.DIR_RESOURCES_DEFAULT_ICONS}");
+                    await Constants.DownloadImage(perk.defaultImage, $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}");
                 }
             }
 
             foreach (Perk perk in _commonSurvivorPerks)
             {
                 // Try and download the perk (exits early if already cached)
-                await Constants.DownloadImage(perk.defaultImage, $"{_mainWindow.appFolder}\\{Constants.DIR_RESOURCES_DEFAULT_ICONS}");
+                await Constants.DownloadImage(perk.defaultImage, $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}");
             }
 
             foreach (Killer killer in _killers.Values)
             {
                 // Try and download the potrait (exits early if already cached)
-                await Constants.DownloadImage(killer.defaultPortrait, $"{_mainWindow.appFolder}\\{Constants.DIR_RESOURCES_DEFAULT_ICONS}");
+                await Constants.DownloadImage(killer.defaultPortrait, $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}");
 
                 // Iterating over a temp list to prevent code duplication
                 foreach (Perk perk in new List<Perk>() { killer.PerkA, killer.PerkB, killer.PerkC })
                 {
                     // Try and download the perk (exits early if already cached)
-                    await Constants.DownloadImage(perk.defaultImage, $"{_mainWindow.appFolder}\\{Constants.DIR_RESOURCES_DEFAULT_ICONS}");
+                    await Constants.DownloadImage(perk.defaultImage, $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}");
                 }
 
-                await Constants.DownloadImage(killer.defaultPower, $"{_mainWindow.appFolder}\\{Constants.DIR_RESOURCES_DEFAULT_ICONS}");
+                await Constants.DownloadImage(killer.defaultPower, $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}");
                 // TODO Addons
             }
 
             foreach (Perk perk in _commonKillerPerks)
             {
                 // Try and download the perk (exits early if already cached)
-                await Constants.DownloadImage(perk.defaultImage, $"{_mainWindow.appFolder}\\{Constants.DIR_RESOURCES_DEFAULT_ICONS}");
+                await Constants.DownloadImage(perk.defaultImage, $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}");
             }
 
             // TODO Set Overrides

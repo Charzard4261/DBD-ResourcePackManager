@@ -55,16 +55,45 @@ namespace DBD_ResourcePackManager
             Directory.CreateDirectory($"{appFolder}\\{Constants.DIR_CACHE_BROWSE}");
             Directory.CreateDirectory($"{appFolder}\\{Constants.DIR_DOWNLOADED}");
             Directory.CreateDirectory($"{appFolder}\\{Constants.DIR_RESOURCES}");
-            Directory.CreateDirectory($"{appFolder}\\{Constants.DIR_RESOURCES_DEFAULT_ICONS}");
+            Directory.CreateDirectory($"{appFolder}\\{Constants.DIR_DEFAULT_ICONS}");
 
             _githubClient = new GitHubClient(new ProductHeaderValue("DBD-ResourcePackManager"));
 
-            // Check for program update
-            if (CheckForProgramUpdate())
-                return;
+            // Check if the program hasn't tried updating for 12 hours
+            if (Settings.Default.LastUpdateCheck == null || DateTime.Now - Settings.Default.LastUpdateCheck > TimeSpan.FromHours(12))
+            {
+                Settings.Default.LastUpdateCheck = DateTime.Now;
+                Settings.Default.Save();
+                if (CheckForProgramUpdate())
+                    return;
+                CheckForResourcesUpdate();
+                CheckForPacksUpdate();
+            }
+            // If an update was found the last time it checked, inform the user
+            else if (Settings.Default.UpdateAvailable != "")
+            {
+                if (Settings.Default.UpdateAvailable == $"{Settings.Default.ProgramVersionMajor}.{Settings.Default.ProgramVersionMinor}.{Settings.Default.ProgramVersionPatch}")
+                {
+                    Settings.Default.UpdateAvailable = "";
+                    Settings.Default.Save();
+                }
+                else if (MessageBox.Show($"Update {Settings.Default.UpdateAvailable} has been released.\nUpdate now?", "Update Available",
+                    MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+                {
+                    Process.Start(new ProcessStartInfo() { FileName = $"https://github.com/{Constants.GITHUB_OWNER}/{Constants.REPO_PROGRAM}\\releases/latest", UseShellExecute = true });
+                    Close();
+                    return;
+                }
+            }
 
             #region Resources
-            CheckForResourcesUpdate();
+
+            if (!File.Exists($"{appFolder}\\{Constants.FILE_SURVIVORS}"))
+            {
+                MessageBox.Show("The Survivors resource file was not found.\nProgram cannot continue.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Close();
+                return;
+            }
 
             List<Perk> commonSurvivorPerks = new();
             Dictionary<string, Survivor> survivors = new();
@@ -74,8 +103,10 @@ namespace DBD_ResourcePackManager
                 JObject file = JsonConvert.DeserializeObject<JObject>(r.ReadToEnd());
                 foreach (KeyValuePair<string, JToken> entry in file)
                 {
+                    if (entry.Key == "template")
+                        continue;
                     // Common Perks
-                    if (entry.Key == "common_perks")
+                    else if (entry.Key == "common_perks")
                     {
                         List<Perk> perks = entry.Value.ToObject<List<Perk>>();
                         foreach (Perk perk in perks)
@@ -104,6 +135,13 @@ namespace DBD_ResourcePackManager
                 }
             }
 
+            if (!File.Exists($"{appFolder}\\{Constants.FILE_KILLERS}"))
+            {
+                MessageBox.Show("The Killers resource file was not found.\nProgram cannot continue.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Close();
+                return;
+            }
+
             List<Perk> commonKillerPerks = new();
             Dictionary<string, Killer> killers = new();
             // Load all of the Killer resource information
@@ -112,8 +150,10 @@ namespace DBD_ResourcePackManager
                 JObject file = JsonConvert.DeserializeObject<JObject>(r.ReadToEnd());
                 foreach (KeyValuePair<string, JToken> entry in file)
                 {
+                    if (entry.Key == "template")
+                        continue;
                     // Common Perks
-                    if (entry.Key == "common_perks")
+                    else if (entry.Key == "common_perks")
                     {
                         List<Perk> perks = entry.Value.ToObject<List<Perk>>();
                         foreach (Perk perk in perks)
@@ -157,7 +197,13 @@ namespace DBD_ResourcePackManager
             #endregion
 
             #region Packs
-            CheckForPacksUpdate();
+
+            if (!File.Exists($"{appFolder}\\{Constants.FILE_PACKS}"))
+            {
+                MessageBox.Show("The Packs registry file was not found.\nProgram cannot continue.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Close();
+                return;
+            }
 
             Register = new(this);
             // Load all pack information
@@ -320,6 +366,20 @@ namespace DBD_ResourcePackManager
             // Add all the Killers to the customise grid
             foreach (CharacterUC characterUC in _killerUCs.Values)
                 characterGrid.Children.Add(characterUC);
+
+            if (App.Args.Length > 0)
+            {
+                switch (App.Args[0])
+                {
+                    case "showpack":
+                        if (App.Args.Length < 2)
+                            break;
+                        Register.BrowseSearch = App.Args[1];
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
         public void LoadBrowsePage(int page)
@@ -513,60 +573,77 @@ namespace DBD_ResourcePackManager
 
         public bool CheckForProgramUpdate()
         {
-            // Temp indev bybass
-            return false;
-
-            Release release = _githubClient.Repository.Release.GetLatest("Charzard4261", Constants.REPO_PROGRAM).Result;
-            string[] tagSplit = Regex.Replace(release.TagName, "[^0-9.]", "").Split(".");
-            int major = int.Parse(tagSplit[0]);
-            int minor = int.Parse(tagSplit[1]);
-            int patch = int.Parse(tagSplit[2]);
-
-            if ((major > Settings.Default.ProgramVersionMajor ||
-                minor > Settings.Default.ProgramVersionMinor ||
-                patch > Settings.Default.ProgramVersionPatch) &&
-                MessageBox.Show($"Update {release.TagName} has been released.\nUpdate now?", "Update Available",
-                    MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+            try
             {
-                Process.Start(new ProcessStartInfo() { FileName = $"https://github.com/Charzard4261/{Constants.REPO_PROGRAM}\\releases/latest", UseShellExecute = true });
-                Close();
-                return true;
+                Release release = _githubClient.Repository.Release.GetLatest(Constants.GITHUB_OWNER, Constants.REPO_PROGRAM).Result;
+                string[] tagSplit = Regex.Replace(release.TagName, "[^0-9.]", "").Split(".");
+                int major = int.Parse(tagSplit[0]);
+                int minor = int.Parse(tagSplit[1]);
+                int patch = int.Parse(tagSplit[2]);
+
+                if ((major > Settings.Default.ProgramVersionMajor ||
+                    minor > Settings.Default.ProgramVersionMinor ||
+                    patch > Settings.Default.ProgramVersionPatch))
+                {
+                    Settings.Default.UpdateAvailable = $"{major}.{minor}.{patch}";
+                    Settings.Default.Save();
+
+                    if (MessageBox.Show($"Update {release.TagName} has been released.\nUpdate now?", "Update Available",
+                        MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+                    {
+                        Process.Start(new ProcessStartInfo() { FileName = $"https://github.com/{Constants.GITHUB_OWNER}/{Constants.REPO_PROGRAM}\\releases/latest", UseShellExecute = true });
+                        Close();
+                        return true;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("An error occured checking for Program updates.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             return false;
         }
         public bool CheckForResourcesUpdate()
         {
-            // Temp indev bybass
-            return false;
-
-            Release release = _githubClient.Repository.Release.GetLatest("Charzard4261", Constants.REPO_RESOURCES).Result;
-            string[] tagSplit = Regex.Replace(release.TagName, "[^0-9.]", "").Split(".");
-            int major = int.Parse(tagSplit[0]);
-            int minor = int.Parse(tagSplit[1]);
-
-            if (major > Settings.Default.ResourcesVersionMajor ||
-                minor > Settings.Default.ResourcesVersionMinor)
+            try
             {
-                // TODO
-                return true;
+                Release release = _githubClient.Repository.Release.GetLatest(Constants.GITHUB_OWNER, Constants.REPO_RESOURCES).Result;
+                string[] tagSplit = Regex.Replace(release.TagName, "[^0-9.]", "").Split(".");
+                int major = int.Parse(tagSplit[0]);
+                int minor = int.Parse(tagSplit[1]);
+
+                if (major > Settings.Default.ResourcesVersionMajor ||
+                    minor > Settings.Default.ResourcesVersionMinor)
+                {
+                    // TODO
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("An error occured checking for Program updates.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             return false;
         }
         public bool CheckForPacksUpdate()
         {
-            // Temp indev bybass
-            return false;
-
-            Release release = _githubClient.Repository.Release.GetLatest("Charzard4261", Constants.REPO_PACKS).Result;
-            string[] tagSplit = Regex.Replace(release.TagName, "[^0-9.]", "").Split(".");
-            int major = int.Parse(tagSplit[0]);
-            int minor = int.Parse(tagSplit[1]);
-
-            if (major > Settings.Default.PacksVersionMajor ||
-                minor > Settings.Default.PacksVersionMinor)
+            try
             {
-                // TODO
-                return true;
+                Release release = _githubClient.Repository.Release.GetLatest(Constants.GITHUB_OWNER, Constants.REPO_PACKS).Result;
+                string[] tagSplit = Regex.Replace(release.TagName, "[^0-9.]", "").Split(".");
+                int major = int.Parse(tagSplit[0]);
+                int minor = int.Parse(tagSplit[1]);
+
+                if (major > Settings.Default.PacksVersionMajor ||
+                    minor > Settings.Default.PacksVersionMinor)
+                {
+                    // TODO
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("An error occured checking for Program updates.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             return false;
         }
@@ -574,7 +651,9 @@ namespace DBD_ResourcePackManager
 
         #region Element Events
         void OpenSettings(object sender, RoutedEventArgs e) { new SettingsPopup(this).ShowDialog(); }
-        void OpenAbout(object sender, RoutedEventArgs e) { Process.Start(new ProcessStartInfo() { FileName = "https://github.com/Charzard4261/DBD-ResourcePackManager", UseShellExecute = true }); }
+        void OpenGitHub(object sender, RoutedEventArgs e) { Process.Start(new ProcessStartInfo() { FileName = $"https://github.com/{Constants.GITHUB_OWNER}/{Constants.REPO_PROGRAM}", UseShellExecute = true }); }
+        void OpenSubmitPack(object sender, RoutedEventArgs e) { Process.Start(new ProcessStartInfo() { FileName = "https://github.com/Charzard4261/DBD-ResourcePackManager", UseShellExecute = true }); }
+        void OpenReportPack(object sender, RoutedEventArgs e) { Process.Start(new ProcessStartInfo() { FileName = $"https://github.com/{Constants.GITHUB_OWNER}/{Constants.REPO_PROGRAM}/issues", UseShellExecute = true }); }
         void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.Source is not TabControl tabControl)

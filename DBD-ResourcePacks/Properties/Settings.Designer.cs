@@ -23,51 +23,30 @@ namespace DBD_ResourcePackManager.Properties {
             }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("1")]
         public int ProgramVersionMajor {
             get {
                 return ((int)(this["ProgramVersionMajor"]));
             }
-            set {
-                this["ProgramVersionMajor"] = value;
-            }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public int ProgramVersionMinor {
             get {
                 return ((int)(this["ProgramVersionMinor"]));
             }
-            set {
-                this["ProgramVersionMinor"] = value;
-            }
         }
         
-        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public int ProgramVersionPatch {
             get {
                 return ((int)(this["ProgramVersionPatch"]));
-            }
-            set {
-                this["ProgramVersionPatch"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int ResourcesVersionMinor {
-            get {
-                return ((int)(this["ResourcesVersionMinor"]));
-            }
-            set {
-                this["ResourcesVersionMinor"] = value;
             }
         }
         
@@ -80,6 +59,18 @@ namespace DBD_ResourcePackManager.Properties {
             }
             set {
                 this["ResourcesVersionMajor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int ResourcesVersionMinor {
+            get {
+                return ((int)(this["ResourcesVersionMinor"]));
+            }
+            set {
+                this["ResourcesVersionMinor"] = value;
             }
         }
         
@@ -140,6 +131,29 @@ namespace DBD_ResourcePackManager.Properties {
             }
             set {
                 this["ThemeActual"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.DateTime LastUpdateCheck {
+            get {
+                return ((global::System.DateTime)(this["LastUpdateCheck"]));
+            }
+            set {
+                this["LastUpdateCheck"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string UpdateAvailable {
+            get {
+                return ((string)(this["UpdateAvailable"]));
+            }
+            set {
+                this["UpdateAvailable"] = value;
             }
         }
     }

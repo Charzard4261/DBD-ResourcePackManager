@@ -72,7 +72,7 @@ namespace DBD_ResourcePackManager.UserControls
         }
         private void ClearDefaultImageCache_Click(object sender, RoutedEventArgs e)
         {
-            foreach (string name in Directory.GetFiles($"{_mainWindow.appFolder}\\{Constants.DIR_RESOURCES_DEFAULT_ICONS}"))
+            foreach (string name in Directory.GetFiles($"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}"))
                 File.Delete(name);
             Close();
             _mainWindow.Close();

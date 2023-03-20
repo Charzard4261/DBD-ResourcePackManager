@@ -8,10 +8,12 @@ using System.Windows;
 
 namespace DBD_ResourcePackManager
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
     public partial class App : Application
     {
+        public static string[] Args;
+        void App_Startup(object sender, StartupEventArgs e)
+        {
+            Args = e.Args;
+        }
     }
 }
