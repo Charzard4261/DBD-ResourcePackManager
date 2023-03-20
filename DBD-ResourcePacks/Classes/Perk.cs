@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Media.Imaging;
 
-namespace DBD_ResourcePacks.Classes
+namespace DBD_ResourcePackManager.Classes
 {
     public class Perk : INotifyPropertyChanged
     {

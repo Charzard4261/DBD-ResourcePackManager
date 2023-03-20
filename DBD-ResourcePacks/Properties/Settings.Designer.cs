@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace DBD_ResourcePacks.Properties {
+namespace DBD_ResourcePackManager.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
@@ -25,13 +25,85 @@ namespace DBD_ResourcePacks.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public int ThemeSetting {
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int ProgramVersionMajor {
             get {
-                return ((int)(this["ThemeSetting"]));
+                return ((int)(this["ProgramVersionMajor"]));
             }
             set {
-                this["ThemeSetting"] = value;
+                this["ProgramVersionMajor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int ProgramVersionMinor {
+            get {
+                return ((int)(this["ProgramVersionMinor"]));
+            }
+            set {
+                this["ProgramVersionMinor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int ProgramVersionPatch {
+            get {
+                return ((int)(this["ProgramVersionPatch"]));
+            }
+            set {
+                this["ProgramVersionPatch"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int ResourcesVersionMinor {
+            get {
+                return ((int)(this["ResourcesVersionMinor"]));
+            }
+            set {
+                this["ResourcesVersionMinor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int ResourcesVersionMajor {
+            get {
+                return ((int)(this["ResourcesVersionMajor"]));
+            }
+            set {
+                this["ResourcesVersionMajor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int PacksVersionMajor {
+            get {
+                return ((int)(this["PacksVersionMajor"]));
+            }
+            set {
+                this["PacksVersionMajor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int PacksVersionMinor {
+            get {
+                return ((int)(this["PacksVersionMinor"]));
+            }
+            set {
+                this["PacksVersionMinor"] = value;
             }
         }
         
@@ -50,24 +122,12 @@ namespace DBD_ResourcePacks.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public string PacksVersion {
+        public int ThemeSetting {
             get {
-                return ((string)(this["PacksVersion"]));
+                return ((int)(this["ThemeSetting"]));
             }
             set {
-                this["PacksVersion"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
-        public string ProgramVersion {
-            get {
-                return ((string)(this["ProgramVersion"]));
-            }
-            set {
-                this["ProgramVersion"] = value;
+                this["ThemeSetting"] = value;
             }
         }
         

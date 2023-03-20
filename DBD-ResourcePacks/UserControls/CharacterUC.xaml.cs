@@ -1,9 +1,9 @@
 ﻿using System.Windows.Controls;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using DBD_ResourcePacks.Classes;
+using DBD_ResourcePackManager.Classes;
 
-namespace DBD_ResourcePacks.UserControls
+namespace DBD_ResourcePackManager.UserControls
 {
     public partial class CharacterUC : UserControl, INotifyPropertyChanged
     {

@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DBD_ResourcePacks.Classes
+namespace DBD_ResourcePackManager.Classes
 {
     public class PackRegister : INotifyPropertyChanged
     {

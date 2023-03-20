@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace DBD_ResourcePacks
+namespace DBD_ResourcePackManager
 {
     /// <summary>
     /// Interaction logic for App.xaml

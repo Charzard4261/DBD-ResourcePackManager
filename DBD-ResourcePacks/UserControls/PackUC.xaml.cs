@@ -4,9 +4,9 @@ using System.Runtime.CompilerServices;
 using System.Windows.Documents;
 using System;
 using System.Diagnostics;
-using DBD_ResourcePacks.Classes;
+using DBD_ResourcePackManager.Classes;
 
-namespace DBD_ResourcePacks.UserControls
+namespace DBD_ResourcePackManager.UserControls
 {
     public partial class PackUC : UserControl, INotifyPropertyChanged
     {

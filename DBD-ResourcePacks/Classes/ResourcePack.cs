@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace DBD_ResourcePacks.Classes
+namespace DBD_ResourcePackManager.Classes
 {
     public class ResourcePack : INotifyPropertyChanged
     {

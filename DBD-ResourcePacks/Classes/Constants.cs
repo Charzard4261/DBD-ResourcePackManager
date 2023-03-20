@@ -1,20 +1,21 @@
-﻿using DBD_ResourcePacks.Properties;
+﻿using DBD_ResourcePackManager.Properties;
 using Microsoft.Win32;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using System.Windows;
 using System.IO;
 
-namespace DBD_ResourcePacks.Classes
+namespace DBD_ResourcePackManager.Classes
 {
     public class Constants
     {
+        public const string REPO_PROGRAM   = "DBD-ResourcePackManager";
+        public const string REPO_RESOURCES = "DBD-ResourcePackManager-Resources";
+        public const string REPO_PACKS     = "DBD-ResourcePackManager-Packs";
+
         public const string DIR_CACHE                   = "Cache";
         public const string DIR_CACHE_BROWSE            = "Cache/Browse Cache";
         public const string DIR_DOWNLOADED              = "Downloaded";

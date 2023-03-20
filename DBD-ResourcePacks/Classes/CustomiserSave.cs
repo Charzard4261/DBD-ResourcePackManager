@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace DBD_ResourcePacks.Classes
+namespace DBD_ResourcePackManager.Classes
 {
     public class CustomiserSave
     {

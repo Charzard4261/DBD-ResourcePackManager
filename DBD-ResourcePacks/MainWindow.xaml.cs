@@ -1,9 +1,9 @@
-﻿using DBD_ResourcePacks.Classes;
-using DBD_ResourcePacks.Properties;
-using DBD_ResourcePacks.UserControls;
-using Microsoft.Win32;
+﻿using DBD_ResourcePackManager.Classes;
+using DBD_ResourcePackManager.Properties;
+using DBD_ResourcePackManager.UserControls;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Octokit;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,12 +16,14 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Media.Imaging;
 
-namespace DBD_ResourcePacks
+namespace DBD_ResourcePackManager
 {
     public partial class MainWindow : Window
     {
+        public string appFolder;
+        GitHubClient _githubClient;
+
         #region Packs
         public PackRegister Register { get; set; }
 
@@ -44,27 +46,30 @@ namespace DBD_ResourcePacks
 
         public MainWindow()
         {
+            appFolder = $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\DBD-ResourcePackManager";
+            Directory.CreateDirectory(appFolder);
+
             Constants.UpdateTheme();
 
-            Directory.CreateDirectory(Constants.DIR_CACHE);
-            Directory.CreateDirectory(Constants.DIR_CACHE_BROWSE);
-            Directory.CreateDirectory(Constants.DIR_DOWNLOADED);
-            Directory.CreateDirectory(Constants.DIR_RESOURCES);
-            Directory.CreateDirectory(Constants.DIR_RESOURCES_DEFAULT_ICONS);
+            Directory.CreateDirectory($"{appFolder}\\{Constants.DIR_CACHE}");
+            Directory.CreateDirectory($"{appFolder}\\{Constants.DIR_CACHE_BROWSE}");
+            Directory.CreateDirectory($"{appFolder}\\{Constants.DIR_DOWNLOADED}");
+            Directory.CreateDirectory($"{appFolder}\\{Constants.DIR_RESOURCES}");
+            Directory.CreateDirectory($"{appFolder}\\{Constants.DIR_RESOURCES_DEFAULT_ICONS}");
 
-            #region Default Resources
-            if (Directory.Exists(Constants.DIR_RESOURCES))
-            {
-                // TODO Download Resources
-            }
-            else
-            {
-                // TODO Check Resources Version for Update
-            }
+            _githubClient = new GitHubClient(new ProductHeaderValue("DBD-ResourcePackManager"));
+
+            // Check for program update
+            if (CheckForProgramUpdate())
+                return;
+
+            #region Resources
+            CheckForResourcesUpdate();
 
             List<Perk> commonSurvivorPerks = new();
             Dictionary<string, Survivor> survivors = new();
-            using (StreamReader r = new StreamReader(Constants.FILE_SURVIVORS))
+            // Load all of the Survivor resource information
+            using (StreamReader r = new StreamReader($"{appFolder}\\{Constants.FILE_SURVIVORS}"))
             {
                 JObject file = JsonConvert.DeserializeObject<JObject>(r.ReadToEnd());
                 foreach (KeyValuePair<string, JToken> entry in file)
@@ -101,7 +106,8 @@ namespace DBD_ResourcePacks
 
             List<Perk> commonKillerPerks = new();
             Dictionary<string, Killer> killers = new();
-            using (StreamReader r = new StreamReader(Constants.FILE_KILLERS))
+            // Load all of the Killer resource information
+            using (StreamReader r = new StreamReader($"{appFolder}\\{Constants.FILE_KILLERS}"))
             {
                 JObject file = JsonConvert.DeserializeObject<JObject>(r.ReadToEnd());
                 foreach (KeyValuePair<string, JToken> entry in file)
@@ -137,31 +143,25 @@ namespace DBD_ResourcePacks
             }
 
             _customiser = new Customiser(this, survivors, commonSurvivorPerks, killers, commonKillerPerks);
-            if (File.Exists(Constants.FILE_CUSTOMISER))
-                using (StreamReader r = new StreamReader(Constants.FILE_CUSTOMISER))
-                {
+            // Load (or create) the user's custom pack information
+            if (File.Exists($"{appFolder}\\{Constants.FILE_CUSTOMISER}"))
+                using (StreamReader r = new StreamReader($"{appFolder}\\{Constants.FILE_CUSTOMISER}"))
                     _customiser.save = JsonConvert.DeserializeObject<CustomiserSave>(r.ReadToEnd());
-                }
             else
             {
                 _customiser.save = new CustomiserSave();
-                File.WriteAllText(Constants.FILE_CUSTOMISER, JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
+            // Download the default images async, then set the image files that WPF binds to (which accounts for user customisation)
             _customiser.DownloadImages();
             #endregion
 
             #region Packs
-            if (!File.Exists(Constants.FILE_PACKS))
-            {
-                // TODO Download JSON
-            }
-            else
-            {
-                // TODO Check latest version
-            }
+            CheckForPacksUpdate();
 
             Register = new(this);
-            using (StreamReader r = new StreamReader(Constants.FILE_PACKS))
+            // Load all pack information
+            using (StreamReader r = new StreamReader($"{appFolder}\\{Constants.FILE_PACKS}"))
             {
                 foreach (ResourcePack pack in JsonConvert.DeserializeObject<List<ResourcePack>>(r.ReadToEnd()))
                 {
@@ -172,17 +172,19 @@ namespace DBD_ResourcePacks
                 Register.browsePagePacks = Register.packRegistry.Keys.ToList();
             }
 
-            foreach (DirectoryInfo potentialPack in new DirectoryInfo(Constants.DIR_DOWNLOADED).EnumerateDirectories())
+            // Check all folders which are in the Download folder for if they are Resource Packs 
+            foreach (DirectoryInfo potentialPack in new DirectoryInfo($"{appFolder}\\{Constants.DIR_DOWNLOADED}").EnumerateDirectories())
             {
-                if (!File.Exists($"{potentialPack.FullName}/pack.json"))
+                // If they don't have a pack json, they're not a Resource Pack
+                if (!File.Exists($"{potentialPack.FullName}\\pack.json"))
                     continue;
 
                 string json = "";
-                using (StreamReader r = new StreamReader($"{potentialPack.FullName}/pack.json"))
+                // Try and read the pack json
+                using (StreamReader r = new StreamReader($"{potentialPack.FullName}\\pack.json"))
                 {
                     json = r.ReadToEnd();
                 }
-
                 if (json == "")
                     continue;
 
@@ -191,8 +193,8 @@ namespace DBD_ResourcePacks
                 if (pack == null)
                     continue;
 
-                // If the download was interrupted, delete
-                if (File.Exists($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/temp.txt"))
+                // If the temp file still exists, the download was interrupted, so delete it
+                if (File.Exists($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\temp.txt"))
                 {
                     Directory.Delete(potentialPack.FullName, true);
                     continue;
@@ -200,26 +202,32 @@ namespace DBD_ResourcePacks
 
                 Register.downloadedRegistry.Add(pack.uniqueKey, pack);
 
+                // Check to see if the pack registry contains the downloaded pack
                 if (Register.packRegistry.ContainsKey(pack.uniqueKey))
                 {
+                    // It was found, so set that pack's state to "Downloaded"
                     ResourcePack registryPack = Register.packRegistry[pack.uniqueKey];
                     registryPack.PackState = "Downloaded";
                     registryPack.PackActionable = false;
 
+                    // Check to see if the registry pack is newer
                     if (registryPack.chapter > pack.chapter ||
                         (registryPack.chapter == pack.chapter && registryPack.packVersion > pack.packVersion))
                     {
+                        // The registry has a newer version
                         pack.PackState = "Update";
                         pack.PackActionable = true;
                     }
                     else
                     {
+                        // The registry version is the same (or less than) the installed version
                         pack.PackState = "Up To Date";
                         pack.PackActionable = false;
                     }
                 }
                 else
                 {
+                    // The pack wasn't found in the registry, so it was removed 
                     pack.PackState = "No Longer Available";
                     pack.PackActionable = false;
                 }
@@ -227,6 +235,7 @@ namespace DBD_ResourcePacks
             Register.downloadedPagePacks = Register.downloadedRegistry.Keys.ToList();
             #endregion
 
+            // Initialise the WPF Components
             InitializeComponent();
 
             // Fill out the downloaded & browse grids with columns
@@ -320,6 +329,7 @@ namespace DBD_ResourcePacks
                 return;
             _currentBrowsePage = page;
 
+            // Setup the page navigation
             browsePageLeft.IsEnabled = page > 0;
             browsePageSelect.Text = $"{page + 1}";
             browsePageTotal.Content = $"/{pageCount + 1}";
@@ -341,7 +351,7 @@ namespace DBD_ResourcePacks
 
                 if (packInfo.bannerLink != "")
                 {
-                    string uniqueFile = $"{Constants.DIR_CACHE_BROWSE}/{packInfo.uniqueKey}_{Constants.GetUniqueFilename(packInfo.bannerLink)}";
+                    string uniqueFile = $"{appFolder}\\{Constants.DIR_CACHE_BROWSE}\\{packInfo.uniqueKey}_{Constants.GetUniqueFilename(packInfo.bannerLink)}";
                     if (File.Exists(uniqueFile))
                     {
                         packUI.banner.Source = Constants.LoadImage(Path.Combine(Environment.CurrentDirectory, uniqueFile));
@@ -368,6 +378,7 @@ namespace DBD_ResourcePacks
                 return;
             _currentDownloadPage = page;
 
+            // Setup the page navigation
             downloadPageLeft.IsEnabled = page > 0;
             downloadPageSelect.Text = $"{page + 1}";
             downloadPageTotal.Content = $"/{pageCount + 1}";
@@ -391,27 +402,7 @@ namespace DBD_ResourcePacks
                 ResourcePack packInfo = Register.downloadedRegistry[Register.downloadedPagePacks[index]];
                 packUI.PackInfo = packInfo;
 
-                /*if (register.packRegistry.ContainsKey(packInfo.uniqueKey))
-                {
-                    ResourcePack registryPack = register.packRegistry[packInfo.uniqueKey];
-                    if (registryPack.chapter > packInfo.chapter || (registryPack.chapter == packInfo.chapter && registryPack.packVersion > packInfo.packVersion))
-                    {
-                        packUI.action.Content = "Update";
-                        packUI.action.IsEnabled = true;
-                    }
-                    else
-                    {
-                        packUI.action.Content = "Up To Date";
-                        packUI.action.IsEnabled = false;
-                    }
-                }
-                else
-                {
-                    packUI.action.Content = "Pack No Longer Available";
-                    packUI.action.IsEnabled = false;
-                }*/
-
-                string uniqueFile = $"{Constants.DIR_DOWNLOADED}/{packInfo.uniqueKey}/{Constants.GetUniqueFilename(packInfo.bannerLink)}";
+                string uniqueFile = $"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{packInfo.uniqueKey}\\{Constants.GetUniqueFilename(packInfo.bannerLink)}";
                 if (File.Exists(uniqueFile))
                 {
                     packUI.banner.Source = Constants.LoadImage(Path.Combine(Environment.CurrentDirectory, uniqueFile));
@@ -433,19 +424,25 @@ namespace DBD_ResourcePacks
         }
         async void DeletePack(object sender, RoutedEventArgs e)
         {
+            // Hide the Pack User Control
             int id = (int)((Button)sender).Tag;
             PackUC packUC = _downloadedPackUCs[id];
             packUC.Visibility = Visibility.Hidden;
 
             ResourcePack resourcePack = packUC.PackInfo;
 
+            // Set the pack's state, even though it's hidden
             resourcePack.PackActionable = false;
             resourcePack.PackState = "Deleting...";
 
+            // Remove the pack from the download registry
             Register.downloadedPagePacks.Remove(resourcePack.uniqueKey);
             Register.downloadedRegistry.Remove(resourcePack.uniqueKey);
-            Directory.Delete($"{Constants.DIR_DOWNLOADED}/{resourcePack.uniqueKey}", true);
 
+            // Delete the pack files
+            Directory.Delete($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{resourcePack.uniqueKey}", true);
+
+            // If the pack registry contains the pack still, set its state as downloadable
             if (Register.packRegistry.ContainsKey(resourcePack.uniqueKey))
             {
                 ResourcePack registryPack = Register.packRegistry[resourcePack.uniqueKey];
@@ -474,32 +471,32 @@ namespace DBD_ResourcePacks
             if (pack.downloadLink == "")
                 return;
 
-            Directory.CreateDirectory($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}");
-            File.WriteAllText($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/temp.txt", "Placeholder file whilst the pack is still downloading");
-            File.WriteAllText($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/pack.json", JsonConvert.SerializeObject(pack, Formatting.Indented));
+            Directory.CreateDirectory($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}");
+            File.WriteAllText($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\temp.txt", "Placeholder file whilst the pack is still downloading");
+            File.WriteAllText($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\pack.json", JsonConvert.SerializeObject(pack, Formatting.Indented));
 
             using (WebClient client = new WebClient())
             {
                 pack.PackState = "Downloading Banner";
-                string bannerFile = $"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/{Constants.GetUniqueFilename(pack.bannerLink)}";
+                string bannerFile = $"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\{Constants.GetUniqueFilename(pack.bannerLink)}";
                 if (pack.bannerLink != "" && !File.Exists(bannerFile))
                     await client.DownloadFileTaskAsync(new Uri(pack.bannerLink), bannerFile);
                 pack.PackState = "Downloading Zip";
-                await client.DownloadFileTaskAsync(new Uri(pack.downloadLink), $"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/pack.zip");
+                await client.DownloadFileTaskAsync(new Uri(pack.downloadLink), $"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\pack.zip");
 
-                if (Directory.Exists($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack"))
+                if (Directory.Exists($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack"))
                 {
                     pack.PackState = "Deleting Old Pack";
-                    Directory.Delete($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack", true);
+                    Directory.Delete($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack", true);
                 }
 
                 pack.PackState = "Unzipping";
-                ZipFile.ExtractToDirectory($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/pack.zip", $"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack");
+                ZipFile.ExtractToDirectory($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\pack.zip", $"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack");
                 pack.PackState = "Deleting Zip";
-                File.Delete($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/pack.zip");
+                File.Delete($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\pack.zip");
             }
             pack.PackState = "Finishing";
-            File.Delete($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/temp.txt");
+            File.Delete($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\temp.txt");
             ResourcePack copy = JsonConvert.DeserializeObject<ResourcePack>(JsonConvert.SerializeObject(pack));
             Register.downloadedRegistry.Add(pack.uniqueKey, copy);
             copy.PackActionable = false;
@@ -514,9 +511,70 @@ namespace DBD_ResourcePacks
             return Register.downloadedRegistry[uniqueKey];
         }
 
+        public bool CheckForProgramUpdate()
+        {
+            // Temp indev bybass
+            return false;
+
+            Release release = _githubClient.Repository.Release.GetLatest("Charzard4261", Constants.REPO_PROGRAM).Result;
+            string[] tagSplit = Regex.Replace(release.TagName, "[^0-9.]", "").Split(".");
+            int major = int.Parse(tagSplit[0]);
+            int minor = int.Parse(tagSplit[1]);
+            int patch = int.Parse(tagSplit[2]);
+
+            if ((major > Settings.Default.ProgramVersionMajor ||
+                minor > Settings.Default.ProgramVersionMinor ||
+                patch > Settings.Default.ProgramVersionPatch) &&
+                MessageBox.Show($"Update {release.TagName} has been released.\nUpdate now?", "Update Available",
+                    MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+            {
+                Process.Start(new ProcessStartInfo() { FileName = $"https://github.com/Charzard4261/{Constants.REPO_PROGRAM}\\releases/latest", UseShellExecute = true });
+                Close();
+                return true;
+            }
+            return false;
+        }
+        public bool CheckForResourcesUpdate()
+        {
+            // Temp indev bybass
+            return false;
+
+            Release release = _githubClient.Repository.Release.GetLatest("Charzard4261", Constants.REPO_RESOURCES).Result;
+            string[] tagSplit = Regex.Replace(release.TagName, "[^0-9.]", "").Split(".");
+            int major = int.Parse(tagSplit[0]);
+            int minor = int.Parse(tagSplit[1]);
+
+            if (major > Settings.Default.ResourcesVersionMajor ||
+                minor > Settings.Default.ResourcesVersionMinor)
+            {
+                // TODO
+                return true;
+            }
+            return false;
+        }
+        public bool CheckForPacksUpdate()
+        {
+            // Temp indev bybass
+            return false;
+
+            Release release = _githubClient.Repository.Release.GetLatest("Charzard4261", Constants.REPO_PACKS).Result;
+            string[] tagSplit = Regex.Replace(release.TagName, "[^0-9.]", "").Split(".");
+            int major = int.Parse(tagSplit[0]);
+            int minor = int.Parse(tagSplit[1]);
+
+            if (major > Settings.Default.PacksVersionMajor ||
+                minor > Settings.Default.PacksVersionMinor)
+            {
+                // TODO
+                return true;
+            }
+            return false;
+        }
+
+
         #region Element Events
         void OpenSettings(object sender, RoutedEventArgs e) { new SettingsPopup(this).ShowDialog(); }
-        void OpenAbout(object sender, RoutedEventArgs e) { Process.Start(new ProcessStartInfo() { FileName = "https://github.com/Charzard4261/DBD-ResourcePacks", UseShellExecute = true }); }
+        void OpenAbout(object sender, RoutedEventArgs e) { Process.Start(new ProcessStartInfo() { FileName = "https://github.com/Charzard4261/DBD-ResourcePackManager", UseShellExecute = true }); }
         void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.Source is not TabControl tabControl)
@@ -574,7 +632,7 @@ namespace DBD_ResourcePacks
                     _customiser.Everything = result;
                 _customiser.SetImages();
 
-                File.WriteAllText(Constants.FILE_CUSTOMISER, JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
         void SetAllPortraits(object sender, RoutedEventArgs e)
@@ -590,7 +648,7 @@ namespace DBD_ResourcePacks
                     _customiser.AllPortraits = result;
                 _customiser.SetImages();
 
-                File.WriteAllText(Constants.FILE_CUSTOMISER, JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
         void SetAllPerks(object sender, RoutedEventArgs e)
@@ -606,7 +664,7 @@ namespace DBD_ResourcePacks
                     _customiser.AllPerks = result;
                 _customiser.SetImages();
 
-                File.WriteAllText(Constants.FILE_CUSTOMISER, JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
         void SetAllItems(object sender, RoutedEventArgs e)
@@ -622,7 +680,7 @@ namespace DBD_ResourcePacks
                     _customiser.AllItems = result;
                 _customiser.SetImages();
 
-                File.WriteAllText(Constants.FILE_CUSTOMISER, JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
         void SetAllPowers(object sender, RoutedEventArgs e)
@@ -638,7 +696,7 @@ namespace DBD_ResourcePacks
                     _customiser.AllKillerPowers = result;
                 _customiser.SetImages();
 
-                File.WriteAllText(Constants.FILE_CUSTOMISER, JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
         void SetAllAddons(object sender, RoutedEventArgs e)
@@ -654,7 +712,7 @@ namespace DBD_ResourcePacks
                     _customiser.AllAddons = result;
                 _customiser.SetImages();
 
-                File.WriteAllText(Constants.FILE_CUSTOMISER, JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
         void SetAllOfferings(object sender, RoutedEventArgs e)
@@ -670,7 +728,7 @@ namespace DBD_ResourcePacks
                     _customiser.AllOfferings = result;
                 _customiser.SetImages();
 
-                File.WriteAllText(Constants.FILE_CUSTOMISER, JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
         void SetAllEmblems(object sender, RoutedEventArgs e)
@@ -686,7 +744,7 @@ namespace DBD_ResourcePacks
                     _customiser.AllEmblems = result;
                 _customiser.SetImages();
 
-                File.WriteAllText(Constants.FILE_CUSTOMISER, JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
         void SetAllStatusEffects(object sender, RoutedEventArgs e)
@@ -702,7 +760,7 @@ namespace DBD_ResourcePacks
                     _customiser.AllStatusEffects = result;
                 _customiser.SetImages();
 
-                File.WriteAllText(Constants.FILE_CUSTOMISER, JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
         void SetAllMiscUI(object sender, RoutedEventArgs e)
@@ -718,7 +776,7 @@ namespace DBD_ResourcePacks
                     _customiser.AllMiscUI = result;
                 _customiser.SetImages();
 
-                File.WriteAllText(Constants.FILE_CUSTOMISER, JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
 
@@ -735,7 +793,7 @@ namespace DBD_ResourcePacks
                     _customiser.AllSurvivors = result;
                 _customiser.SetImages();
 
-                File.WriteAllText(Constants.FILE_CUSTOMISER, JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
         void SetAllSurvivorPortraits(object sender, RoutedEventArgs e)
@@ -751,7 +809,7 @@ namespace DBD_ResourcePacks
                     _customiser.AllSurvivorPortraits = result;
                 _customiser.SetImages();
 
-                File.WriteAllText(Constants.FILE_CUSTOMISER, JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
         void SetAllSurvivorPerks(object sender, RoutedEventArgs e)
@@ -767,7 +825,7 @@ namespace DBD_ResourcePacks
                     _customiser.AllSurvivorPerks = result;
                 _customiser.SetImages();
 
-                File.WriteAllText(Constants.FILE_CUSTOMISER, JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
         void SetAllItemAddons(object sender, RoutedEventArgs e)
@@ -783,7 +841,7 @@ namespace DBD_ResourcePacks
                     _customiser.AllItemAddons = result;
                 _customiser.SetImages();
 
-                File.WriteAllText(Constants.FILE_CUSTOMISER, JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
         void SetAllSurvivorOfferings(object sender, RoutedEventArgs e)
@@ -799,7 +857,7 @@ namespace DBD_ResourcePacks
                     _customiser.AllSurvivorOfferings = result;
                 _customiser.SetImages();
 
-                File.WriteAllText(Constants.FILE_CUSTOMISER, JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
 
@@ -816,7 +874,7 @@ namespace DBD_ResourcePacks
                     _customiser.AllKillers = result;
                 _customiser.SetImages();
 
-                File.WriteAllText(Constants.FILE_CUSTOMISER, JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
         void SetAllKillerPortraits(object sender, RoutedEventArgs e)
@@ -832,7 +890,7 @@ namespace DBD_ResourcePacks
                     _customiser.AllKillerPortraits = result;
                 _customiser.SetImages();
 
-                File.WriteAllText(Constants.FILE_CUSTOMISER, JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
         void SetAllKillerPerks(object sender, RoutedEventArgs e)
@@ -848,7 +906,7 @@ namespace DBD_ResourcePacks
                     _customiser.AllKillerPerks = result;
                 _customiser.SetImages();
 
-                File.WriteAllText(Constants.FILE_CUSTOMISER, JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
         void SetAllKillerAddons(object sender, RoutedEventArgs e)
@@ -864,7 +922,7 @@ namespace DBD_ResourcePacks
                     _customiser.AllKillerAddons = result;
                 _customiser.SetImages();
 
-                File.WriteAllText(Constants.FILE_CUSTOMISER, JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
         void SetAllKillerOfferings(object sender, RoutedEventArgs e)
@@ -880,7 +938,7 @@ namespace DBD_ResourcePacks
                     _customiser.AllKillerOfferings = result;
                 _customiser.SetImages();
 
-                File.WriteAllText(Constants.FILE_CUSTOMISER, JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
 
@@ -889,31 +947,31 @@ namespace DBD_ResourcePacks
             if (!Constants.IsValidGamePath(Settings.Default.GameInstallationPath))
                 return;
 
-            string gamePath = $"{Settings.Default.GameInstallationPath}/DeadByDaylight/Content/UI/Icons";
+            string gamePath = $"{Settings.Default.GameInstallationPath}\\DeadByDaylight/Content/UI/Icons";
             if (Directory.Exists(gamePath))
                 Directory.Delete(gamePath, true);
 
             Directory.CreateDirectory(gamePath);
-            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PORTRAITS}");
-            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PERKS}");
-            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_ITEMS}");
-            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_ADDONS}");
-            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_POWERS}");
-            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_ACTIONS}");
-            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_OFFERINGS}");
-            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_EMBLEMS}");
-            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_STATUS_EFFECTS}");
-            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_DAILY_RITUALS}");
-            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_HELP}");
-            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_HELPLOADING}");
-            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PACKS}");
+            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PORTRAITS}");
+            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PERKS}");
+            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_ITEMS}");
+            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_ADDONS}");
+            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_POWERS}");
+            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_ACTIONS}");
+            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_OFFERINGS}");
+            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_EMBLEMS}");
+            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_STATUS_EFFECTS}");
+            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_DAILY_RITUALS}");
+            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_HELP}");
+            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_HELPLOADING}");
+            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PACKS}");
 
             if (_customiser.save.everything != "")
             {
                 if (Register.downloadedRegistry.ContainsKey(_customiser.save.everything))
                 {
                     ResourcePack pack = Register.downloadedRegistry[_customiser.save.everything];
-                    Constants.CopyFilesRecursively($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack", $"{gamePath}");
+                    Constants.CopyFilesRecursively($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack", $"{gamePath}");
                 }
             }
 
@@ -922,7 +980,7 @@ namespace DBD_ResourcePacks
                 if (Register.downloadedRegistry.ContainsKey(_customiser.save.allPortraits))
                 {
                     ResourcePack pack = Register.downloadedRegistry[_customiser.save.allPortraits];
-                    Constants.CopyFilesRecursively($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PORTRAITS}", $"{gamePath}/{Constants.FOLDER_PORTRAITS}");
+                    Constants.CopyFilesRecursively($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PORTRAITS}", $"{gamePath}\\{Constants.FOLDER_PORTRAITS}");
                 }
             }
 
@@ -931,7 +989,7 @@ namespace DBD_ResourcePacks
                 if (Register.downloadedRegistry.ContainsKey(_customiser.save.allPerks))
                 {
                     ResourcePack pack = Register.downloadedRegistry[_customiser.save.allPerks];
-                    Constants.CopyFilesRecursively($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PERKS}", $"{gamePath}/{Constants.FOLDER_PERKS}");
+                    Constants.CopyFilesRecursively($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PERKS}", $"{gamePath}\\{Constants.FOLDER_PERKS}");
                 }
             }
 
@@ -940,7 +998,7 @@ namespace DBD_ResourcePacks
                 if (Register.downloadedRegistry.ContainsKey(_customiser.save.allItems))
                 {
                     ResourcePack pack = Register.downloadedRegistry[_customiser.save.allItems];
-                    Constants.CopyFilesRecursively($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_ITEMS}", $"{gamePath}/{Constants.FOLDER_ITEMS}");
+                    Constants.CopyFilesRecursively($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_ITEMS}", $"{gamePath}\\{Constants.FOLDER_ITEMS}");
                 }
             }
 
@@ -949,7 +1007,7 @@ namespace DBD_ResourcePacks
                 if (Register.downloadedRegistry.ContainsKey(_customiser.save.allAddons))
                 {
                     ResourcePack pack = Register.downloadedRegistry[_customiser.save.allAddons];
-                    Constants.CopyFilesRecursively($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_ADDONS}", $"{gamePath}/{Constants.FOLDER_ADDONS}");
+                    Constants.CopyFilesRecursively($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_ADDONS}", $"{gamePath}\\{Constants.FOLDER_ADDONS}");
                 }
             }
 
@@ -958,8 +1016,8 @@ namespace DBD_ResourcePacks
                 if (Register.downloadedRegistry.ContainsKey(_customiser.save.allKillerPowers))
                 {
                     ResourcePack pack = Register.downloadedRegistry[_customiser.save.allKillerPowers];
-                    Constants.CopyFilesRecursively($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_POWERS}", $"{gamePath}/{Constants.FOLDER_POWERS}");
-                    Constants.CopyFilesRecursively($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_ACTIONS}", $"{gamePath}/{Constants.FOLDER_ACTIONS}");
+                    Constants.CopyFilesRecursively($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_POWERS}", $"{gamePath}\\{Constants.FOLDER_POWERS}");
+                    Constants.CopyFilesRecursively($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_ACTIONS}", $"{gamePath}\\{Constants.FOLDER_ACTIONS}");
                 }
             }
 
@@ -968,7 +1026,7 @@ namespace DBD_ResourcePacks
                 if (Register.downloadedRegistry.ContainsKey(_customiser.save.allOfferings))
                 {
                     ResourcePack pack = Register.downloadedRegistry[_customiser.save.allOfferings];
-                    Constants.CopyFilesRecursively($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_OFFERINGS}", $"{gamePath}/{Constants.FOLDER_OFFERINGS}");
+                    Constants.CopyFilesRecursively($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_OFFERINGS}", $"{gamePath}\\{Constants.FOLDER_OFFERINGS}");
                 }
             }
 
@@ -977,7 +1035,7 @@ namespace DBD_ResourcePacks
                 if (Register.downloadedRegistry.ContainsKey(_customiser.save.allEmblems))
                 {
                     ResourcePack pack = Register.downloadedRegistry[_customiser.save.allEmblems];
-                    Constants.CopyFilesRecursively($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_EMBLEMS}", $"{gamePath}/{Constants.FOLDER_EMBLEMS}");
+                    Constants.CopyFilesRecursively($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_EMBLEMS}", $"{gamePath}\\{Constants.FOLDER_EMBLEMS}");
                 }
             }
 
@@ -986,7 +1044,7 @@ namespace DBD_ResourcePacks
                 if (Register.downloadedRegistry.ContainsKey(_customiser.save.allOfferings))
                 {
                     ResourcePack pack = Register.downloadedRegistry[_customiser.save.allOfferings];
-                    Constants.CopyFilesRecursively($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_STATUS_EFFECTS}", $"{gamePath}/{Constants.FOLDER_STATUS_EFFECTS}");
+                    Constants.CopyFilesRecursively($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_STATUS_EFFECTS}", $"{gamePath}\\{Constants.FOLDER_STATUS_EFFECTS}");
                 }
             }
 
@@ -995,10 +1053,10 @@ namespace DBD_ResourcePacks
                 if (Register.downloadedRegistry.ContainsKey(_customiser.save.allMiscUI))
                 {
                     ResourcePack pack = Register.downloadedRegistry[_customiser.save.allMiscUI];
-                    Constants.CopyFilesRecursively($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_DAILY_RITUALS}", $"{gamePath}/{Constants.FOLDER_DAILY_RITUALS}");
-                    Constants.CopyFilesRecursively($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_HELP}", $"{gamePath}/{Constants.FOLDER_HELP}");
-                    Constants.CopyFilesRecursively($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_HELPLOADING}", $"{gamePath}/{Constants.FOLDER_HELPLOADING}");
-                    Constants.CopyFilesRecursively($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PACKS}", $"{gamePath}/{Constants.FOLDER_PACKS}");
+                    Constants.CopyFilesRecursively($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_DAILY_RITUALS}", $"{gamePath}\\{Constants.FOLDER_DAILY_RITUALS}");
+                    Constants.CopyFilesRecursively($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_HELP}", $"{gamePath}\\{Constants.FOLDER_HELP}");
+                    Constants.CopyFilesRecursively($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_HELPLOADING}", $"{gamePath}\\{Constants.FOLDER_HELPLOADING}");
+                    Constants.CopyFilesRecursively($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PACKS}", $"{gamePath}\\{Constants.FOLDER_PACKS}");
                 }
             }
 
@@ -1017,34 +1075,34 @@ namespace DBD_ResourcePacks
                         {
                             // This file is in a sub folder, so create it
                             string[] folders = survivor.portrait.Split("/");
-                            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PORTRAITS}{survivor.portrait.Substring(0, survivor.portrait.Length - folders[folders.Length - 1].Length)}");
+                            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PORTRAITS}{survivor.portrait.Substring(0, survivor.portrait.Length - folders[folders.Length - 1].Length)}");
                         }
-                        Constants.CopyFile($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PORTRAITS}/{survivor.portrait}", $"{gamePath}/{Constants.FOLDER_PORTRAITS}/{survivor.portrait}");
+                        Constants.CopyFile($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PORTRAITS}\\{survivor.portrait}", $"{gamePath}\\{Constants.FOLDER_PORTRAITS}\\{survivor.portrait}");
 
                         // Overwite Perks
                         if (survivor.PerkA.filePath.Contains("/"))
                         {
                             // This file is in a sub folder, so create it
                             string[] folders = survivor.PerkA.filePath.Split("/");
-                            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PERKS}{survivor.PerkA.filePath.Substring(0, survivor.PerkA.filePath.Length - folders[folders.Length - 1].Length)}");
+                            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PERKS}{survivor.PerkA.filePath.Substring(0, survivor.PerkA.filePath.Length - folders[folders.Length - 1].Length)}");
                         }
-                        Constants.CopyFile($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PERKS}/{survivor.PerkA.filePath}", $"{gamePath}/{Constants.FOLDER_PERKS}/{survivor.PerkA.filePath}");
+                        Constants.CopyFile($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PERKS}\\{survivor.PerkA.filePath}", $"{gamePath}\\{Constants.FOLDER_PERKS}\\{survivor.PerkA.filePath}");
 
                         if (survivor.PerkB.filePath.Contains("/"))
                         {
                             // This file is in a sub folder, so create it
                             string[] folders = survivor.PerkB.filePath.Split("/");
-                            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PERKS}{survivor.PerkB.filePath.Substring(0, survivor.PerkB.filePath.Length - folders[folders.Length - 1].Length)}");
+                            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PERKS}{survivor.PerkB.filePath.Substring(0, survivor.PerkB.filePath.Length - folders[folders.Length - 1].Length)}");
                         }
-                        Constants.CopyFile($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PERKS}/{survivor.PerkB.filePath}", $"{gamePath}/{Constants.FOLDER_PERKS}/{survivor.PerkB.filePath}");
+                        Constants.CopyFile($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PERKS}\\{survivor.PerkB.filePath}", $"{gamePath}\\{Constants.FOLDER_PERKS}\\{survivor.PerkB.filePath}");
 
                         if (survivor.PerkC.filePath.Contains("/"))
                         {
                             // This file is in a sub folder, so create it
                             string[] folders = survivor.PerkC.filePath.Split("/");
-                            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PERKS}{survivor.PerkC.filePath.Substring(0, survivor.PerkC.filePath.Length - folders[folders.Length - 1].Length)}");
+                            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PERKS}{survivor.PerkC.filePath.Substring(0, survivor.PerkC.filePath.Length - folders[folders.Length - 1].Length)}");
                         }
-                        Constants.CopyFile($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PERKS}/{survivor.PerkC.filePath}", $"{gamePath}/{Constants.FOLDER_PERKS}/{survivor.PerkC.filePath}");
+                        Constants.CopyFile($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PERKS}\\{survivor.PerkC.filePath}", $"{gamePath}\\{Constants.FOLDER_PERKS}\\{survivor.PerkC.filePath}");
                     }
 
                     // Replace the common Survivor Perk images
@@ -1054,9 +1112,9 @@ namespace DBD_ResourcePacks
                         {
                             // This file is in a sub folder, so create it
                             string[] folders = perk.filePath.Split("/");
-                            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PERKS}{perk.filePath.Substring(0, perk.filePath.Length - folders[folders.Length - 1].Length)}");
+                            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PERKS}{perk.filePath.Substring(0, perk.filePath.Length - folders[folders.Length - 1].Length)}");
                         }
-                        Constants.CopyFile($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PERKS}/{perk.filePath}", $"{gamePath}/{Constants.FOLDER_PERKS}/{perk.filePath}");
+                        Constants.CopyFile($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PERKS}\\{perk.filePath}", $"{gamePath}\\{Constants.FOLDER_PERKS}\\{perk.filePath}");
                     }
                 }
             }
@@ -1075,9 +1133,9 @@ namespace DBD_ResourcePacks
                         {
                             // This file is in a sub folder, so create it
                             string[] folders = survivor.portrait.Split("/");
-                            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PORTRAITS}{survivor.portrait.Substring(0, survivor.portrait.Length - folders[folders.Length - 1].Length)}");
+                            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PORTRAITS}{survivor.portrait.Substring(0, survivor.portrait.Length - folders[folders.Length - 1].Length)}");
                         }
-                        Constants.CopyFile($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PORTRAITS}/{survivor.portrait}", $"{gamePath}/{Constants.FOLDER_PORTRAITS}/{survivor.portrait}");
+                        Constants.CopyFile($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PORTRAITS}\\{survivor.portrait}", $"{gamePath}\\{Constants.FOLDER_PORTRAITS}\\{survivor.portrait}");
                     }
                 }
             }
@@ -1096,25 +1154,25 @@ namespace DBD_ResourcePacks
                         {
                             // This file is in a sub folder, so create it
                             string[] folders = survivor.PerkA.filePath.Split("/");
-                            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PERKS}{survivor.PerkA.filePath.Substring(0, survivor.PerkA.filePath.Length - folders[folders.Length - 1].Length)}");
+                            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PERKS}{survivor.PerkA.filePath.Substring(0, survivor.PerkA.filePath.Length - folders[folders.Length - 1].Length)}");
                         }
-                        Constants.CopyFile($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PERKS}/{survivor.PerkA.filePath}", $"{gamePath}/{Constants.FOLDER_PERKS}/{survivor.PerkA.filePath}");
+                        Constants.CopyFile($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PERKS}\\{survivor.PerkA.filePath}", $"{gamePath}\\{Constants.FOLDER_PERKS}\\{survivor.PerkA.filePath}");
 
                         if (survivor.PerkB.filePath.Contains("/"))
                         {
                             // This file is in a sub folder, so create it
                             string[] folders = survivor.PerkB.filePath.Split("/");
-                            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PERKS}{survivor.PerkB.filePath.Substring(0, survivor.PerkB.filePath.Length - folders[folders.Length - 1].Length)}");
+                            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PERKS}{survivor.PerkB.filePath.Substring(0, survivor.PerkB.filePath.Length - folders[folders.Length - 1].Length)}");
                         }
-                        Constants.CopyFile($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PERKS}/{survivor.PerkB.filePath}", $"{gamePath}/{Constants.FOLDER_PERKS}/{survivor.PerkB.filePath}");
+                        Constants.CopyFile($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PERKS}\\{survivor.PerkB.filePath}", $"{gamePath}\\{Constants.FOLDER_PERKS}\\{survivor.PerkB.filePath}");
 
                         if (survivor.PerkC.filePath.Contains("/"))
                         {
                             // This file is in a sub folder, so create it
                             string[] folders = survivor.PerkC.filePath.Split("/");
-                            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PERKS}{survivor.PerkC.filePath.Substring(0, survivor.PerkC.filePath.Length - folders[folders.Length - 1].Length)}");
+                            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PERKS}{survivor.PerkC.filePath.Substring(0, survivor.PerkC.filePath.Length - folders[folders.Length - 1].Length)}");
                         }
-                        Constants.CopyFile($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PERKS}/{survivor.PerkC.filePath}", $"{gamePath}/{Constants.FOLDER_PERKS}/{survivor.PerkC.filePath}");
+                        Constants.CopyFile($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PERKS}\\{survivor.PerkC.filePath}", $"{gamePath}\\{Constants.FOLDER_PERKS}\\{survivor.PerkC.filePath}");
                     }
 
                     // Replace the common Survivor Perk images
@@ -1124,9 +1182,9 @@ namespace DBD_ResourcePacks
                         {
                             // This file is in a sub folder, so create it
                             string[] folders = perk.filePath.Split("/");
-                            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PERKS}{perk.filePath.Substring(0, perk.filePath.Length - folders[folders.Length - 1].Length)}");
+                            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PERKS}{perk.filePath.Substring(0, perk.filePath.Length - folders[folders.Length - 1].Length)}");
                         }
-                        Constants.CopyFile($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PERKS}/{perk.filePath}", $"{gamePath}/{Constants.FOLDER_PERKS}/{perk.filePath}");
+                        Constants.CopyFile($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PERKS}\\{perk.filePath}", $"{gamePath}\\{Constants.FOLDER_PERKS}\\{perk.filePath}");
                     }
                 }
             }
@@ -1166,34 +1224,34 @@ namespace DBD_ResourcePacks
                         {
                             // This file is in a sub folder, so create it
                             string[] folders = killer.portrait.Split("/");
-                            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PORTRAITS}{killer.portrait.Substring(0, killer.portrait.Length - folders[folders.Length - 1].Length)}");
+                            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PORTRAITS}{killer.portrait.Substring(0, killer.portrait.Length - folders[folders.Length - 1].Length)}");
                         }
-                        Constants.CopyFile($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PORTRAITS}/{killer.portrait}", $"{gamePath}/{Constants.FOLDER_PORTRAITS}/{killer.portrait}");
+                        Constants.CopyFile($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PORTRAITS}\\{killer.portrait}", $"{gamePath}\\{Constants.FOLDER_PORTRAITS}\\{killer.portrait}");
 
                         // Overwite Perks
                         if (killer.PerkA.filePath.Contains("/"))
                         {
                             // This file is in a sub folder, so create it
                             string[] folders = killer.PerkA.filePath.Split("/");
-                            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PERKS}{killer.PerkA.filePath.Substring(0, killer.PerkA.filePath.Length - folders[folders.Length - 1].Length)}");
+                            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PERKS}{killer.PerkA.filePath.Substring(0, killer.PerkA.filePath.Length - folders[folders.Length - 1].Length)}");
                         }
-                        Constants.CopyFile($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PERKS}/{killer.PerkA.filePath}", $"{gamePath}/{Constants.FOLDER_PERKS}/{killer.PerkA.filePath}");
+                        Constants.CopyFile($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PERKS}\\{killer.PerkA.filePath}", $"{gamePath}\\{Constants.FOLDER_PERKS}\\{killer.PerkA.filePath}");
 
                         if (killer.PerkB.filePath.Contains("/"))
                         {
                             // This file is in a sub folder, so create it
                             string[] folders = killer.PerkB.filePath.Split("/");
-                            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PERKS}{killer.PerkB.filePath.Substring(0, killer.PerkB.filePath.Length - folders[folders.Length - 1].Length)}");
+                            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PERKS}{killer.PerkB.filePath.Substring(0, killer.PerkB.filePath.Length - folders[folders.Length - 1].Length)}");
                         }
-                        Constants.CopyFile($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PERKS}/{killer.PerkB.filePath}", $"{gamePath}/{Constants.FOLDER_PERKS}/{killer.PerkB.filePath}");
+                        Constants.CopyFile($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PERKS}\\{killer.PerkB.filePath}", $"{gamePath}\\{Constants.FOLDER_PERKS}\\{killer.PerkB.filePath}");
 
                         if (killer.PerkC.filePath.Contains("/"))
                         {
                             // This file is in a sub folder, so create it
                             string[] folders = killer.PerkC.filePath.Split("/");
-                            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PERKS}{killer.PerkC.filePath.Substring(0, killer.PerkC.filePath.Length - folders[folders.Length - 1].Length)}");
+                            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PERKS}{killer.PerkC.filePath.Substring(0, killer.PerkC.filePath.Length - folders[folders.Length - 1].Length)}");
                         }
-                        Constants.CopyFile($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PERKS}/{killer.PerkC.filePath}", $"{gamePath}/{Constants.FOLDER_PERKS}/{killer.PerkC.filePath}");
+                        Constants.CopyFile($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PERKS}\\{killer.PerkC.filePath}", $"{gamePath}\\{Constants.FOLDER_PERKS}\\{killer.PerkC.filePath}");
                     }
 
                     // Replace the common Killer Perk images
@@ -1203,9 +1261,9 @@ namespace DBD_ResourcePacks
                         {
                             // This file is in a sub folder, so create it
                             string[] folders = perk.filePath.Split("/");
-                            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PERKS}{perk.filePath.Substring(0, perk.filePath.Length - folders[folders.Length - 1].Length)}");
+                            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PERKS}{perk.filePath.Substring(0, perk.filePath.Length - folders[folders.Length - 1].Length)}");
                         }
-                        Constants.CopyFile($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PERKS}/{perk.filePath}", $"{gamePath}/{Constants.FOLDER_PERKS}/{perk.filePath}");
+                        Constants.CopyFile($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PERKS}\\{perk.filePath}", $"{gamePath}\\{Constants.FOLDER_PERKS}\\{perk.filePath}");
                     }
                 }
             }
@@ -1224,9 +1282,9 @@ namespace DBD_ResourcePacks
                         {
                             // This file is in a sub folder, so create it
                             string[] folders = killer.portrait.Split("/");
-                            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PORTRAITS}{killer.portrait.Substring(0, killer.portrait.Length - folders[folders.Length - 1].Length)}");
+                            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PORTRAITS}{killer.portrait.Substring(0, killer.portrait.Length - folders[folders.Length - 1].Length)}");
                         }
-                        Constants.CopyFile($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PORTRAITS}/{killer.portrait}", $"{gamePath}/{Constants.FOLDER_PORTRAITS}/{killer.portrait}");
+                        Constants.CopyFile($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PORTRAITS}\\{killer.portrait}", $"{gamePath}\\{Constants.FOLDER_PORTRAITS}\\{killer.portrait}");
                     }
                 }
             }
@@ -1245,25 +1303,25 @@ namespace DBD_ResourcePacks
                         {
                             // This file is in a sub folder, so create it
                             string[] folders = killer.PerkA.filePath.Split("/");
-                            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PERKS}{killer.PerkA.filePath.Substring(0, killer.PerkA.filePath.Length - folders[folders.Length - 1].Length)}");
+                            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PERKS}{killer.PerkA.filePath.Substring(0, killer.PerkA.filePath.Length - folders[folders.Length - 1].Length)}");
                         }
-                        Constants.CopyFile($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PERKS}/{killer.PerkA.filePath}", $"{gamePath}/{Constants.FOLDER_PERKS}/{killer.PerkA.filePath}");
+                        Constants.CopyFile($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PERKS}\\{killer.PerkA.filePath}", $"{gamePath}\\{Constants.FOLDER_PERKS}\\{killer.PerkA.filePath}");
 
                         if (killer.PerkB.filePath.Contains("/"))
                         {
                             // This file is in a sub folder, so create it
                             string[] folders = killer.PerkB.filePath.Split("/");
-                            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PERKS}{killer.PerkB.filePath.Substring(0, killer.PerkB.filePath.Length - folders[folders.Length - 1].Length)}");
+                            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PERKS}{killer.PerkB.filePath.Substring(0, killer.PerkB.filePath.Length - folders[folders.Length - 1].Length)}");
                         }
-                        Constants.CopyFile($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PERKS}/{killer.PerkB.filePath}", $"{gamePath}/{Constants.FOLDER_PERKS}/{killer.PerkB.filePath}");
+                        Constants.CopyFile($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PERKS}\\{killer.PerkB.filePath}", $"{gamePath}\\{Constants.FOLDER_PERKS}\\{killer.PerkB.filePath}");
 
                         if (killer.PerkC.filePath.Contains("/"))
                         {
                             // This file is in a sub folder, so create it
                             string[] folders = killer.PerkC.filePath.Split("/");
-                            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PERKS}{killer.PerkC.filePath.Substring(0, killer.PerkC.filePath.Length - folders[folders.Length - 1].Length)}");
+                            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PERKS}{killer.PerkC.filePath.Substring(0, killer.PerkC.filePath.Length - folders[folders.Length - 1].Length)}");
                         }
-                        Constants.CopyFile($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PERKS}/{killer.PerkC.filePath}", $"{gamePath}/{Constants.FOLDER_PERKS}/{killer.PerkC.filePath}");
+                        Constants.CopyFile($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PERKS}\\{killer.PerkC.filePath}", $"{gamePath}\\{Constants.FOLDER_PERKS}\\{killer.PerkC.filePath}");
                     }
 
                     // Replace the common Killer Perk images
@@ -1273,9 +1331,9 @@ namespace DBD_ResourcePacks
                         {
                             // This file is in a sub folder, so create it
                             string[] folders = perk.filePath.Split("/");
-                            Directory.CreateDirectory($"{gamePath}/{Constants.FOLDER_PERKS}{perk.filePath.Substring(0, perk.filePath.Length - folders[folders.Length - 1].Length)}");
+                            Directory.CreateDirectory($"{gamePath}\\{Constants.FOLDER_PERKS}{perk.filePath.Substring(0, perk.filePath.Length - folders[folders.Length - 1].Length)}");
                         }
-                        Constants.CopyFile($"{Constants.DIR_DOWNLOADED}/{pack.uniqueKey}/Pack/{Constants.FOLDER_PERKS}/{perk.filePath}", $"{gamePath}/{Constants.FOLDER_PERKS}/{perk.filePath}");
+                        Constants.CopyFile($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack/{Constants.FOLDER_PERKS}\\{perk.filePath}", $"{gamePath}\\{Constants.FOLDER_PERKS}\\{perk.filePath}");
                     }
                 }
             }

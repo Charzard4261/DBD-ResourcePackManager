@@ -1,4 +1,4 @@
-﻿using DBD_ResourcePacks.Classes;
+﻿using DBD_ResourcePackManager.Classes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 
-namespace DBD_ResourcePacks.UserControls
+namespace DBD_ResourcePackManager.UserControls
 {
     /// <summary>
     /// Interaction logic for PackSelect.xaml
