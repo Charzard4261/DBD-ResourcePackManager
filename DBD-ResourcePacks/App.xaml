@@ -26,6 +26,13 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+        <Style TargetType="{x:Type StackPanel}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Source={x:Static properties:Settings.Default}, Path=ThemeActual}" Value="Dark">
+                    <Setter Property="Background" Value="{StaticResource DarkThemeBackgroundA}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
 
         <Style TargetType="{x:Type ToolBarTray}">
             <Style.Triggers>
@@ -184,6 +191,15 @@
 
         <Style TargetType="{x:Type Image}">
             <Setter Property="RenderOptions.BitmapScalingMode" Value="HighQuality"/>
+        </Style>
+
+        <Style TargetType="{x:Type CheckBox}">
+            <Setter Property="Margin" Value="0,0,5,0"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Source={x:Static properties:Settings.Default}, Path=ThemeActual}" Value="Dark">
+                    <Setter Property="Foreground" Value="{StaticResource DarkThemeForegroundA}"/>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
 
     </Application.Resources>

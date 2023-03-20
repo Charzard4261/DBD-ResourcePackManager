@@ -11,8 +11,7 @@ namespace DBD_ResourcePacks.Classes
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "") { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); }
 
         private WriteableBitmap _image;
-        [JsonIgnore]
-        public WriteableBitmap Image { get => _image; set { _image = value; NotifyPropertyChanged(); } }
+        [JsonIgnore] public WriteableBitmap Image { get => _image; set { _image = value; NotifyPropertyChanged(); } }
 
         public string key = "";
         public string filePath = "";

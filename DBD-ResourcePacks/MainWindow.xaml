@@ -8,16 +8,52 @@
         mc:Ignorable="d"
         Title="DBD Resource Pack Manager"
         MinHeight="600" MinWidth="1200"
+        Height="800"
         SnapsToDevicePixels="True">
     <DockPanel>
-        <Button DockPanel.Dock="Top" Style="{StaticResource Ghost}" Content="Settings" HorizontalAlignment="Left" Click="OpenSettings"/>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+            <Button Style="{StaticResource Ghost}" Content="Settings" Click="OpenSettings"/>
+            <Button Style="{StaticResource Ghost}" Content="About" Click="OpenAbout"/>
+        </StackPanel>
 
         <TabControl TabStripPlacement="Left" SelectionChanged="TabControl_SelectionChanged">
             <TabItem Header="Downloaded">
                 <Grid x:Name="downloadedGrid">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Default "No Packs Downloaded" Message -->
                     <Label x:Name="noPacksDownloaded" Grid.RowSpan="99" Grid.ColumnSpan="99" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <TextBlock TextAlignment="Center">No Packs downloaded.<LineBreak/>Head to Browse to discover some!</TextBlock>
                     </Label>
+
+                    <!-- Pack Search Controls -->
+                    <Grid Grid.Row="0" Grid.ColumnSpan="99" HorizontalAlignment="Right">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label Content="Filter:" Grid.Column="0"/>
+                        <StackPanel Orientation="Horizontal" Grid.Column="1">
+                            <CheckBox VerticalAlignment="Center" Content="Portraits" x:Name="downloadPortraits" IsChecked="{Binding Path=Register.DownloadPortraits, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                            <CheckBox VerticalAlignment="Center" Content="Perks"     x:Name="downloadPerks"     IsChecked="{Binding Path=Register.DownloadPerks, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                            <CheckBox VerticalAlignment="Center" Content="Items"     x:Name="downloadItems"     IsChecked="{Binding Path=Register.DownloadItems, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                            <CheckBox VerticalAlignment="Center" Content="Addons"    x:Name="downloadAddons"    IsChecked="{Binding Path=Register.DownloadAddons, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                            <CheckBox VerticalAlignment="Center" Content="Powers"    x:Name="downloadPowers"    IsChecked="{Binding Path=Register.DownloadPowers, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                            <CheckBox VerticalAlignment="Center" Content="Offerings" x:Name="downloadOfferings" IsChecked="{Binding Path=Register.DownloadOfferings, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                            <CheckBox VerticalAlignment="Center" Content="MiscUI"    x:Name="downloadMiscUI"    IsChecked="{Binding Path=Register.DownloadMiscUI, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                        </StackPanel>
+                        <Label Content="Search:" Grid.Column="3"/>
+                        <TextBox x:Name="downloadSearch" Grid.Column="4" Width="200" VerticalContentAlignment="Center" KeyUp="DownloadSearch_KeyUp"/>
+                    </Grid>
+
+                    <!-- Page Navigation -->
                     <Grid Grid.Row="99" Grid.ColumnSpan="99" HorizontalAlignment="Center">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto"/>
@@ -25,6 +61,7 @@
                             <ColumnDefinition Width="auto"/>
                             <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
+
                         <Button  x:Name="downloadPageLeft"   Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Content="&lt;" Click="DownloadPageLeft_Click"/>
                         <TextBox x:Name="downloadPageSelect" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="15" KeyUp="DownloadPageSelect_KeyUp"/>
                         <Label   x:Name="downloadPageTotal"  Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -34,6 +71,36 @@
             </TabItem>
             <TabItem Header="Browse">
                 <Grid x:Name="browseGrid">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Pack Search Controls -->
+                    <Grid Grid.Row="0" Grid.ColumnSpan="99" HorizontalAlignment="Right">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="auto"/>
+                            <ColumnDefinition Width="auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Label Content="Filter:" Grid.Column="0"/>
+                        <StackPanel Orientation="Horizontal" Grid.Column="1">
+                            <CheckBox VerticalAlignment="Center" Content="Portraits" x:Name="browsePortraits" IsChecked="{Binding Path=Register.BrowsePortraits, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                            <CheckBox VerticalAlignment="Center" Content="Perks"     x:Name="browsePerks"     IsChecked="{Binding Path=Register.BrowsePerks, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                            <CheckBox VerticalAlignment="Center" Content="Items"     x:Name="browseItems"     IsChecked="{Binding Path=Register.BrowseItems, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                            <CheckBox VerticalAlignment="Center" Content="Addons"    x:Name="browseAddons"    IsChecked="{Binding Path=Register.BrowseAddons, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                            <CheckBox VerticalAlignment="Center" Content="Powers"    x:Name="browsePowers"    IsChecked="{Binding Path=Register.BrowsePowers, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                            <CheckBox VerticalAlignment="Center" Content="Offerings" x:Name="browseOfferings" IsChecked="{Binding Path=Register.BrowseOfferings, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                            <CheckBox VerticalAlignment="Center" Content="MiscUI"    x:Name="browseMiscUI"    IsChecked="{Binding Path=Register.BrowseMiscUI, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                        </StackPanel>
+                        <Label Content="Search:" Grid.Column="3"/>
+                        <TextBox x:Name="browseSearch" Grid.Column="4" Width="200" VerticalContentAlignment="Center" KeyUp="BrowseSearch_KeyUp"/>
+                    </Grid>
+
+                    <!-- Page Navigation -->
                     <Grid Grid.Row="99" Grid.ColumnSpan="99" HorizontalAlignment="Center">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="auto"/>
@@ -41,6 +108,7 @@
                             <ColumnDefinition Width="auto"/>
                             <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
+
                         <Button  x:Name="browsePageLeft"   Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Content="&lt;" Click="BrowsePageLeft_Click"/>
                         <TextBox x:Name="browsePageSelect" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" MinWidth="15" KeyUp="BrowsePageSelect_KeyUp"/>
                         <Label   x:Name="browsePageTotal"  Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -50,7 +118,7 @@
             </TabItem>
             <TabItem Header="Customise">
                 <ScrollViewer>
-                    <Grid x:Name="characterGrid" VerticalAlignment="Top">
+                    <Grid x:Name="characterGrid">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1*"/>
                             <ColumnDefinition Width="1*"/>
@@ -62,18 +130,22 @@
                             <ColumnDefinition Width="1*"/>
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
+
                         <!-- Middle Column Controls -->
                         <Grid Grid.Column="4" Grid.RowSpan="99" VerticalAlignment="Top">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="1*"/>
-                                <RowDefinition Height="20"/>
+                                <RowDefinition Height="5"/>
                                 <RowDefinition Height="1*"/>
-                                <RowDefinition Height="20"/>
+                                <RowDefinition Height="5"/>
                                 <RowDefinition Height="1*"/>
-                                <RowDefinition Height="20"/>
+                                <RowDefinition Height="5"/>
+                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="5"/>
                                 <RowDefinition Height="1*"/>
                             </Grid.RowDefinitions>
-                            <!-- Set All -->
+
+                            <!-- Set Base -->
                             <Grid Grid.Row="0">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="1*"/>
@@ -83,9 +155,10 @@
                                     <ColumnDefinition Width="auto"/>
                                     <ColumnDefinition Width="1*"/>
                                 </Grid.ColumnDefinitions>
+
                                 <Label Grid.ColumnSpan="99" Content="Set Base" HorizontalContentAlignment="Center"/>
                                 <Button Grid.Row="1" Grid.Column="0" Content="Everything" Click="SetAllEverything"/>
-                                <Label Grid.Row="1" Grid.Column="1" x:Name="labelAll"/>
+                                <Label Grid.Row="1" Grid.Column="1" Content="{Binding Path=Customiser.EverythingPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                             </Grid>
                             <!-- Set All -->
                             <Grid Grid.Row="2">
@@ -103,30 +176,29 @@
                                     <ColumnDefinition Width="auto"/>
                                     <ColumnDefinition Width="1*"/>
                                 </Grid.ColumnDefinitions>
+
                                 <Label Grid.ColumnSpan="99" Content="Override All" HorizontalContentAlignment="Center"/>
-                                <Button Grid.Row="1" Grid.Column="0" Content="Portraits" Click="SetAllPortraits"/>
-                                <Label Grid.Row="1" Grid.Column="1" x:Name="labelAllPortraits"/>
-                                <Button Grid.Row="2" Grid.Column="0" Content="Perks" Click="SetAllPerks"/>
-                                <Label Grid.Row="2" Grid.Column="1" x:Name="labelAllPerks"/>
-                                <Button Grid.Row="3" Grid.Column="0" Content="Items" Click="SetAllItems"/>
-                                <Label Grid.Row="3" Grid.Column="1" x:Name="labelAllItems"/>
-                                <Button Grid.Row="4" Grid.Column="0" Content="Item Addons" Click="SetAllItemAddons"/>
-                                <Label Grid.Row="4" Grid.Column="1" x:Name="labelAllItemAddons"/>
-                                <Button Grid.Row="5" Grid.Column="0" Content="Killer Powers" Click="SetAllPowers"/>
-                                <Label Grid.Row="5" Grid.Column="1" x:Name="labelAllPowers"/>
-                                <Button Grid.Row="6" Grid.Column="0" Content="Killer Addons" Click="SetAllPowerAddons"/>
-                                <Label Grid.Row="6" Grid.Column="1" x:Name="labelAllKillerAddons"/>
-                                <Button Grid.Row="7" Grid.Column="0" Content="Offerings" Click="SetAllOfferings"/>
-                                <Label Grid.Row="7" Grid.Column="1" x:Name="labelAllOfferings"/>
-                                <Button Grid.Row="8" Grid.Column="0" Content="Misc. UI" Click="SetAllMiscUI"/>
-                                <Label Grid.Row="8" Grid.Column="1" x:Name="labelAllMiscUI"/>
+                                <Button Grid.Row="1" Grid.Column="0" Content="Portraits"      Click="SetAllPortraits"/>
+                                <Label  Grid.Row="1" Grid.Column="1" Content="{Binding Path=Customiser.AllPortraitsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                                <Button Grid.Row="2" Grid.Column="0" Content="Perks"          Click="SetAllPerks"/>
+                                <Label  Grid.Row="2" Grid.Column="1" Content="{Binding Path=Customiser.AllPerksPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                                <Button Grid.Row="3" Grid.Column="0" Content="Addons"         Click="SetAllAddons"/>
+                                <Label  Grid.Row="3" Grid.Column="1" Content="{Binding Path=Customiser.AllAddonsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                                <Button Grid.Row="4" Grid.Column="0" Content="Offerings"      Click="SetAllOfferings"/>
+                                <Label  Grid.Row="4" Grid.Column="1" Content="{Binding Path=Customiser.AllOfferingsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                                <Button Grid.Row="5" Grid.Column="0" Content="Emblems"        Click="SetAllEmblems"/>
+                                <Label  Grid.Row="5" Grid.Column="1" Content="{Binding Path=Customiser.AllEmblemsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                                <Button Grid.Row="6" Grid.Column="0" Content="Status Effects" Click="SetAllStatusEffects"/>
+                                <Label  Grid.Row="6" Grid.Column="1" Content="{Binding Path=Customiser.AllStatusEffectsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                                <Button Grid.Row="7" Grid.Column="0" Content="Misc. UI"       Click="SetAllMiscUI"/>
+                                <Label  Grid.Row="7" Grid.Column="1" Content="{Binding Path=Customiser.AllMiscUIPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                             </Grid>
                             <!-- Set All Survivor -->
                             <Grid Grid.Row="4">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="1*"/>
                                     <RowDefinition Height="1*"/>
-                                    <RowDefinition Height="10"/>
+                                    <RowDefinition Height="5"/>
                                     <RowDefinition Height="1*"/>
                                     <RowDefinition Height="1*"/>
                                     <RowDefinition Height="1*"/>
@@ -137,22 +209,27 @@
                                     <ColumnDefinition Width="auto"/>
                                     <ColumnDefinition Width="1*"/>
                                 </Grid.ColumnDefinitions>
+
                                 <Label Grid.ColumnSpan="99" Content="Override Survivor" HorizontalContentAlignment="Center"/>
-                                <Button Grid.Row="1" Grid.Column="0" Content="Everything" Click="SetAllSurvivorEverything"/>
-                                <Label Grid.Row="1" Grid.Column="1" x:Name="labelSurvivorAll"/>
-                                <Button Grid.Row="3" Grid.Column="0" Content="Portraits" Click="SetAllSurvivorPortraits"/>
-                                <Label Grid.Row="3" Grid.Column="1" x:Name="labelSurvivorPortraits"/>
-                                <Button Grid.Row="4" Grid.Column="0" Content="Perks" Click="SetAllSurvivorPerks"/>
-                                <Label Grid.Row="4" Grid.Column="1" x:Name="labelSurvivorPerks"/>
-                                <Button Grid.Row="5" Grid.Column="0" Content="Offerings" Click="SetAllSurvivorOfferings"/>
-                                <Label Grid.Row="5" Grid.Column="1" x:Name="labelSurvivorOfferings"/>
+                                <Button Grid.Row="1" Grid.Column="0" Content="Everything"  Click="SetAllSurvivorEverything"/>
+                                <Label  Grid.Row="1" Grid.Column="1" Content="{Binding Path=Customiser.AllSurvivorsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                                <Button Grid.Row="3" Grid.Column="0" Content="Portraits"   Click="SetAllSurvivorPortraits"/>
+                                <Label  Grid.Row="3" Grid.Column="1" Content="{Binding Path=Customiser.AllSurvivorPortraitsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                                <Button Grid.Row="4" Grid.Column="0" Content="Perks"       Click="SetAllSurvivorPerks"/>
+                                <Label  Grid.Row="4" Grid.Column="1" Content="{Binding Path=Customiser.AllSurvivorPerksPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                                <Button Grid.Row="5" Grid.Column="0" Content="Items"          Click="SetAllItems"/>
+                                <Label  Grid.Row="5" Grid.Column="1" Content="{Binding Path=Customiser.AllItemsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                                <Button Grid.Row="6" Grid.Column="0" Content="Item Addons" Click="SetAllItemAddons"/>
+                                <Label  Grid.Row="6" Grid.Column="1" Content="{Binding Path=Customiser.AllItemAddonsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                                <Button Grid.Row="7" Grid.Column="0" Content="Offerings"   Click="SetAllSurvivorOfferings"/>
+                                <Label  Grid.Row="7" Grid.Column="1" Content="{Binding Path=Customiser.AllSurvivorOfferingsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                             </Grid>
                             <!-- Set All Killer -->
                             <Grid Grid.Row="6">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="1*"/>
                                     <RowDefinition Height="1*"/>
-                                    <RowDefinition Height="10"/>
+                                    <RowDefinition Height="5"/>
                                     <RowDefinition Height="1*"/>
                                     <RowDefinition Height="1*"/>
                                     <RowDefinition Height="1*"/>
@@ -163,15 +240,33 @@
                                     <ColumnDefinition Width="auto"/>
                                     <ColumnDefinition Width="1*" />
                                 </Grid.ColumnDefinitions>
+
                                 <Label Grid.ColumnSpan="99" Content="Override Killer" HorizontalContentAlignment="Center"/>
-                                <Button Grid.Row="1" Grid.Column="0" Content="Everything" Click="SetAllKillerEverything"/>
-                                <Label Grid.Row="1" Grid.Column="1" x:Name="labelKillerAll"/>
-                                <Button Grid.Row="3" Grid.Column="0" Content="Portraits" Click="SetAllKillerPortraits"/>
-                                <Label Grid.Row="3" Grid.Column="1" x:Name="labelKillerPortraits"/>
-                                <Button Grid.Row="4" Grid.Column="0" Content="Perks" Click="SetAllKillerPerks"/>
-                                <Label Grid.Row="4" Grid.Column="1" x:Name="labelKillerPerks"/>
-                                <Button Grid.Row="5" Grid.Column="0" Content="Offerings" Click="SetAllKillerOfferings"/>
-                                <Label Grid.Row="5" Grid.Column="1" x:Name="labelKillerOfferings"/>
+                                <Button Grid.Row="1" Grid.Column="0" Content="Everything"    Click="SetAllKillerEverything"/>
+                                <Label  Grid.Row="1" Grid.Column="1" Content="{Binding Path=Customiser.AllKillersPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                                <Button Grid.Row="3" Grid.Column="0" Content="Portraits"     Click="SetAllKillerPortraits"/>
+                                <Label  Grid.Row="3" Grid.Column="1" Content="{Binding Path=Customiser.AllKillerPortraitsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                                <Button Grid.Row="4" Grid.Column="0" Content="Perks"         Click="SetAllKillerPerks"/>
+                                <Label  Grid.Row="4" Grid.Column="1" Content="{Binding Path=Customiser.AllKillerPerksPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                                <Button Grid.Row="5" Grid.Column="0" Content="Killer Powers"  Click="SetAllPowers"/>
+                                <Label  Grid.Row="5" Grid.Column="1" Content="{Binding Path=Customiser.AllKillerPowersPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                                <Button Grid.Row="6" Grid.Column="0" Content="Killer Addons" Click="SetAllKillerAddons"/>
+                                <Label  Grid.Row="6" Grid.Column="1" Content="{Binding Path=Customiser.AllKillerAddonsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                                <Button Grid.Row="7" Grid.Column="0" Content="Offerings"     Click="SetAllKillerOfferings"/>
+                                <Label  Grid.Row="7" Grid.Column="1" Content="{Binding Path=Customiser.AllKillerOfferingsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                            </Grid>
+                            <!-- Build -->
+                            <Grid Grid.Row="8">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+
+                                <Label Grid.ColumnSpan="99" HorizontalContentAlignment="Center" Content="Install in Game Files"/>
+                                <Button Grid.Row="1" HorizontalAlignment="Center" Content="Install" Click="Install" x:Name="install"/>
                             </Grid>
                         </Grid>
                     </Grid>

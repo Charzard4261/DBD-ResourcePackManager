@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Documents;
 using System;
 using System.Diagnostics;
+using DBD_ResourcePacks.Classes;
 
 namespace DBD_ResourcePacks.UserControls
 {

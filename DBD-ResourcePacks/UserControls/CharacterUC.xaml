@@ -7,23 +7,31 @@
              mc:Ignorable="d" 
              d:DesignHeight="200" d:DesignWidth="150"
              x:Name="myCharacterUC">
-    <Grid>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
-                <ColumnDefinition Width="1*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="2*"/>
-                <RowDefinition Height="1*"/>
-            </Grid.RowDefinitions>
-            <Viewbox Grid.ColumnSpan="3" Grid.RowSpan="2" Stretch="UniformToFill" HorizontalAlignment="Center">
-                <Image x:Name="Portrait" Source="{Binding Path=CharacterInfo.PortraitImage, ElementName=myCharacterUC}"/>
-            </Viewbox>
-            <Image x:Name="PerkA" Grid.Row="1" Grid.Column="0" Source="{Binding Path=CharacterInfo.PerkA.Image, ElementName=myCharacterUC}" VerticalAlignment="Bottom"/>
-            <Image x:Name="PerkB" Grid.Row="1" Grid.Column="1" Source="{Binding Path=CharacterInfo.PerkB.Image, ElementName=myCharacterUC}" VerticalAlignment="Bottom"/>
-            <Image x:Name="PerkC" Grid.Row="1" Grid.Column="2" Source="{Binding Path=CharacterInfo.PerkC.Image, ElementName=myCharacterUC}" VerticalAlignment="Bottom"/>
-        </Grid>
+    <Grid VerticalAlignment="Bottom" HorizontalAlignment="Center">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Viewbox Grid.ColumnSpan="3" Grid.RowSpan="3" Stretch="UniformToFill">
+            <Image x:Name="Portrait" Source="{Binding Path=CharacterInfo.PortraitImage, ElementName=myCharacterUC}"/>
+        </Viewbox>
+        <Viewbox Grid.Row="0" Grid.Column="0" Stretch="UniformToFill" VerticalAlignment="Top">
+            <Image x:Name="Power"    Source="{Binding Path=CharacterInfo.AdditionalImage, ElementName=myCharacterUC}"/>
+        </Viewbox>
+        <Viewbox Grid.Row="2" Grid.Column="0" Stretch="UniformToFill" VerticalAlignment="Bottom">
+            <Image x:Name="PerkA"    Source="{Binding Path=CharacterInfo.PerkA.Image, ElementName=myCharacterUC}"/>
+        </Viewbox>
+        <Viewbox Grid.Row="2" Grid.Column="1" Stretch="UniformToFill" VerticalAlignment="Bottom">
+            <Image x:Name="PerkB"    Source="{Binding Path=CharacterInfo.PerkB.Image, ElementName=myCharacterUC}"/>
+        </Viewbox>
+        <Viewbox Grid.Row="2" Grid.Column="2" Stretch="UniformToFill" VerticalAlignment="Bottom">
+            <Image x:Name="PerkC"    Source="{Binding Path=CharacterInfo.PerkC.Image, ElementName=myCharacterUC}"/>
+        </Viewbox>
     </Grid>
 </UserControl>

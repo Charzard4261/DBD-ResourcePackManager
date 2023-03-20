@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:DBD_ResourcePacks.UserControls"
         mc:Ignorable="d"
         Title="DBD Resource Pack Manager Settings"
-        Height="600" Width="500" ResizeMode="NoResize"
+        Height="300" Width="500" ResizeMode="NoResize"
         SnapsToDevicePixels="True">
     <DockPanel>
         <TabControl TabStripPlacement="Left">
@@ -47,21 +47,16 @@
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
-                        <RowDefinition Height="20"/>
-                        <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
 
                     <Label  Grid.Row="0" Grid.Column="0" Content="Clear Browse Image Cache"/>
                     <Button Grid.Row="0" Grid.Column="1" Content="Clear" Click="ClearBrowseCache_Click"/>
 
-                    <Label  Grid.Row="2" Grid.Column="0" Content="Clear Old Download Pack Banners"/>
-                    <Button Grid.Row="2" Grid.Column="1" Content="Clear" Click="ClearOldDownloadBanners_Click"/>
+                    <Label  Grid.Row="1" Grid.Column="0" Content="Clear Old Download Pack Banners"/>
+                    <Button Grid.Row="1" Grid.Column="1" Content="Clear" Click="ClearOldDownloadBanners_Click"/>
 
-                    <Label  Grid.Row="1" Grid.Column="0" Content="Clear UI Image Cache (Requires Restart)"/>
-                    <Button Grid.Row="1" Grid.Column="1" Content="Clear" Click="ClearUICache_Click"/>
-
-                    <Label  Grid.Row="4" Grid.Column="0" Content="Delete All Packs"/>
-                    <Button Grid.Row="4" Grid.Column="1" Content="Delete" Click="DeletePacks_Click"/>
+                    <Label  Grid.Row="2" Grid.Column="0" Content="Clear Default Image Cache (Requires Restart)"/>
+                    <Button Grid.Row="2" Grid.Column="1" Content="Clear" Click="ClearDefaultImageCache_Click"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Updates">

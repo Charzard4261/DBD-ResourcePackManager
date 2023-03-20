@@ -1,5 +1,5 @@
 ﻿
-namespace DBD_ResourcePacks
+namespace DBD_ResourcePacks.Classes
 {
     public class Credit
     {

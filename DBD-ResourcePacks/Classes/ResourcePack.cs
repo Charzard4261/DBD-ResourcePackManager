@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace DBD_ResourcePacks
+namespace DBD_ResourcePacks.Classes
 {
     public class ResourcePack : INotifyPropertyChanged
     {
@@ -12,10 +12,8 @@ namespace DBD_ResourcePacks
 
         private string _state = "";
         private bool _actionable = false;
-        [JsonIgnore]
-        public string PackState { get => _state; set { _state = value; NotifyPropertyChanged(); } }
-        [JsonIgnore]
-        public bool PackActionable { get => _actionable; set { _actionable = value; NotifyPropertyChanged(); } }
+        [JsonIgnore] public string PackState { get => _state; set { _state = value; NotifyPropertyChanged(); } }
+        [JsonIgnore] public bool PackActionable { get => _actionable; set { _actionable = value; NotifyPropertyChanged(); } }
 
         public string uniqueKey = "";
         public string name = "";

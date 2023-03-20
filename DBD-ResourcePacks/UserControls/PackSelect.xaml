@@ -1,0 +1,22 @@
+﻿<Window x:Class="DBD_ResourcePacks.UserControls.PackSelect"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DBD_ResourcePacks.UserControls"
+        mc:Ignorable="d"
+        Title="Select Pack" Height="600" Width="400"
+        ResizeMode="NoResize">
+    <DockPanel>
+        <DockPanel DockPanel.Dock="Top">
+            <Label Content="Search:"/>
+            <TextBox x:Name="search" KeyUp="Search_KeyUp"/>
+        </DockPanel>
+        <ScrollViewer>
+            <StackPanel x:Name="packsStackPanel" HorizontalAlignment="Left">
+                <Button HorizontalAlignment="Left" Content="No Override"   Click="OnPackSelect" Tag="none"/>
+                <Button HorizontalAlignment="Left" Content="Default Image" Click="OnPackSelect" Tag="default"/>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

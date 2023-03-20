@@ -12,8 +12,7 @@ namespace DBD_ResourcePacks.Classes
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "") { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); }
 
         private WriteableBitmap _powerImage;
-        [JsonIgnore]
-        public WriteableBitmap PowerImage { get => _powerImage; set { _powerImage = value; NotifyPropertyChanged(); } }
+        [JsonIgnore] public WriteableBitmap PowerImage { get => _powerImage; set { _powerImage = value; NotifyPropertyChanged(); } }
 
         public List<string> powers;
         public string defaultPower = "";
