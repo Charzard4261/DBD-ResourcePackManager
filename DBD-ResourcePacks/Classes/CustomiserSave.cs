@@ -21,6 +21,7 @@ namespace DBD_ResourcePackManager.Classes
         public string allItems             = "";
         public string allItemAddons        = "";
         public string allSurvivorOfferings = "";
+        public string allSurvivorEmblems   = "";
 
         public string allKillers           = "";
         public string allKillerPortraits   = "";
@@ -28,5 +29,6 @@ namespace DBD_ResourcePackManager.Classes
         public string allKillerPowers      = "";
         public string allKillerAddons      = "";
         public string allKillerOfferings   = "";
+        public string allKillerEmblems     = "";
     }
 }

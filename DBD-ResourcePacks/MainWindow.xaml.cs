@@ -618,6 +618,9 @@ namespace DBD_ResourcePackManager
                     }
                     ZipFile.ExtractToDirectory(file, $"{appFolder}\\{Constants.DIR_RESOURCES}", true);
                     File.Delete(file);
+                    Settings.Default.ResourcesVersionMajor = major;
+                    Settings.Default.ResourcesVersionMinor = minor;
+                    Settings.Default.Save();
                     return true;
                 }
             }
@@ -646,6 +649,9 @@ namespace DBD_ResourcePackManager
                     }
                     ZipFile.ExtractToDirectory(file, $"{appFolder}\\{Constants.DIR_PACKS}", true);
                     File.Delete(file);
+                    Settings.Default.PacksVersionMajor = major;
+                    Settings.Default.PacksVersionMinor = minor;
+                    Settings.Default.Save();
                     return true;
                 }
             }
@@ -947,6 +953,22 @@ namespace DBD_ResourcePackManager
                 File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
+        void SetAllSurvivorEmblems(object sender, RoutedEventArgs e)
+        {
+            PackSelect packSelect = new PackSelect(Register.GetDownloadedPacks());
+            // == true because ShowDialog is a "bool?"
+            if (packSelect.ShowDialog() == true)
+            {
+                string result = packSelect.unique_key;
+                if (result == "none")
+                    _customiser.AllSurvivorEmblems = "";
+                else
+                    _customiser.AllSurvivorEmblems = result;
+                _customiser.SetImages();
+
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+            }
+        }
 
         void SetAllKillerEverything(object sender, RoutedEventArgs e)
         {
@@ -1028,13 +1050,29 @@ namespace DBD_ResourcePackManager
                 File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
             }
         }
+        void SetAllKillerEmblems(object sender, RoutedEventArgs e)
+        {
+            PackSelect packSelect = new PackSelect(Register.GetDownloadedPacks());
+            // == true because ShowDialog is a "bool?"
+            if (packSelect.ShowDialog() == true)
+            {
+                string result = packSelect.unique_key;
+                if (result == "none")
+                    _customiser.AllKillerEmblems = "";
+                else
+                    _customiser.AllKillerEmblems = result;
+                _customiser.SetImages();
+
+                File.WriteAllText($"{appFolder}\\{Constants.FILE_CUSTOMISER}", JsonConvert.SerializeObject(_customiser.save, Formatting.Indented));
+            }
+        }
 
         void Install(object sender, RoutedEventArgs e)
         {
             if (!Constants.IsValidGamePath(Settings.Default.GameInstallationPath))
                 return;
 
-            string gamePath = $"{Settings.Default.GameInstallationPath}\\DeadByDaylight/Content/UI/Icons";
+            string gamePath = $"{Settings.Default.GameInstallationPath}\\DeadByDaylight\\Content\\UI\\Icons";
             if (Directory.Exists(gamePath))
                 Directory.Delete(gamePath, true);
 

@@ -208,6 +208,7 @@
                                     <RowDefinition Height="1*"/>
                                     <RowDefinition Height="1*"/>
                                     <RowDefinition Height="1*"/>
+                                    <RowDefinition Height="1*"/>
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="auto"/>
@@ -223,10 +224,12 @@
                                 <Label  Grid.Row="4" Grid.Column="1" Content="{Binding Path=Customiser.AllSurvivorPerksPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                                 <Button Grid.Row="5" Grid.Column="0" Content="Items"          Click="SetAllItems"/>
                                 <Label  Grid.Row="5" Grid.Column="1" Content="{Binding Path=Customiser.AllItemsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
-                                <Button IsEnabled="False" Grid.Row="6" Grid.Column="0" Content="Item Addons" Click="SetAllItemAddons"/>
+                                <Button IsEnabled="False" Grid.Row="6" Grid.Column="0" Content="Addons" Click="SetAllItemAddons"/>
                                 <Label  Grid.Row="6" Grid.Column="1" Content="{Binding Path=Customiser.AllItemAddonsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                                 <Button IsEnabled="False" Grid.Row="7" Grid.Column="0" Content="Offerings"   Click="SetAllSurvivorOfferings"/>
                                 <Label  Grid.Row="7" Grid.Column="1" Content="{Binding Path=Customiser.AllSurvivorOfferingsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                                <Button IsEnabled="False" Grid.Row="8" Grid.Column="0" Content="Emblems"   Click="SetAllSurvivorEmblems"/>
+                                <Label  Grid.Row="8" Grid.Column="1" Content="{Binding Path=Customiser.AllSurvivorEmblemsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                             </Grid>
                             <!-- Set All Killer -->
                             <Grid Grid.Row="6">
@@ -234,6 +237,7 @@
                                     <RowDefinition Height="1*"/>
                                     <RowDefinition Height="1*"/>
                                     <RowDefinition Height="5"/>
+                                    <RowDefinition Height="1*"/>
                                     <RowDefinition Height="1*"/>
                                     <RowDefinition Height="1*"/>
                                     <RowDefinition Height="1*"/>
@@ -252,12 +256,14 @@
                                 <Label  Grid.Row="3" Grid.Column="1" Content="{Binding Path=Customiser.AllKillerPortraitsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                                 <Button Grid.Row="4" Grid.Column="0" Content="Perks"         Click="SetAllKillerPerks"/>
                                 <Label  Grid.Row="4" Grid.Column="1" Content="{Binding Path=Customiser.AllKillerPerksPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
-                                <Button Grid.Row="5" Grid.Column="0" Content="Killer Powers"  Click="SetAllPowers"/>
+                                <Button Grid.Row="5" Grid.Column="0" Content="Powers"        Click="SetAllPowers"/>
                                 <Label  Grid.Row="5" Grid.Column="1" Content="{Binding Path=Customiser.AllKillerPowersPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
-                                <Button IsEnabled="False" Grid.Row="6" Grid.Column="0" Content="Killer Addons" Click="SetAllKillerAddons"/>
+                                <Button IsEnabled="False" Grid.Row="6" Grid.Column="0" Content="Addons"    Click="SetAllKillerAddons"/>
                                 <Label  Grid.Row="6" Grid.Column="1" Content="{Binding Path=Customiser.AllKillerAddonsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
-                                <Button IsEnabled="False" Grid.Row="7" Grid.Column="0" Content="Offerings"     Click="SetAllKillerOfferings"/>
+                                <Button IsEnabled="False" Grid.Row="7" Grid.Column="0" Content="Offerings" Click="SetAllKillerOfferings"/>
                                 <Label  Grid.Row="7" Grid.Column="1" Content="{Binding Path=Customiser.AllKillerOfferingsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                                <Button IsEnabled="False" Grid.Row="8" Grid.Column="0" Content="Emblems"   Click="SetAllKillerEmblems"/>
+                                <Label  Grid.Row="8" Grid.Column="1" Content="{Binding Path=Customiser.AllKillerEmblemsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                             </Grid>
                             <!-- Build -->
                             <Grid Grid.Row="8">

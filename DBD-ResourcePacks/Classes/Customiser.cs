@@ -37,12 +37,14 @@ namespace DBD_ResourcePackManager.Classes
         public string AllSurvivorPerks     { get => save.allSurvivorPerks;     set { save.allSurvivorPerks = value;     NotifyPropertyChanged("AllSurvivorPerksPackName"); } }
         public string AllItemAddons        { get => save.allItemAddons;        set { save.allItemAddons = value;        NotifyPropertyChanged("AllItemAddonsPackName"); } }
         public string AllSurvivorOfferings { get => save.allSurvivorOfferings; set { save.allSurvivorOfferings = value; NotifyPropertyChanged("AllSurvivorOfferingsPackName"); } }
+        public string AllSurvivorEmblems   { get => save.allSurvivorEmblems;   set { save.allSurvivorEmblems = value;   NotifyPropertyChanged("AllSurvivorEmblemsPackName"); } }
 
         public string AllKillers           { get => save.allKillers;           set { save.allKillers = value;           NotifyPropertyChanged("AllKillersPackName"); } }
         public string AllKillerPortraits   { get => save.allKillerPortraits;   set { save.allKillerPortraits = value;   NotifyPropertyChanged("AllKillerPortraitsPackName"); } }
         public string AllKillerPerks       { get => save.allKillerPerks;       set { save.allKillerPerks = value;       NotifyPropertyChanged("AllKillerPerksPackName"); } }
         public string AllKillerAddons      { get => save.allKillerAddons;      set { save.allKillerAddons = value;      NotifyPropertyChanged("AllKillerAddonsPackName"); } }
         public string AllKillerOfferings   { get => save.allKillerOfferings;   set { save.allKillerOfferings = value;   NotifyPropertyChanged("AllKillerOfferingsPackName"); } }
+        public string AllKillerEmblems     { get => save.allKillerEmblems;     set { save.allKillerEmblems = value;     NotifyPropertyChanged("AllKillerEmblemsPackName"); } }
         #endregion
 
         #region Pack Name for WPF Binding
@@ -61,6 +63,7 @@ namespace DBD_ResourcePackManager.Classes
         public string AllItemsPackName             { get { return GetPackName(save.allItems); } }
         public string AllItemAddonsPackName        { get { return GetPackName(save.allItemAddons); } }
         public string AllSurvivorOfferingsPackName { get { return GetPackName(save.allSurvivorOfferings); } }
+        public string AllSurvivorEmblemsPackName   { get { return GetPackName(save.allSurvivorEmblems); } }
 
         public string AllKillersPackName           { get { return GetPackName(save.allKillers); } }
         public string AllKillerPortraitsPackName   { get { return GetPackName(save.allKillerPortraits); } }
@@ -68,6 +71,7 @@ namespace DBD_ResourcePackManager.Classes
         public string AllKillerPowersPackName      { get { return GetPackName(save.allKillerPowers); } }
         public string AllKillerAddonsPackName      { get { return GetPackName(save.allKillerAddons); } }
         public string AllKillerOfferingsPackName   { get { return GetPackName(save.allKillerOfferings); } }
+        public string AllKillerEmblemsPackName     { get { return GetPackName(save.allKillerEmblems); } }
         #endregion
 
         public Customiser(MainWindow mainWindow,
