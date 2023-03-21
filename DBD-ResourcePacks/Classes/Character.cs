@@ -11,10 +11,10 @@ namespace DBD_ResourcePackManager.Classes
         public event PropertyChangedEventHandler PropertyChanged;
         private void NotifyPropertyChanged([CallerMemberName] string propertyName = "") { PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName)); }
 
-        private WriteableBitmap _portraitImage;
-        [JsonIgnore] public WriteableBitmap PortraitImage { get => _portraitImage; set { _portraitImage = value; NotifyPropertyChanged(); } }
-        private WriteableBitmap _additionalImage;
-        [JsonIgnore] public WriteableBitmap AdditionalImage { get => _additionalImage; set { _additionalImage = value; NotifyPropertyChanged(); } }
+        private BitmapImage _portraitImage;
+        [JsonIgnore] public BitmapImage PortraitImage { get => _portraitImage; set { _portraitImage = value; NotifyPropertyChanged(); } }
+        private BitmapImage _additionalImage;
+        [JsonIgnore] public BitmapImage AdditionalImage { get => _additionalImage; set { _additionalImage = value; NotifyPropertyChanged(); } }
 
         [JsonIgnore] public string key = "";
         public string portrait = "";

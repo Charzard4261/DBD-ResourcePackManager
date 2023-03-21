@@ -92,12 +92,12 @@ namespace DBD_ResourcePackManager.Classes
         /// c) A "default" override is wanted
         /// </summary>
         /// <param name="perk">The Perk to get the image for</param>
-        /// <returns>The image's file path</returns>
-        public string GetImageForPerk(Perk perk)
+        /// <returns>A copy of the image</returns>
+        public BitmapImage GetImageForPerk(Perk perk)
         {
             string folder = "";
             string first = $"{_mainWindow.appFolder}\\{Constants.DIR_DOWNLOADED}\\";
-            string second = $"/Pack/{Constants.FOLDER_PERKS}\\{perk.filePath}";
+            string second = $"\\Pack\\{Constants.FOLDER_PERKS}\\{perk.filePath}";
 
             if (save.everything != "" && File.Exists($"{first}{save.everything}{second}"))
                 folder = save.everything;
@@ -125,9 +125,16 @@ namespace DBD_ResourcePackManager.Classes
             if (save.overrides.ContainsKey(perk.key))
                 folder = save.overrides[perk.key];
 
+            string file;
             if (folder == "" || folder == "default")
-                return $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}\\{Constants.GetUniqueFilename(perk.defaultImage)}";
-            return $"{first}{folder}{second}";
+                file = $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}\\{Constants.GetUniqueFilename(perk.defaultImage)}";
+            else
+                file = $"{first}{folder}{second}";
+
+            // A final check in case the default image is corrupted
+            if (File.Exists(file))
+                return Constants.LoadImage(file);
+            return null;
         }
         /// <summary>
         /// Get the image file for a Character after user customising.
@@ -137,12 +144,12 @@ namespace DBD_ResourcePackManager.Classes
         /// c) A "default" override is wanted
         /// </summary>
         /// <param name="character">The Character to get the image for</param>
-        /// <returns>The image's file path</returns>
-        public string GetImageForCharacter(Character character)
+        /// <returns>A copy of the image</returns>
+        public BitmapImage GetImageForCharacter(Character character)
         {
             string folder = "";
             string first = $"{_mainWindow.appFolder}\\{Constants.DIR_DOWNLOADED}\\";
-            string second = $"/Pack/{Constants.FOLDER_PORTRAITS}\\{character.portrait}";
+            string second = $"\\Pack\\{Constants.FOLDER_PORTRAITS}\\{character.portrait}";
 
             if (save.everything != "" && File.Exists($"{first}{save.everything}{second}"))
                 folder = save.everything;
@@ -170,9 +177,16 @@ namespace DBD_ResourcePackManager.Classes
             if (save.overrides.ContainsKey(character.key))
                 folder = save.overrides[character.key];
 
+            string file;
             if (folder == "" || folder == "default")
-                return $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}\\{Constants.GetUniqueFilename(character.defaultPortrait)}";
-            return $"{first}{folder}{second}";
+                file = $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}\\{Constants.GetUniqueFilename(character.defaultPortrait)}";
+            else
+                file = $"{first}{folder}{second}";
+
+            // A final check in case the default image is corrupted
+            if (File.Exists(file))
+                return Constants.LoadImage(file);
+            return null;
         }
         /// <summary>
         /// Get the image file for a Killer's Power after user customising.
@@ -182,12 +196,12 @@ namespace DBD_ResourcePackManager.Classes
         /// c) A "default" override is wanted
         /// </summary>
         /// <param name="character">The Killer to get the Power image for</param>
-        /// <returns>The image's file path</returns>
-        public string GetImageForPower(Killer character)
+        /// <returns>A copy of the image</returns>
+        public BitmapImage GetImageForPower(Killer character)
         {
             string folder = "";
             string first = $"{_mainWindow.appFolder}\\{Constants.DIR_DOWNLOADED}\\";
-            string second = $"/Pack/{Constants.FOLDER_POWERS}\\{character.powers[0]}";
+            string second = $"\\Pack\\{Constants.FOLDER_POWERS}\\{character.powers[0]}";
 
             if (save.everything != "" && File.Exists($"{first}{save.everything}{second}"))
                 folder = save.everything;
@@ -201,9 +215,16 @@ namespace DBD_ResourcePackManager.Classes
             if (save.overrides.ContainsKey(character.powers[0]))
                 folder = save.overrides[character.powers[0]];
 
+            string file;
             if (folder == "" || folder == "default")
-                return $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}\\{Constants.GetUniqueFilename(character.defaultPower)}";
-            return $"{first}{folder}{second}";
+                file = $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}\\{Constants.GetUniqueFilename(character.defaultPower)}";
+            else
+                file = $"{first}{folder}{second}";
+
+            // A final check in case the default image is corrupted
+            if (File.Exists(file))
+                return Constants.LoadImage(file);
+            return null;
         }
 
         public string GetPackName(string key)
@@ -267,50 +288,45 @@ namespace DBD_ResourcePackManager.Classes
         {
             foreach (Survivor survivor in _survivors.Values)
             {
+                if (survivor == null)
+                    continue;
                 // Set the Image property to the downloaded (or cached) file
-                survivor.PortraitImage = new WriteableBitmap(new BitmapImage(new Uri(
-                    Path.Combine(Environment.CurrentDirectory, GetImageForCharacter(survivor)))));
+                survivor.PortraitImage = GetImageForCharacter(survivor);
 
                 // Iterating over a temp list to prevent code duplication
                 foreach (Perk perk in new List<Perk>() { survivor.PerkA, survivor.PerkB, survivor.PerkC })
                 {
                     // Set the Image property to the downloaded (or cached) file
-                    perk.Image = new WriteableBitmap(new BitmapImage(new Uri(
-                        Path.Combine(Environment.CurrentDirectory, GetImageForPerk(perk)))));
+                    perk.Image = GetImageForPerk(perk);
                 }
             }
 
             foreach (Perk perk in _commonSurvivorPerks)
             {
                 // Set the Image property to the downloaded (or cached) file
-                perk.Image = new WriteableBitmap(new BitmapImage(new Uri(
-                    Path.Combine(Environment.CurrentDirectory, GetImageForPerk(perk)))));
+                perk.Image = GetImageForPerk(perk);
             }
 
             foreach (Killer killer in _killers.Values)
             {
                 // Set the Image property to the downloaded (or cached) file
-                killer.PortraitImage = new WriteableBitmap(new BitmapImage(new Uri(
-                    Path.Combine(Environment.CurrentDirectory, GetImageForCharacter(killer)))));
+                killer.PortraitImage = GetImageForCharacter(killer);
 
                 // Iterating over a temp list to prevent code duplication
                 foreach (Perk perk in new List<Perk>() { killer.PerkA, killer.PerkB, killer.PerkC })
                 {
                     // Set the Image property to the downloaded (or cached) file
-                    perk.Image = new WriteableBitmap(new BitmapImage(new Uri(
-                        Path.Combine(Environment.CurrentDirectory, GetImageForPerk(perk)))));
+                    perk.Image = GetImageForPerk(perk);
                 }
 
-                killer.AdditionalImage = new WriteableBitmap(new BitmapImage(new Uri(
-                        Path.Combine(Environment.CurrentDirectory, GetImageForPower(killer)))));
+                killer.AdditionalImage = GetImageForPower(killer);
                 // TODO Addons
             }
 
             foreach (Perk perk in _commonKillerPerks)
             {
                 // Set the Image property to the downloaded (or cached) file
-                perk.Image = new WriteableBitmap(new BitmapImage(new Uri(
-                    Path.Combine(Environment.CurrentDirectory, GetImageForPerk(perk)))));
+                perk.Image = GetImageForPerk(perk);
             }
 
             // TODO Set Overrides

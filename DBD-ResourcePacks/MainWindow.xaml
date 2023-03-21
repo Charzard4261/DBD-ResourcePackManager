@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         Title="DBD Resource Pack Manager"
         MinHeight="600" MinWidth="1200"
-        Height="800"
+        Height="700"
         SnapsToDevicePixels="True">
     <DockPanel>
         <Menu DockPanel.Dock="Top">
@@ -136,17 +136,17 @@
                         </Grid.ColumnDefinitions>
 
                         <!-- Middle Column Controls -->
-                        <Grid Grid.Column="4" Grid.RowSpan="99" VerticalAlignment="Top">
+                        <Grid Grid.Column="4" Grid.RowSpan="99">
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="auto"/>
                                 <RowDefinition Height="5"/>
-                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="auto"/>
                                 <RowDefinition Height="5"/>
-                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="auto"/>
                                 <RowDefinition Height="5"/>
-                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="auto"/>
                                 <RowDefinition Height="5"/>
-                                <RowDefinition Height="1*"/>
+                                <RowDefinition Height="auto"/>
                             </Grid.RowDefinitions>
 
                             <!-- Set Base -->
@@ -223,7 +223,7 @@
                                 <Label  Grid.Row="4" Grid.Column="1" Content="{Binding Path=Customiser.AllSurvivorPerksPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                                 <Button Grid.Row="5" Grid.Column="0" Content="Items"          Click="SetAllItems"/>
                                 <Label  Grid.Row="5" Grid.Column="1" Content="{Binding Path=Customiser.AllItemsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
-                                <Button Grid.Row="6" Grid.Column="0" Content="Item Addons" Click="SetAllItemAddons"/>
+                                <Button IsEnabled="False" Grid.Row="6" Grid.Column="0" Content="Item Addons" Click="SetAllItemAddons"/>
                                 <Label  Grid.Row="6" Grid.Column="1" Content="{Binding Path=Customiser.AllItemAddonsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                                 <Button Grid.Row="7" Grid.Column="0" Content="Offerings"   Click="SetAllSurvivorOfferings"/>
                                 <Label  Grid.Row="7" Grid.Column="1" Content="{Binding Path=Customiser.AllSurvivorOfferingsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
@@ -254,7 +254,7 @@
                                 <Label  Grid.Row="4" Grid.Column="1" Content="{Binding Path=Customiser.AllKillerPerksPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                                 <Button Grid.Row="5" Grid.Column="0" Content="Killer Powers"  Click="SetAllPowers"/>
                                 <Label  Grid.Row="5" Grid.Column="1" Content="{Binding Path=Customiser.AllKillerPowersPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
-                                <Button Grid.Row="6" Grid.Column="0" Content="Killer Addons" Click="SetAllKillerAddons"/>
+                                <Button IsEnabled="False" Grid.Row="6" Grid.Column="0" Content="Killer Addons" Click="SetAllKillerAddons"/>
                                 <Label  Grid.Row="6" Grid.Column="1" Content="{Binding Path=Customiser.AllKillerAddonsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                                 <Button Grid.Row="7" Grid.Column="0" Content="Offerings"     Click="SetAllKillerOfferings"/>
                                 <Label  Grid.Row="7" Grid.Column="1" Content="{Binding Path=Customiser.AllKillerOfferingsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>

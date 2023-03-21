@@ -26,9 +26,10 @@
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
 
+                    <!-- DBD Install Path -->
                     <Label   Grid.Row="0" Grid.Column="0" Content="Game Installation Path"/>
                     <TextBox Grid.Row="0" Grid.Column="1" KeyUp="GamePath_KeyUp" ToolTip="Press Enter to save" x:Name="GamePath"/>
-
+                    <!-- Theme -->
                     <Label    Grid.Row="1" Grid.Column="0" Content="Theme"/>
                     <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" SelectionChanged="Theme_SelectionChanged" x:Name="Theme">
                         <ComboBoxItem Content="Auto"/>
@@ -50,15 +51,16 @@
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
 
+                    <!-- Clear Pack Banners -->
                     <Label  Grid.Row="0" Grid.Column="0" Content="Clear Browse Image Cache"/>
                     <Button Grid.Row="0" Grid.Column="1" Content="Clear" Click="ClearBrowseCache_Click"/>
-
+                    <!-- Clear Downloaded Pack Banners -->
                     <Label  Grid.Row="1" Grid.Column="0" Content="Clear Old Download Pack Banners"/>
                     <Button Grid.Row="1" Grid.Column="1" Content="Clear" Click="ClearOldDownloadBanners_Click"/>
-
-                    <Label  Grid.Row="2" Grid.Column="0" Content="Clear Default Image Cache (Requires Restart)"/>
+                    <!-- Redownload UI Images -->
+                    <Label  Grid.Row="2" Grid.Column="0" Content="Re-Download Default Images (Closes Program)"/>
                     <Button Grid.Row="2" Grid.Column="1" Content="Clear" Click="ClearDefaultImageCache_Click"/>
-                    
+                    <!-- Open Cache Folder  -->
                     <Button Grid.Row="3" Grid.Column="1" Content="Open Cache Folder" Click="OpenCache_Click"/>
                 </Grid>
             </TabItem>
@@ -75,14 +77,15 @@
                         <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
 
+                    <!-- Packs Registry Version -->
                     <Label  Grid.Row="0" Grid.Column="0" Content="Packs Version: "/>
                     <Label  Grid.Row="0" Grid.Column="1" HorizontalAlignment="Left" x:Name="packsVersionLabel"/>
                     <Button Grid.Row="0" Grid.Column="2" Click="CheckUpdatePacks" HorizontalAlignment="Right" Content="Check for Update"/>
-
-                    <Label  Grid.Row="1" Grid.Column="0" Content="Packs Version:"/>
+                    <!-- Resources Version -->
+                    <Label  Grid.Row="1" Grid.Column="0" Content="Resources Version:"/>
                     <Label  Grid.Row="1" Grid.Column="1" HorizontalAlignment="Left" x:Name="resourcesVersionLabel"/>
                     <Button Grid.Row="1" Grid.Column="2" Click="CheckUpdateResources" HorizontalAlignment="Right" Content="Check for Update"/>
-
+                    <!-- Program Version -->
                     <Label  Grid.Row="2" Grid.Column="0" Content="Program Version: "/>
                     <Label  Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" x:Name="programVersionLabel"/>
                     <Button Grid.Row="2" Grid.Column="2" Click="CheckUpdateProgram" HorizontalAlignment="Right" Content="Check for Update"/>
