@@ -42,7 +42,9 @@ namespace DBD_ResourcePackManager
 
         // UI
         Dictionary<string, CharacterUC> _survivorUCs = new();
+        List<PerkUC> _survivorPerkUCs = new();
         Dictionary<string, CharacterUC> _killerUCs = new();
+        List<PerkUC> _killerPerkUCs = new();
         #endregion
 
         public MainWindow()
@@ -89,7 +91,6 @@ namespace DBD_ResourcePackManager
             }
 
             #region Resources
-
             if (!File.Exists($"{appFolder}\\{Constants.FILE_SURVIVORS}"))
             {
                 MessageBox.Show("The Survivors resource file was not found.\nProgram cannot continue.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -115,9 +116,15 @@ namespace DBD_ResourcePackManager
                         {
                             perk.forSurvivor = true;
                             commonSurvivorPerks.Add(perk);
+
+                            // Create a Perk User Control for this Perk
+                            PerkUC perkUC = new PerkUC();
+                            perkUC.Perk = perk;
+                            _survivorPerkUCs.Add(perkUC);
                         }
                         continue;
                     }
+
                     Survivor survivor = entry.Value.ToObject<Survivor>();
                     survivor.key = entry.Key;
                     survivor.PerkA.forSurvivor = true;
@@ -128,11 +135,9 @@ namespace DBD_ResourcePackManager
                     survivor.PerkC.fromCharacter = survivor;
                     survivors.Add(entry.Key, survivor);
 
+                    // Create a Character User Control for this Survivor
                     CharacterUC characterUC = new CharacterUC();
                     characterUC.CharacterInfo = survivor;
-
-                    Grid.SetColumn(characterUC, _survivorUCs.Count % 4);
-                    Grid.SetRow(characterUC, _survivorUCs.Count / 4);
                     _survivorUCs.Add(entry.Key, characterUC);
                 }
             }
@@ -162,9 +167,15 @@ namespace DBD_ResourcePackManager
                         {
                             perk.forSurvivor = false;
                             commonKillerPerks.Add(perk);
+
+                            // Create a Perk User Control for this Perk
+                            PerkUC perkUC = new PerkUC();
+                            perkUC.Perk = perk;
+                            _killerPerkUCs.Add(perkUC);
                         }
                         continue;
                     }
+
                     Killer killer = entry.Value.ToObject<Killer>();
                     killer.key = entry.Key;
                     killer.PerkA.forSurvivor = false;
@@ -175,6 +186,7 @@ namespace DBD_ResourcePackManager
                     killer.PerkC.fromCharacter = killer;
                     killers.Add(entry.Key, killer);
 
+                    // Create a Character User Control for this Killer
                     CharacterUC characterUC = new CharacterUC();
                     characterUC.CharacterInfo = killer;
 
@@ -199,17 +211,9 @@ namespace DBD_ResourcePackManager
             #endregion
 
             #region Packs
-
-            /*if (!File.Exists($"{appFolder}\\{Constants.FILE_PACKS}"))
-            {
-                MessageBox.Show("The Packs registry file was not found.\nProgram cannot continue.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Close();
-                return;
-            }*/
-
             Register = new(this);
-            // Load all pack information
 
+            // Load all pack information
             foreach (FileInfo file in new DirectoryInfo($"{appFolder}\\{Constants.DIR_PACKS}").GetFiles())
                 if (Path.GetExtension(file.Name) == ".json")
                     using (StreamReader r = new StreamReader(file.FullName))
@@ -352,29 +356,24 @@ namespace DBD_ResourcePackManager
                 _browsePackUCs.Add(packUC);
             }
 
-            // Fill out the customise grid with enough roughs for all characters to fit
-            for (int i = 0; i < (Math.Max(_survivorUCs.Count, _killerUCs.Count) / 4) + 1; i++)
-            {
-                RowDefinition row = new RowDefinition();
-                row.Height = new GridLength(1, GridUnitType.Auto);
-                characterGrid.RowDefinitions.Add(row);
-            }
-            // Add another row to the bottom for formatting purposes
-            RowDefinition rowStar = new RowDefinition();
-            rowStar.Height = new GridLength(1, GridUnitType.Star);
-            characterGrid.RowDefinitions.Add(rowStar);
-
             // Add all the Survivors to the customise grid
             foreach (CharacterUC characterUC in _survivorUCs.Values)
-                characterGrid.Children.Add(characterUC);
+                survivorGrid.Children.Add(characterUC);
             // Add all the Killers to the customise grid
             foreach (CharacterUC characterUC in _killerUCs.Values)
-                characterGrid.Children.Add(characterUC);
+                killerGrid.Children.Add(characterUC);
 
-            if (Environment.GetCommandLineArgs().Length > 0)
+            // Add all the common Survivor Perk UCs to the customise grid
+            foreach (PerkUC perkUC in _survivorPerkUCs)
+                survivorPerks.Children.Add(perkUC);
+            // Add all the common Killer Perk UCs to the customise grid
+            foreach (PerkUC perkUC in _killerPerkUCs)
+                killerPerks.Children.Add(perkUC);
+
+            if (Environment.GetCommandLineArgs().Length > 1)
             {
                 tabs.SelectedIndex = 1;
-                browseSearch.Text = Environment.GetCommandLineArgs()[0];
+                browseSearch.Text = Environment.GetCommandLineArgs()[1];
             }
         }
 

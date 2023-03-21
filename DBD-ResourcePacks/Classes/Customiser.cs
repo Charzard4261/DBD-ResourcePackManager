@@ -260,14 +260,6 @@ namespace DBD_ResourcePackManager.Classes
                 }
             }
 
-            foreach (Perk perk in _commonSurvivorPerks)
-            {
-                // Try and download the perk (exits early if already cached)
-                await Constants.DownloadImage(perk.defaultImage, $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}");
-                // Set the Image property to the downloaded (or cached) file
-                perk.Image = GetImageForPerk(perk);
-            }
-
             foreach (Killer killer in _killers.Values)
             {
                 // Try and download the potrait (exits early if already cached)
@@ -288,6 +280,14 @@ namespace DBD_ResourcePackManager.Classes
                 // Set the Image property to the downloaded (or cached) file
                 killer.AdditionalImage = GetImageForPower(killer);
                 // TODO Addons
+            }
+
+            foreach (Perk perk in _commonSurvivorPerks)
+            {
+                // Try and download the perk (exits early if already cached)
+                await Constants.DownloadImage(perk.defaultImage, $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}");
+                // Set the Image property to the downloaded (or cached) file
+                perk.Image = GetImageForPerk(perk);
             }
 
             foreach (Perk perk in _commonKillerPerks)
@@ -318,12 +318,6 @@ namespace DBD_ResourcePackManager.Classes
                 }
             }
 
-            foreach (Perk perk in _commonSurvivorPerks)
-            {
-                // Set the Image property to the downloaded (or cached) file
-                perk.Image = GetImageForPerk(perk);
-            }
-
             foreach (Killer killer in _killers.Values)
             {
                 // Set the Image property to the downloaded (or cached) file
@@ -339,6 +333,12 @@ namespace DBD_ResourcePackManager.Classes
                 // Set the Image property to the downloaded (or cached) file
                 killer.AdditionalImage = GetImageForPower(killer);
                 // TODO Addons
+            }
+
+            foreach (Perk perk in _commonSurvivorPerks)
+            {
+                // Set the Image property to the downloaded (or cached) file
+                perk.Image = GetImageForPerk(perk);
             }
 
             foreach (Perk perk in _commonKillerPerks)
