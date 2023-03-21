@@ -5,6 +5,7 @@ using System.Windows.Documents;
 using System;
 using System.Diagnostics;
 using DBD_ResourcePackManager.Classes;
+using System.Text;
 
 namespace DBD_ResourcePackManager.UserControls
 {
@@ -41,6 +42,17 @@ namespace DBD_ResourcePackManager.UserControls
                     else
                         credits.Inlines.Add(run3);
                 }
+                if (_packInfo.tags.Count > 0)
+                {
+                    StringBuilder stringBuilder = new StringBuilder("Tags:");
+                    for (int i = 0; i < _packInfo.tags.Count; i++)
+                    {
+                        stringBuilder.Append(i > 0 ? ", " : " ");
+                        stringBuilder.Append(_packInfo.tags[i]);
+                    }
+                    tags.Text = stringBuilder.ToString();
+                } else
+                    tags.Text = "";
                 banner.Visibility = (System.Windows.Visibility)1;
                 Visibility = 0;
                 NotifyPropertyChanged();

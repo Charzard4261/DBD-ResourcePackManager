@@ -18,14 +18,14 @@ namespace DBD_ResourcePackManager.Classes
         public const string REPO_RESOURCES = "DBD-ResourcePackManager-Resources";
         public const string REPO_PACKS     = "DBD-ResourcePackManager-Packs";
 
-        public const string LINK_SUBMISSION = "https://forms.gle/U1ZXY65Am4UuJ2Xc7";
+        public const string LINK_SUBMISSION = "https://docs.google.com/forms/d/e/1FAIpQLSeoz3gwXeL4Ml_ziA1u8PWeClTN1xW4ejai6iWBiVq_I4kb0w/viewform";
 
         public const string DIR_CACHE         = "Cache";
         public const string DIR_CACHE_BROWSE  = "Cache/Browse Cache";
         public const string DIR_DEFAULT_ICONS = "Cache/Default Images";
+        public const string DIR_PACKS         = "Packs";
         public const string DIR_DOWNLOADED    = "Downloaded";
         public const string DIR_RESOURCES     = "Resources";
-        public const string FILE_PACKS        = "packs.json";
         public const string FILE_SURVIVORS    = $"{DIR_RESOURCES}/survivors.json";
         public const string FILE_KILLERS      = $"{DIR_RESOURCES}/killers.json";
         public const string FILE_CUSTOMISER   = $"custom.json";
@@ -48,13 +48,13 @@ namespace DBD_ResourcePackManager.Classes
         public const string FOLDER_POWERS         = "Powers";
         public const string FOLDER_STATUS_EFFECTS = "StatusEffects";
 
-        public const string TAG_PORTRAITS = "portraits";
-        public const string TAG_PERKS     = "perks";
-        public const string TAG_ITEMS     = "items";
-        public const string TAG_ADDONS    = "addons";
-        public const string TAG_POWERS    = "powers";
-        public const string TAG_OFFERINGS = "offerings";
-        public const string TAG_MISC_UI   = "misc_ui";
+        public const string CONTAINS_PORTRAITS = "portraits";
+        public const string CONTAINS_PERKS     = "perks";
+        public const string CONTAINS_ITEMS     = "items";
+        public const string CONTAINS_ADDONS    = "addons";
+        public const string CONTAINS_POWERS    = "powers";
+        public const string CONTAINS_OFFERINGS = "offerings";
+        public const string CONTAINS_MISC_UI   = "misc_ui";
 
 
         public static async Task DownloadImage(string url, string directory)

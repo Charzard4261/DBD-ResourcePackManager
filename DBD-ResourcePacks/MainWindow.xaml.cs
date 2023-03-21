@@ -11,6 +11,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Security.Policy;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
@@ -53,6 +54,7 @@ namespace DBD_ResourcePackManager
 
             Directory.CreateDirectory($"{appFolder}\\{Constants.DIR_CACHE}");
             Directory.CreateDirectory($"{appFolder}\\{Constants.DIR_CACHE_BROWSE}");
+            Directory.CreateDirectory($"{appFolder}\\{Constants.DIR_PACKS}");
             Directory.CreateDirectory($"{appFolder}\\{Constants.DIR_DOWNLOADED}");
             Directory.CreateDirectory($"{appFolder}\\{Constants.DIR_RESOURCES}");
             Directory.CreateDirectory($"{appFolder}\\{Constants.DIR_DEFAULT_ICONS}");
@@ -198,25 +200,27 @@ namespace DBD_ResourcePackManager
 
             #region Packs
 
-            if (!File.Exists($"{appFolder}\\{Constants.FILE_PACKS}"))
+            /*if (!File.Exists($"{appFolder}\\{Constants.FILE_PACKS}"))
             {
                 MessageBox.Show("The Packs registry file was not found.\nProgram cannot continue.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Close();
                 return;
-            }
+            }*/
 
             Register = new(this);
             // Load all pack information
-            using (StreamReader r = new StreamReader($"{appFolder}\\{Constants.FILE_PACKS}"))
-            {
-                foreach (ResourcePack pack in JsonConvert.DeserializeObject<List<ResourcePack>>(r.ReadToEnd()))
-                {
-                    pack.PackState = "Download";
-                    pack.PackActionable = true;
-                    Register.packRegistry.Add(pack.uniqueKey, pack);
-                }
-                Register.browsePagePacks = Register.packRegistry.Keys.ToList();
-            }
+
+            foreach (FileInfo file in new DirectoryInfo($"{appFolder}\\{Constants.DIR_PACKS}").GetFiles())
+                if (Path.GetExtension(file.Name) == ".json")
+                    using (StreamReader r = new StreamReader(file.FullName))
+                    {
+                        ResourcePack pack = JsonConvert.DeserializeObject<ResourcePack>(r.ReadToEnd());
+                        pack.uniqueKey = Path.GetFileNameWithoutExtension(file.Name);
+                        pack.PackState = "Download";
+                        pack.PackActionable = true;
+                        Register.packRegistry.Add(pack.uniqueKey, pack);
+                    }
+            Register.browsePagePacks = Register.packRegistry.Keys.ToList();
 
             // Check all folders which are in the Download folder for if they are Resource Packs 
             foreach (DirectoryInfo potentialPack in new DirectoryInfo($"{appFolder}\\{Constants.DIR_DOWNLOADED}").EnumerateDirectories())
@@ -607,7 +611,13 @@ namespace DBD_ResourcePackManager
                 if (major > Settings.Default.ResourcesVersionMajor ||
                     minor > Settings.Default.ResourcesVersionMinor)
                 {
-                    // TODO
+                    string file = $"{appFolder}\\{Constants.DIR_CACHE}\\resources_{major}.{minor}.zip";
+                    using (WebClient client = new WebClient())
+                    {
+                        client.DownloadFile(new Uri(release.ZipballUrl), file);
+                    }
+                    ZipFile.ExtractToDirectory(file, $"{appFolder}\\{Constants.DIR_RESOURCES}", true);
+                    File.Delete(file);
                     return true;
                 }
             }
@@ -629,7 +639,13 @@ namespace DBD_ResourcePackManager
                 if (major > Settings.Default.PacksVersionMajor ||
                     minor > Settings.Default.PacksVersionMinor)
                 {
-                    // TODO
+                    string file = $"{appFolder}\\{Constants.DIR_CACHE}\\packs_{major}.{minor}.zip";
+                    using (WebClient client = new WebClient())
+                    {
+                        client.DownloadFile(new Uri(release.ZipballUrl), file);
+                    }
+                    ZipFile.ExtractToDirectory(file, $"{appFolder}\\{Constants.DIR_PACKS}", true);
+                    File.Delete(file);
                     return true;
                 }
             }

@@ -75,31 +75,31 @@ namespace DBD_ResourcePackManager.Classes
 
             // Add a pack to list if it contains a tag that is selected
             if (_downloadPortraits)
-                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.TAG_PORTRAITS)))
+                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.CONTAINS_PORTRAITS)))
                     if (!filtered.Contains(pack.uniqueKey))
                         filtered.Add(pack.uniqueKey);
             if (_downloadPerks)
-                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.TAG_PERKS)))
+                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.CONTAINS_PERKS)))
                     if (!filtered.Contains(pack.uniqueKey))
                         filtered.Add(pack.uniqueKey);
             if (_downloadItems)
-                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.TAG_ITEMS)))
+                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.CONTAINS_ITEMS)))
                     if (!filtered.Contains(pack.uniqueKey))
                         filtered.Add(pack.uniqueKey);
             if (_downloadAddons)
-                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.TAG_ADDONS)))
+                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.CONTAINS_ADDONS)))
                     if (!filtered.Contains(pack.uniqueKey))
                         filtered.Add(pack.uniqueKey);
             if (_downloadPowers)
-                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.TAG_POWERS)))
+                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.CONTAINS_POWERS)))
                     if (!filtered.Contains(pack.uniqueKey))
                         filtered.Add(pack.uniqueKey);
             if (_downloadOfferings)
-                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.TAG_OFFERINGS)))
+                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.CONTAINS_OFFERINGS)))
                     if (!filtered.Contains(pack.uniqueKey))
                         filtered.Add(pack.uniqueKey);
             if (_downloadMiscUI)
-                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.TAG_MISC_UI)))
+                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.CONTAINS_MISC_UI)))
                     if (!filtered.Contains(pack.uniqueKey))
                         filtered.Add(pack.uniqueKey);
 
@@ -125,31 +125,31 @@ namespace DBD_ResourcePackManager.Classes
 
             // Add a pack to list if it contains a tag that is selected
             if (_browsePortraits)
-                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.TAG_PORTRAITS)))
+                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.CONTAINS_PORTRAITS)))
                     if (!filtered.Contains(pack.uniqueKey))
                         filtered.Add(pack.uniqueKey);
             if (_browsePerks)
-                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.TAG_PERKS)))
+                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.CONTAINS_PERKS)))
                     if (!filtered.Contains(pack.uniqueKey))
                         filtered.Add(pack.uniqueKey);
             if (_browseItems)
-                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.TAG_ITEMS)))
+                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.CONTAINS_ITEMS)))
                     if (!filtered.Contains(pack.uniqueKey))
                         filtered.Add(pack.uniqueKey);
             if (_browseAddons)
-                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.TAG_ADDONS)))
+                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.CONTAINS_ADDONS)))
                     if (!filtered.Contains(pack.uniqueKey))
                         filtered.Add(pack.uniqueKey);
             if (_browsePowers)
-                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.TAG_POWERS)))
+                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.CONTAINS_POWERS)))
                     if (!filtered.Contains(pack.uniqueKey))
                         filtered.Add(pack.uniqueKey);
             if (_browseOfferings)
-                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.TAG_OFFERINGS)))
+                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.CONTAINS_OFFERINGS)))
                     if (!filtered.Contains(pack.uniqueKey))
                         filtered.Add(pack.uniqueKey);
             if (_browseMiscUI)
-                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.TAG_MISC_UI)))
+                foreach (ResourcePack pack in packs.Where(pack => pack.contents.Contains(Constants.CONTAINS_MISC_UI)))
                     if (!filtered.Contains(pack.uniqueKey))
                         filtered.Add(pack.uniqueKey);
 

@@ -225,7 +225,7 @@
                                 <Label  Grid.Row="5" Grid.Column="1" Content="{Binding Path=Customiser.AllItemsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                                 <Button IsEnabled="False" Grid.Row="6" Grid.Column="0" Content="Item Addons" Click="SetAllItemAddons"/>
                                 <Label  Grid.Row="6" Grid.Column="1" Content="{Binding Path=Customiser.AllItemAddonsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
-                                <Button Grid.Row="7" Grid.Column="0" Content="Offerings"   Click="SetAllSurvivorOfferings"/>
+                                <Button IsEnabled="False" Grid.Row="7" Grid.Column="0" Content="Offerings"   Click="SetAllSurvivorOfferings"/>
                                 <Label  Grid.Row="7" Grid.Column="1" Content="{Binding Path=Customiser.AllSurvivorOfferingsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                             </Grid>
                             <!-- Set All Killer -->
@@ -256,7 +256,7 @@
                                 <Label  Grid.Row="5" Grid.Column="1" Content="{Binding Path=Customiser.AllKillerPowersPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                                 <Button IsEnabled="False" Grid.Row="6" Grid.Column="0" Content="Killer Addons" Click="SetAllKillerAddons"/>
                                 <Label  Grid.Row="6" Grid.Column="1" Content="{Binding Path=Customiser.AllKillerAddonsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
-                                <Button Grid.Row="7" Grid.Column="0" Content="Offerings"     Click="SetAllKillerOfferings"/>
+                                <Button IsEnabled="False" Grid.Row="7" Grid.Column="0" Content="Offerings"     Click="SetAllKillerOfferings"/>
                                 <Label  Grid.Row="7" Grid.Column="1" Content="{Binding Path=Customiser.AllKillerOfferingsPackName, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                             </Grid>
                             <!-- Build -->
