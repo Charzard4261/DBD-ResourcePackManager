@@ -247,12 +247,16 @@ namespace DBD_ResourcePackManager.Classes
             {
                 // Try and download the potrait (exits early if already cached)
                 await Constants.DownloadImage(survivor.defaultPortrait, $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}");
+                // Set the Image property to the downloaded (or cached) file
+                survivor.PortraitImage = GetImageForCharacter(survivor);
 
                 // Iterating over a temp list to prevent code duplication
                 foreach (Perk perk in new List<Perk>() { survivor.PerkA, survivor.PerkB, survivor.PerkC })
                 {
                     // Try and download the perk (exits early if already cached)
                     await Constants.DownloadImage(perk.defaultImage, $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}");
+                    // Set the Image property to the downloaded (or cached) file
+                    perk.Image = GetImageForPerk(perk);
                 }
             }
 
@@ -260,21 +264,29 @@ namespace DBD_ResourcePackManager.Classes
             {
                 // Try and download the perk (exits early if already cached)
                 await Constants.DownloadImage(perk.defaultImage, $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}");
+                // Set the Image property to the downloaded (or cached) file
+                perk.Image = GetImageForPerk(perk);
             }
 
             foreach (Killer killer in _killers.Values)
             {
                 // Try and download the potrait (exits early if already cached)
                 await Constants.DownloadImage(killer.defaultPortrait, $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}");
+                // Set the Image property to the downloaded (or cached) file
+                killer.PortraitImage = GetImageForCharacter(killer);
 
                 // Iterating over a temp list to prevent code duplication
                 foreach (Perk perk in new List<Perk>() { killer.PerkA, killer.PerkB, killer.PerkC })
                 {
                     // Try and download the perk (exits early if already cached)
                     await Constants.DownloadImage(perk.defaultImage, $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}");
+                    // Set the Image property to the downloaded (or cached) file
+                    perk.Image = GetImageForPerk(perk);
                 }
 
                 await Constants.DownloadImage(killer.defaultPower, $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}");
+                // Set the Image property to the downloaded (or cached) file
+                killer.AdditionalImage = GetImageForPower(killer);
                 // TODO Addons
             }
 
@@ -282,10 +294,11 @@ namespace DBD_ResourcePackManager.Classes
             {
                 // Try and download the perk (exits early if already cached)
                 await Constants.DownloadImage(perk.defaultImage, $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}");
+                // Set the Image property to the downloaded (or cached) file
+                perk.Image = GetImageForPerk(perk);
             }
 
             // TODO Set Overrides
-            SetImages();
         }
 
         public void SetImages()
@@ -323,6 +336,7 @@ namespace DBD_ResourcePackManager.Classes
                     perk.Image = GetImageForPerk(perk);
                 }
 
+                // Set the Image property to the downloaded (or cached) file
                 killer.AdditionalImage = GetImageForPower(killer);
                 // TODO Addons
             }
