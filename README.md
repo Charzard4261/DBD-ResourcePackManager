@@ -1,5 +1,6 @@
 # Dead By Daylight Resource Pack Manager
 This is a C# Windows Presentation Foundation (WPF) application created to manage Resource Packs for Dead by Daylight. It's designed to be both simple and highly customisable, allowing for per-category pack selection.
+![image](https://user-images.githubusercontent.com/28228244/227016512-76c48197-559f-4a7d-9bd4-62f5dcb2f107.png)
 
 ## The Progran
 ### Installing
@@ -9,7 +10,7 @@ It's the same process to update, too. Download the latest installer, and it'll r
 ### How does it work?
 The program automatically downloads a list of available packs from the [Packs Repository](https://github.com/Charzard4261/DBD-ResourcePackManager-Packs) and uses this to present you with packs to browse. You can search and filter to find a pack you like, then simply click download!
 Packs you download are saved to your system, but not immediately applied to the game. Instead, head over to the customimse tab to tune exactly how you want your game to look, whether that's a pack applied across the board or unique packs for each category!
-A live preview is shown alongside these controls, so you're not left guessing whether you'd like the other variant more until you boot the game!
+A live preview is shown alongside these controls, so you're not left guessing whether you'd like the other variant more until you boot the game! These images and information are downloaded from the [Resources Repository](https://github.com/Charzard4261/DBD-ResourcePackManager-Resources), so when new characters come out you don't have to lift a finger!
 
 ### What can I customise?
 You can apply packs across broad selections, such as one for all portraits, perks, addons etc, or pick a different pack for each category and side. Specifically packs can be set for:
@@ -53,5 +54,12 @@ Once this program's functionality is complete, only those two repositories need 
 To uninstall, use Windows' "Add or Remove Programs" tool. After uninstalling, there are some leftover files in the `%LocalAppData%\DBD-ResourcePackManager\` folder, so please remove them to get your storage back!
 Uninstalling the program does not remove any packs you have installed to the game.
 
+## Submitting a Pack
+Follow the instructions in the [Pack Repository](https://github.com/Charzard4261/DBD-ResourcePackManager-Packs) to upload your pack. It may take a day to get added as it has to be manually checked.
+
 ## Contributing
 If there's something you want to add, please do! Fork this repository and submit a pull request when you're happy with what you've changed. I apologise in advance for the spaghetti!
+
+## Additional Info
+- Icon made by Sherboffy using [a Folder icon created by kumakamu - Flaticon](https://www.flaticon.com/free-icons/folder)
+- A big thank you to the DBD Wiki Team, who have been keeping all of the DBD asset images up-to-date
