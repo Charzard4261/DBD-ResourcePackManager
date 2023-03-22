@@ -18,6 +18,7 @@ namespace DBD_ResourcePackManager.Classes
         public string uniqueKey = "";
         public string name = "";
         public float chapter;
+        [JsonIgnore] public string chapterName;
         public int packVersion;
         public string bannerLink = "";
         public string downloadLink = "";

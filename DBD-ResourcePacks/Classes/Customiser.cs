@@ -17,6 +17,7 @@ namespace DBD_ResourcePackManager.Classes
         public List<Perk> _commonSurvivorPerks = new();
         public Dictionary<string, Killer> _killers = new();
         public List<Perk> _commonKillerPerks = new();
+        public Dictionary<string, string> _chapters;
 
         public CustomiserSave save;
 
@@ -78,7 +79,8 @@ namespace DBD_ResourcePackManager.Classes
             Dictionary<string, Survivor> survivors,
             List<Perk> commonSurvivorPerks,
             Dictionary<string, Killer> killers,
-            List<Perk> commonKillerPerks
+            List<Perk> commonKillerPerks,
+            Dictionary<string, string> chapters
             )
         {
             _mainWindow = mainWindow;
@@ -86,6 +88,7 @@ namespace DBD_ResourcePackManager.Classes
             _commonSurvivorPerks = commonSurvivorPerks;
             _killers = killers;
             _commonKillerPerks = commonKillerPerks;
+            _chapters = chapters;
         }
 
         /// <summary>
@@ -211,10 +214,10 @@ namespace DBD_ResourcePackManager.Classes
                 folder = save.everything;
 
             if (save.allKillers != "" && File.Exists($"{first}{save.allKillers}{second}"))
-                    folder = save.allKillers;
+                folder = save.allKillers;
 
             if (save.allKillerPortraits != "" && File.Exists($"{first}{save.allKillerPortraits}{second}"))
-                    folder = save.allKillerPortraits;
+                folder = save.allKillerPortraits;
 
             if (save.overrides.ContainsKey(character.powers[0]))
                 folder = save.overrides[character.powers[0]];
@@ -348,6 +351,13 @@ namespace DBD_ResourcePackManager.Classes
             }
 
             // TODO Set Overrides
+        }
+
+        public string GetChapter(float chapter)
+        {
+            if (_chapters.ContainsKey(chapter.ToString()))
+                return $"Chapter {chapter}: {_chapters[chapter.ToString()]}";
+            return $"Chapter {chapter}";
         }
     }
 }

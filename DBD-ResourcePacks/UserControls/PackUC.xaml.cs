@@ -22,7 +22,7 @@ namespace DBD_ResourcePackManager.UserControls
             {
                 _packInfo = value;
                 name.Content = _packInfo.name;
-                chapter.Content = _packInfo.chapter;
+                chapter.Content = _packInfo.chapterName;
                 version.Content = $"Version: {_packInfo.chapter.ToString("0.0")}.{_packInfo.packVersion}";
                 credits.Inlines.Clear();
                 credits.Inlines.Add(new Run(_packInfo.credits.Count == 1 ? "Author:" : "Authors:"));

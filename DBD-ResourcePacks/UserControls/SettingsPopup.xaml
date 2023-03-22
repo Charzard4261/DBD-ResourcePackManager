@@ -75,6 +75,8 @@
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
 
                     <!-- Packs Registry Version -->
@@ -89,6 +91,9 @@
                     <Label  Grid.Row="2" Grid.Column="0" Content="Program Version: "/>
                     <Label  Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" x:Name="programVersionLabel"/>
                     <Button Grid.Row="2" Grid.Column="2" Click="CheckUpdateProgram" HorizontalAlignment="Right" Content="Check for Update"/>
+                    <!-- Auto Update -->
+                    <Label  Grid.Row="4" Grid.Column="0" Content="Auto Update: "/>
+                    <CheckBox Grid.Row="4" Grid.Column="2" Click="ToggleAutoUpdate" HorizontalAlignment="Right" x:Name="autoUpdate"/>
                 </Grid>
             </TabItem>
         </TabControl>

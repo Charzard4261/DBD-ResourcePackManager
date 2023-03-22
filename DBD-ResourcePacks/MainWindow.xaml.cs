@@ -63,30 +63,33 @@ namespace DBD_ResourcePackManager
 
             _githubClient = new GitHubClient(new ProductHeaderValue("DBD-ResourcePackManager"));
 
-            // Check if the program hasn't tried updating for 12 hours
-            if (Settings.Default.LastUpdateCheck == null || DateTime.Now - Settings.Default.LastUpdateCheck > TimeSpan.FromHours(12))
+            if (Settings.Default.AutoUpdate)
             {
-                Settings.Default.LastUpdateCheck = DateTime.Now;
-                Settings.Default.Save();
-                if (CheckForProgramUpdate())
-                    return;
-                CheckForResourcesUpdate();
-                CheckForPacksUpdate();
-            }
-            // If an update was found the last time it checked, inform the user
-            else if (Settings.Default.UpdateAvailable != "")
-            {
-                if (Settings.Default.UpdateAvailable == $"{Settings.Default.ProgramVersionMajor}.{Settings.Default.ProgramVersionMinor}.{Settings.Default.ProgramVersionPatch}")
+                // Check if the program hasn't tried updating for 12 hours
+                if (Settings.Default.LastUpdateCheck == null || DateTime.Now - Settings.Default.LastUpdateCheck > TimeSpan.FromHours(12))
                 {
-                    Settings.Default.UpdateAvailable = "";
+                    Settings.Default.LastUpdateCheck = DateTime.Now;
                     Settings.Default.Save();
+                    if (CheckForProgramUpdate() == 1)
+                        return;
+                    CheckForResourcesUpdate();
+                    CheckForPacksUpdate();
                 }
-                else if (MessageBox.Show($"Update {Settings.Default.UpdateAvailable} has been released.\nUpdate now?", "Update Available",
-                    MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+                // If an update was found the last time it checked, inform the user
+                else if (Settings.Default.UpdateAvailable != "")
                 {
-                    Process.Start(new ProcessStartInfo() { FileName = $"https://github.com/{Constants.GITHUB_OWNER}/{Constants.REPO_PROGRAM}\\releases/latest", UseShellExecute = true });
-                    Close();
-                    return;
+                    if (Settings.Default.UpdateAvailable == $"{Settings.Default.ProgramVersionMajor}.{Settings.Default.ProgramVersionMinor}.{Settings.Default.ProgramVersionPatch}")
+                    {
+                        Settings.Default.UpdateAvailable = "";
+                        Settings.Default.Save();
+                    }
+                    else if (MessageBox.Show($"Update {Settings.Default.UpdateAvailable} has been released.\nUpdate now?", "Update Available",
+                        MessageBoxButton.YesNo, MessageBoxImage.Information) == MessageBoxResult.Yes)
+                    {
+                        Process.Start(new ProcessStartInfo() { FileName = $"https://github.com/{Constants.GITHUB_OWNER}/{Constants.REPO_PROGRAM}\\releases/latest", UseShellExecute = true });
+                        Close();
+                        return;
+                    }
                 }
             }
 
@@ -196,7 +199,23 @@ namespace DBD_ResourcePackManager
                 }
             }
 
-            _customiser = new Customiser(this, survivors, commonSurvivorPerks, killers, commonKillerPerks);
+            if (!File.Exists($"{appFolder}\\{Constants.FILE_CHAPTERS}"))
+            {
+                MessageBox.Show("The Chapters resource file was not found.\nProgram cannot continue.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Close();
+                return;
+            }
+
+            Dictionary<string, string> chapters = new();
+            // Load all of the Chapters resource information
+            using (StreamReader r = new StreamReader($"{appFolder}\\{Constants.FILE_CHAPTERS}"))
+            {
+                JObject file = JsonConvert.DeserializeObject<JObject>(r.ReadToEnd());
+                foreach (KeyValuePair<string, JToken> entry in file)
+                    chapters.Add(entry.Key, entry.Value.ToObject<string>());
+            }
+
+            _customiser = new Customiser(this, survivors, commonSurvivorPerks, killers, commonKillerPerks, chapters);
             // Load (or create) the user's custom pack information
             if (File.Exists($"{appFolder}\\{Constants.FILE_CUSTOMISER}"))
                 using (StreamReader r = new StreamReader($"{appFolder}\\{Constants.FILE_CUSTOMISER}"))
@@ -220,6 +239,7 @@ namespace DBD_ResourcePackManager
                     {
                         ResourcePack pack = JsonConvert.DeserializeObject<ResourcePack>(r.ReadToEnd());
                         pack.uniqueKey = Path.GetFileNameWithoutExtension(file.Name);
+                        pack.chapterName = Customiser.GetChapter(pack.chapter);
                         pack.PackState = "Download";
                         pack.PackActionable = true;
                         Register.packRegistry.Add(pack.uniqueKey, pack);
@@ -253,6 +273,8 @@ namespace DBD_ResourcePackManager
                     Directory.Delete(potentialPack.FullName, true);
                     continue;
                 }
+
+                pack.chapterName = Customiser.GetChapter(pack.chapter);
 
                 Register.downloadedRegistry.Add(pack.uniqueKey, pack);
 
@@ -566,7 +588,7 @@ namespace DBD_ResourcePackManager
             return Register.downloadedRegistry[uniqueKey];
         }
 
-        public bool CheckForProgramUpdate()
+        public int CheckForProgramUpdate()
         {
             try
             {
@@ -588,17 +610,18 @@ namespace DBD_ResourcePackManager
                     {
                         Process.Start(new ProcessStartInfo() { FileName = $"https://github.com/{Constants.GITHUB_OWNER}/{Constants.REPO_PROGRAM}\\releases/latest", UseShellExecute = true });
                         Close();
-                        return true;
                     }
+                    return 1;
                 }
             }
             catch (Exception)
             {
                 MessageBox.Show("An error occured checking for Program updates.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return -1;
             }
-            return false;
+            return 0;
         }
-        public bool CheckForResourcesUpdate()
+        public int CheckForResourcesUpdate()
         {
             try
             {
@@ -613,23 +636,25 @@ namespace DBD_ResourcePackManager
                     string file = $"{appFolder}\\{Constants.DIR_CACHE}\\resources_{major}.{minor}.zip";
                     using (WebClient client = new WebClient())
                     {
+                        client.Headers.Add(HttpRequestHeader.UserAgent, "DBD-ResourcePackManager");
                         client.DownloadFile(new Uri(release.ZipballUrl), file);
                     }
-                    ZipFile.ExtractToDirectory(file, $"{appFolder}\\{Constants.DIR_RESOURCES}", true);
+                    Constants.ExtractZipAndMoveUp(file, $"{appFolder}\\{Constants.DIR_RESOURCES}");
                     File.Delete(file);
                     Settings.Default.ResourcesVersionMajor = major;
                     Settings.Default.ResourcesVersionMinor = minor;
                     Settings.Default.Save();
-                    return true;
+                    return 1;
                 }
             }
             catch (Exception)
             {
                 MessageBox.Show("An error occured checking for Resources updates.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return -1;
             }
-            return false;
+            return 0;
         }
-        public bool CheckForPacksUpdate()
+        public int CheckForPacksUpdate()
         {
             try
             {
@@ -646,19 +671,20 @@ namespace DBD_ResourcePackManager
                     {
                         client.DownloadFile(new Uri(release.ZipballUrl), file);
                     }
-                    ZipFile.ExtractToDirectory(file, $"{appFolder}\\{Constants.DIR_PACKS}", true);
+                    Constants.ExtractZipAndMoveUp(file, $"{appFolder}\\{Constants.DIR_PACKS}");
                     File.Delete(file);
                     Settings.Default.PacksVersionMajor = major;
                     Settings.Default.PacksVersionMinor = minor;
                     Settings.Default.Save();
-                    return true;
+                    return 1;
                 }
             }
             catch (Exception)
             {
                 MessageBox.Show("An error occured checking for Pack updates.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return -1;
             }
-            return false;
+            return 0;
         }
 
 

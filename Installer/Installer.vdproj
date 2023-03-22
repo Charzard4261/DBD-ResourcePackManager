@@ -15,6 +15,12 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_3992016CF1F04E97A18241CC4FBE18C4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_E57323355F7343E5B230E5519BF656B8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -126,6 +132,26 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3992016CF1F04E97A18241CC4FBE18C4"
+            {
+            "SourcePath" = "8:..\\DBD-ResourcePacks\\icon.ico"
+            "TargetName" = "8:icon.ico"
+            "Tag" = "8:"
+            "Folder" = "8:_5E2BFFA49EBF439597D59615929AD485"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
         }
         "FileType"
         {
@@ -182,15 +208,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:DBD Resource Pack Manager"
-        "ProductCode" = "8:{2A3FF98E-F63A-490D-861B-3C0257D107E4}"
-        "PackageCode" = "8:{5C380D2A-8EA9-4761-A34F-D00E4E8F4E33}"
+        "ProductCode" = "8:{A93910AB-FFEE-4AD0-9135-6DA850B1D1AA}"
+        "PackageCode" = "8:{9E6F1B69-9A95-401D-B90C-000CEB029455}"
         "UpgradeCode" = "8:{09C73CE5-FBAA-458A-9DF3-79FE2A701937}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:0.0.4"
+        "ProductVersion" = "8:0.9.0"
         "Manufacturer" = "8:Charzard4261"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -394,7 +420,7 @@
             "Target" = "8:_E57323355F7343E5B230E5519BF656B8"
             "Folder" = "8:_DAB40E3AD1AF46CCA1B8D96684740065"
             "WorkingFolder" = "8:_5E2BFFA49EBF439597D59615929AD485"
-            "Icon" = "8:"
+            "Icon" = "8:_3992016CF1F04E97A18241CC4FBE18C4"
             "Feature" = "8:"
             }
         }
@@ -798,7 +824,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_E57323355F7343E5B230E5519BF656B8"
             {
-            "SourcePath" = "8:..\\DBD-ResourcePacks\\obj\\x86\\Release\\net6.0-windows\\apphost.exe"
+            "SourcePath" = "8:..\\DBD-ResourcePacks\\obj\\Debug\\net6.0-windows\\apphost.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_5E2BFFA49EBF439597D59615929AD485"

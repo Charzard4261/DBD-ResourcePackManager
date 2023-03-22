@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using System.Windows;
 using System.IO;
+using System.IO.Compression;
 
 namespace DBD_ResourcePackManager.Classes
 {
@@ -28,6 +29,7 @@ namespace DBD_ResourcePackManager.Classes
         public const string DIR_RESOURCES     = "Resources";
         public const string FILE_SURVIVORS    = $"{DIR_RESOURCES}/survivors.json";
         public const string FILE_KILLERS      = $"{DIR_RESOURCES}/killers.json";
+        public const string FILE_CHAPTERS     = $"{DIR_RESOURCES}/chapters.json";
         public const string FILE_CUSTOMISER   = $"custom.json";
 
         public const int PACKS_WIDTH  = 3;
@@ -132,6 +134,16 @@ namespace DBD_ResourcePackManager.Classes
         {
             if (File.Exists(source))
                 File.Copy(source, target, true);
+        }
+        public static void ExtractZipAndMoveUp(string zipPath, string destinationFolder)
+        {
+            ZipFile.ExtractToDirectory(zipPath, destinationFolder, true);
+            foreach (DirectoryInfo dir in new DirectoryInfo(destinationFolder).GetDirectories())
+            {
+                foreach (FileInfo file in dir.GetFiles())
+                    File.Move(file.FullName, $"{destinationFolder}\\{file.Name}", true);
+                Directory.Delete(dir.FullName);
+            }
         }
     }
 }

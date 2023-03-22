@@ -1,6 +1,7 @@
 ﻿using DBD_ResourcePackManager.Classes;
 using DBD_ResourcePackManager.Properties;
 using Microsoft.Win32;
+using Octokit;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -23,6 +24,7 @@ namespace DBD_ResourcePackManager.UserControls
             packsVersionLabel.Content     = $"{Settings.Default.PacksVersionMajor}.{Settings.Default.PacksVersionMinor}";
             resourcesVersionLabel.Content = $"{Settings.Default.ResourcesVersionMajor}.{Settings.Default.ResourcesVersionMinor}";
             programVersionLabel.Content   = $"{Settings.Default.ProgramVersionMajor}.{Settings.Default.ProgramVersionMinor}.{Settings.Default.ProgramVersionPatch}";
+            autoUpdate.IsChecked          = Settings.Default.AutoUpdate;
         }
 
         private void GamePath_KeyUp(object sender, KeyEventArgs e)
@@ -52,9 +54,60 @@ namespace DBD_ResourcePackManager.UserControls
             Constants.UpdateTheme();
         }
 
-        private void CheckUpdatePacks(object sender, RoutedEventArgs e) { _mainWindow.CheckForPacksUpdate(); }
-        private void CheckUpdateResources(object sender, RoutedEventArgs e) { _mainWindow.CheckForResourcesUpdate(); }
-        private void CheckUpdateProgram(object sender, RoutedEventArgs e) { _mainWindow.CheckForProgramUpdate(); }
+        private void CheckUpdatePacks(object sender, RoutedEventArgs e)
+        {
+            switch (_mainWindow.CheckForPacksUpdate())
+            {
+                case 0:
+                    MessageBox.Show("No updates found.", "Information",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    break;
+                case 1:
+                    MessageBox.Show("Updated!", "Information",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    break;
+                case -1:
+                default:
+                    break;
+            }
+        }
+        private void CheckUpdateResources(object sender, RoutedEventArgs e)
+        {
+            switch (_mainWindow.CheckForResourcesUpdate())
+            {
+                case 0:
+                    MessageBox.Show("No updates found.", "Information",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    break;
+                case 1:
+                    MessageBox.Show("Updated!", "Information",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    break;
+                case -1:
+                default:
+                    break;
+            }
+        }
+        private void CheckUpdateProgram(object sender, RoutedEventArgs e)
+        {
+            switch (_mainWindow.CheckForProgramUpdate())
+            {
+                case 0:
+                    MessageBox.Show("No updates found.", "Information",
+                        MessageBoxButton.OK, MessageBoxImage.Information);
+                    break;
+                case 1:
+                case -1:
+                default:
+                    break;
+            }
+        }
+        private void ToggleAutoUpdate(object sender, RoutedEventArgs e)
+        {
+            // IsChecked is a bool? so == true needed
+            Settings.Default.AutoUpdate = ((CheckBox)sender).IsChecked == true;
+            Settings.Default.Save();
+        }
 
         private void ClearBrowseCache_Click(object sender, RoutedEventArgs e)
         {
