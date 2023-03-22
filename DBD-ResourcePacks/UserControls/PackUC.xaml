@@ -28,7 +28,7 @@
         <Label     x:Name="chapter" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Grid.RowSpan="2" VerticalContentAlignment="Top" HorizontalContentAlignment="Right"/>
         <TextBlock x:Name="credits" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Grid.RowSpan="2" Padding="5"/>
         <Label     x:Name="version" Grid.Row="4" Grid.Column="0" HorizontalContentAlignment="Center" Style="{StaticResource Obscured}"/>
-        <TextBlock x:Name="tags"    Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" TextWrapping="Wrap" Padding="5"/>
+        <TextBlock x:Name="tags"    Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" TextWrapping="Wrap" Padding="5" HorizontalAlignment="Right"/>
         <Button    x:Name="action"  Grid.Row="4" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding Path=PackInfo.PackState, ElementName=myPackUC}" IsEnabled="{Binding Path=PackInfo.PackActionable, ElementName=myPackUC}"/>
         <Button    x:Name="action2" Grid.Row="4" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="7,0,7,4" Visibility="Hidden"/>
     </Grid>

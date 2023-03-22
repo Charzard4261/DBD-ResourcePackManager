@@ -208,15 +208,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:DBD Resource Pack Manager"
-        "ProductCode" = "8:{A93910AB-FFEE-4AD0-9135-6DA850B1D1AA}"
-        "PackageCode" = "8:{9E6F1B69-9A95-401D-B90C-000CEB029455}"
+        "ProductCode" = "8:{4CE416E1-3633-474E-BDD0-AC39B5515CDD}"
+        "PackageCode" = "8:{459C0958-A209-4B4A-8B34-AC3C756CCD75}"
         "UpgradeCode" = "8:{09C73CE5-FBAA-458A-9DF3-79FE2A701937}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:0.9.0"
+        "ProductVersion" = "8:0.9.1"
         "Manufacturer" = "8:Charzard4261"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -824,7 +824,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_E57323355F7343E5B230E5519BF656B8"
             {
-            "SourcePath" = "8:..\\DBD-ResourcePacks\\obj\\Debug\\net6.0-windows\\apphost.exe"
+            "SourcePath" = "8:..\\DBD-ResourcePacks\\obj\\Release\\net6.0-windows\\apphost.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_5E2BFFA49EBF439597D59615929AD485"

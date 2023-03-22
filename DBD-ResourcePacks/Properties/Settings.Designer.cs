@@ -25,7 +25,7 @@ namespace DBD_ResourcePackManager.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public int ProgramVersionMajor {
             get {
                 return ((int)(this["ProgramVersionMajor"]));
@@ -34,7 +34,7 @@ namespace DBD_ResourcePackManager.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("9")]
         public int ProgramVersionMinor {
             get {
                 return ((int)(this["ProgramVersionMinor"]));
@@ -43,7 +43,7 @@ namespace DBD_ResourcePackManager.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
         public int ProgramVersionPatch {
             get {
                 return ((int)(this["ProgramVersionPatch"]));
@@ -136,6 +136,18 @@ namespace DBD_ResourcePackManager.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool AutoUpdate {
+            get {
+                return ((bool)(this["AutoUpdate"]));
+            }
+            set {
+                this["AutoUpdate"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         public global::System.DateTime LastUpdateCheck {
             get {
                 return ((global::System.DateTime)(this["LastUpdateCheck"]));
@@ -154,18 +166,6 @@ namespace DBD_ResourcePackManager.Properties {
             }
             set {
                 this["UpdateAvailable"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool AutoUpdate {
-            get {
-                return ((bool)(this["AutoUpdate"]));
-            }
-            set {
-                this["AutoUpdate"] = value;
             }
         }
     }

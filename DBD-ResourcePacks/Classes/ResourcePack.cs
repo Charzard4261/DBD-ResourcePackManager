@@ -23,7 +23,7 @@ namespace DBD_ResourcePackManager.Classes
         public string bannerLink = "";
         public string downloadLink = "";
         public List<Credit> credits;
-        public List<string> contents;
+        public List<string> contains;
         public List<string> tags;
 
         public bool ShouldShowUpIn(string search)

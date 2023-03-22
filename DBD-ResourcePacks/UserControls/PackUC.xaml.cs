@@ -42,13 +42,13 @@ namespace DBD_ResourcePackManager.UserControls
                     else
                         credits.Inlines.Add(run3);
                 }
-                if (_packInfo.tags.Count > 0)
+                if (_packInfo.contains.Count > 0)
                 {
-                    StringBuilder stringBuilder = new StringBuilder("Tags:");
-                    for (int i = 0; i < _packInfo.tags.Count; i++)
+                    StringBuilder stringBuilder = new StringBuilder("");
+                    for (int i = 0; i < _packInfo.contains.Count; i++)
                     {
-                        stringBuilder.Append(i > 0 ? ", " : " ");
-                        stringBuilder.Append(_packInfo.tags[i]);
+                        stringBuilder.Append(i > 0 ? ", " : "");
+                        stringBuilder.Append(_packInfo.contains[i]);
                     }
                     tags.Text = stringBuilder.ToString();
                 } else

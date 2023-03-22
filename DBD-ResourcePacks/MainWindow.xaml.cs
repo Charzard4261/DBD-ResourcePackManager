@@ -669,6 +669,7 @@ namespace DBD_ResourcePackManager
                     string file = $"{appFolder}\\{Constants.DIR_CACHE}\\packs_{major}.{minor}.zip";
                     using (WebClient client = new WebClient())
                     {
+                        client.Headers.Add(HttpRequestHeader.UserAgent, "DBD-ResourcePackManager");
                         client.DownloadFile(new Uri(release.ZipballUrl), file);
                     }
                     Constants.ExtractZipAndMoveUp(file, $"{appFolder}\\{Constants.DIR_PACKS}");

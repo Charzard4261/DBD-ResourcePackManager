@@ -78,12 +78,18 @@ namespace DBD_ResourcePackManager.Classes
         }
         public static BitmapImage LoadImage(string filePath)
         {
-            BitmapImage image = new BitmapImage();
-            image.BeginInit();
-            image.CacheOption = BitmapCacheOption.OnLoad;
-            image.UriSource = new Uri(filePath);
-            image.EndInit();
-            return image;
+            try
+            {
+                BitmapImage image = new BitmapImage();
+                image.BeginInit();
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.UriSource = new Uri(filePath);
+                image.EndInit();
+                return image;
+            } catch (Exception ex)
+            {
+                return null;
+            }
         }
         public static bool IsValidGamePath(string folderPath)
         {
