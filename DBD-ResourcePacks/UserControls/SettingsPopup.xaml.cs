@@ -63,8 +63,9 @@ namespace DBD_ResourcePackManager.UserControls
                         MessageBoxButton.OK, MessageBoxImage.Information);
                     break;
                 case 1:
-                    MessageBox.Show("Updated!", "Information",
+                    MessageBox.Show("Updated!\nRestart to apply.", "Information",
                         MessageBoxButton.OK, MessageBoxImage.Information);
+                    packsVersionLabel.Content = $"{Settings.Default.PacksVersionMajor}.{Settings.Default.PacksVersionMinor}";
                     break;
                 case -1:
                 default:
@@ -80,8 +81,9 @@ namespace DBD_ResourcePackManager.UserControls
                         MessageBoxButton.OK, MessageBoxImage.Information);
                     break;
                 case 1:
-                    MessageBox.Show("Updated!", "Information",
+                    MessageBox.Show("Updated!\nRestart to apply.", "Information",
                         MessageBoxButton.OK, MessageBoxImage.Information);
+                    resourcesVersionLabel.Content = $"{Settings.Default.ResourcesVersionMajor}.{Settings.Default.ResourcesVersionMinor}";
                     break;
                 case -1:
                 default:
