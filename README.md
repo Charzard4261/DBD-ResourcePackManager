@@ -54,7 +54,7 @@ It's not as pretty, but we're hoping that its flexibility makes up for it!
 
 For the regular user, observed functionality is mostly the same, although you now have to click an extra button or two if all you want is just one pack. For people who want more in-depth customisation, it has never been easier!
 
-On the other hand, packs need tot be hosted by their creators. This means the program has no costs, at the downside of potentially having packs break. The list of packs as well as the list of Survivor and Killer information are stored in two other companion repositories, and are automatically downloaded by the program when needed. This means you don't have to do anything when newer chapters are released.
+On the other hand, packs need to be hosted by their creators. This means the program itself has no costs, at the downside of some users being unable to upload packs (Please reach out if this is the case! I'm happy to host some myself). The list of packs as well as the list of Survivor and Killer information are stored in two other companion repositories, and are automatically downloaded by the program when needed. This means you don't have to do anything when newer chapters are released.
 
 Once this program's functionality is complete, only the two companion repositories need updating as images are downloaded and saved to your system. Since they are made to be simple, handing the project over does not mean transferring much manual labour.
 
