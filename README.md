@@ -10,20 +10,20 @@ It's the same process to update, too. Download the latest installer, and it'll r
 ### How does it work?
 The program automatically downloads a list of available packs from the [Packs Repository](https://github.com/Charzard4261/DBD-ResourcePackManager-Packs) and uses this to present you with packs to browse. You can search and filter to find a pack you like, then simply click download!
 
-Packs you download are saved to your system, but not immediately applied to the game. Instead, head over to the customimse tab to tune exactly how you want your game to look, whether that's a pack applied across the board or unique packs for each category!
+Packs you download are saved to your system, but not immediately applied to the game. Instead, head over to the customise tab to tune exactly how you want your game to look, whether that's a pack applied across the board or unique packs for each category!
 
 A live preview is shown alongside these controls, so you're not left guessing whether you'd like the other variant more until you boot the game! These images and information are downloaded from the [Resources Repository](https://github.com/Charzard4261/DBD-ResourcePackManager-Resources), so when new characters come out you don't have to lift a finger!
 
 ### What can I customise?
-You can apply packs across broad selections, such as one for all portraits, perks, addons etc, or pick a different pack for each category and side. Specifically packs can be set for:
+You can apply packs across broad selections, such as one for all portraits, perks, addons etc, or pick a different pack for each category and side. Specifically, packs can be set for:
 - Everything
 - All Portraits
 - All Perks
 - All Addons
 - All Offerings
 - All Emblems
-- All StatusEffects
-- MiscUI
+- All Status Effects
+- Misc UI
 
 On the Survivor's side:
 - Everything in Survivors
@@ -43,7 +43,7 @@ And on the Killer's side:
 - (Coming Soon) Killer Offerings
 - (Coming Soon) Killer Emblems
 
-It works on a layer system, meaning anything set below will overwrite whatever you set above. If you want to run a pack for everything, but use another's killer portraits and yet another's item addons, you can do it easily!
+It works on a layer system, meaning anything set below will overwrite whatever you set above. If you want to run a pack for everything but use a different one for killer portraits and yet another for item addons, you can do it easily!
 
 A preview of the Icons is shown alongside these controls, allowing you to immediately see how everything looks when put together.
 
