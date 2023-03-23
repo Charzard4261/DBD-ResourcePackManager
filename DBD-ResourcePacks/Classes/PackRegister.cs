@@ -120,7 +120,7 @@ namespace DBD_ResourcePackManager.Classes
         void RebuildBrowseList()
         {
             // Filter the potential packs by search name
-            List<ResourcePack> packs = packRegistry.Values.Where(pack => pack.name.Contains(_browseSearch) || pack.uniqueKey.Contains(_browseSearch)).ToList();
+            List<ResourcePack> packs = packRegistry.Values.Where(pack => pack.ShouldShowUpIn(_browseSearch)).ToList();
             List<string> filtered = new();
 
             // Add a pack to list if it contains a tag that is selected

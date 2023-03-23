@@ -19,7 +19,7 @@ namespace DBD_ResourcePackManager.Classes
         public string name = "";
         public float chapter;
         [JsonIgnore] public string chapterName;
-        public int packVersion;
+        public float packVersion;
         public string bannerLink = "";
         public string downloadLink = "";
         public List<Credit> credits;
