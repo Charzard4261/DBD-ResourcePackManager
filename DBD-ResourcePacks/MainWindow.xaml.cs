@@ -17,6 +17,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Shapes;
+using Path = System.IO.Path;
 
 namespace DBD_ResourcePackManager
 {
@@ -351,6 +354,15 @@ namespace DBD_ResourcePackManager
             // Create a Pack User Control for each slot in the download grid
             for (int i = 0; i < Constants.PACKS_WIDTH * Constants.PACKS_HEIGHT; i++)
             {
+                if (i % 2 == 0)
+                {
+                    Rectangle rect = new Rectangle();
+                    rect.Fill = new SolidColorBrush(Color.FromArgb(50, 10, 10, 10));
+                    Grid.SetColumn(rect, i % Constants.PACKS_WIDTH);
+                    Grid.SetRow(rect, (i / Constants.PACKS_WIDTH) + 2);
+                    downloadedGrid.Children.Add(rect);
+                }
+
                 PackUC packUC = new PackUC();
                 packUC.Visibility = Visibility.Hidden;
                 packUC.action.Click += new RoutedEventHandler(UpdatePack);
@@ -368,6 +380,15 @@ namespace DBD_ResourcePackManager
             // Create a Pack User Control for each slot in the browse grid
             for (int i = 0; i < Constants.PACKS_WIDTH * Constants.PACKS_HEIGHT; i++)
             {
+                if (i % 2 == 0)
+                {
+                    Rectangle rect = new Rectangle();
+                    rect.Fill = new SolidColorBrush(Color.FromArgb(50, 10, 10, 10));
+                    Grid.SetColumn(rect, i % Constants.PACKS_WIDTH);
+                    Grid.SetRow(rect, (i / Constants.PACKS_WIDTH) + 2);
+                    browseGrid.Children.Add(rect);
+                }
+
                 PackUC packUC = new PackUC();
                 packUC.Visibility = Visibility.Hidden;
                 packUC.action.Click += new RoutedEventHandler(DownloadPack);

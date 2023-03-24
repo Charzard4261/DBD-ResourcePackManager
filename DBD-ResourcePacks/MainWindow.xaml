@@ -44,7 +44,7 @@
                         </Grid.ColumnDefinitions>
 
                         <Label Content="Filter:" Grid.Column="0"/>
-                        <StackPanel Orientation="Horizontal" Grid.Column="1">
+                        <StackPanel Orientation="Horizontal" Grid.Column="1" Background="{x:Null}">
                             <CheckBox VerticalAlignment="Center" Content="Portraits" x:Name="downloadPortraits" IsChecked="{Binding Path=Register.DownloadPortraits, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                             <CheckBox VerticalAlignment="Center" Content="Perks"     x:Name="downloadPerks"     IsChecked="{Binding Path=Register.DownloadPerks, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                             <CheckBox VerticalAlignment="Center" Content="Items"     x:Name="downloadItems"     IsChecked="{Binding Path=Register.DownloadItems, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
@@ -91,7 +91,7 @@
                         </Grid.ColumnDefinitions>
 
                         <Label Content="Filter:" Grid.Column="0"/>
-                        <StackPanel Orientation="Horizontal" Grid.Column="1">
+                        <StackPanel Orientation="Horizontal" Grid.Column="1" Background="{x:Null}">
                             <CheckBox VerticalAlignment="Center" Content="Portraits" x:Name="browsePortraits" IsChecked="{Binding Path=Register.BrowsePortraits, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                             <CheckBox VerticalAlignment="Center" Content="Perks"     x:Name="browsePerks"     IsChecked="{Binding Path=Register.BrowsePerks, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                             <CheckBox VerticalAlignment="Center" Content="Items"     x:Name="browseItems"     IsChecked="{Binding Path=Register.BrowseItems, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
