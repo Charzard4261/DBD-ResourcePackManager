@@ -243,8 +243,16 @@ namespace DBD_ResourcePackManager
                         ResourcePack pack = JsonConvert.DeserializeObject<ResourcePack>(r.ReadToEnd());
                         pack.uniqueKey = Path.GetFileNameWithoutExtension(file.Name);
                         pack.chapterName = Customiser.GetChapter(pack.chapter);
-                        pack.PackState = "Download";
-                        pack.PackActionable = true;
+                        if (pack.downloadLink != "")
+                        {
+                            pack.PackState = "Download";
+                            pack.PackActionable = true;
+                        }
+                        else
+                        {
+                            pack.PackState = "Unavailable";
+                            pack.PackActionable = false;
+                        }
                         Register.packRegistry.Add(pack.uniqueKey, pack);
                     }
             Register.browsePagePacks = Register.packRegistry.Keys.ToList();
@@ -465,8 +473,8 @@ namespace DBD_ResourcePackManager
             ResourcePack resourcePack = _browsePackUCs[(int)((Button)sender).Tag].PackInfo;
             resourcePack.PackActionable = false;
             resourcePack.PackState = "Downloading...";
-            await DownloadPack(resourcePack.uniqueKey);
-            Register.downloadedPagePacks.Add(resourcePack.uniqueKey);
+            if (await DownloadPack(resourcePack.uniqueKey))
+                Register.downloadedPagePacks.Add(resourcePack.uniqueKey);
         }
 
         public void LoadDownloadPage(int page)
@@ -560,7 +568,7 @@ namespace DBD_ResourcePackManager
                 pack.banner.Visibility = 0;
             }
         }
-        public async Task DownloadPack(string uniqueKey)
+        public async Task<bool> DownloadPack(string uniqueKey)
         {
             if (!Register.packRegistry.ContainsKey(uniqueKey))
                 return;
@@ -573,33 +581,44 @@ namespace DBD_ResourcePackManager
             File.WriteAllText($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\temp.txt", "Placeholder file whilst the pack is still downloading");
             File.WriteAllText($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\pack.json", JsonConvert.SerializeObject(pack, Formatting.Indented));
 
-            using (WebClient client = new WebClient())
+            try
             {
-                pack.PackState = "Downloading Banner";
-                string bannerFile = $"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\{Constants.GetUniqueFilename(pack.bannerLink)}";
-                if (pack.bannerLink != "" && !File.Exists(bannerFile))
-                    await client.DownloadFileTaskAsync(new Uri(pack.bannerLink), bannerFile);
-                pack.PackState = "Downloading Zip";
-                await client.DownloadFileTaskAsync(new Uri(pack.downloadLink), $"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\pack.zip");
-
-                if (Directory.Exists($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack"))
+                using (WebClient client = new WebClient())
                 {
-                    pack.PackState = "Deleting Old Pack";
-                    Directory.Delete($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack", true);
-                }
+                    pack.PackState = "Downloading Banner";
+                    string bannerFile = $"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\{Constants.GetUniqueFilename(pack.bannerLink)}";
+                    if (pack.bannerLink != "" && !File.Exists(bannerFile))
+                        await client.DownloadFileTaskAsync(new Uri(pack.bannerLink), bannerFile);
+                    pack.PackState = "Downloading Zip";
+                    await client.DownloadFileTaskAsync(new Uri(pack.downloadLink), $"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\pack.zip");
 
-                pack.PackState = "Unzipping";
-                ZipFile.ExtractToDirectory($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\pack.zip", $"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack");
-                pack.PackState = "Deleting Zip";
-                File.Delete($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\pack.zip");
+                    if (Directory.Exists($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack"))
+                    {
+                        pack.PackState = "Deleting Old Pack";
+                        Directory.Delete($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack", true);
+                    }
+
+                    pack.PackState = "Unzipping";
+                    ZipFile.ExtractToDirectory($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\pack.zip", $"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack");
+                    pack.PackState = "Deleting Zip";
+                    File.Delete($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\pack.zip");
+                }
+                pack.PackState = "Finishing";
+                File.Delete($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\temp.txt");
+                ResourcePack copy = JsonConvert.DeserializeObject<ResourcePack>(JsonConvert.SerializeObject(pack));
+                Register.downloadedRegistry.Add(pack.uniqueKey, copy);
+                copy.PackActionable = false;
+                copy.PackState = "Up To Date";
+                pack.PackState = "Downloaded";
             }
-            pack.PackState = "Finishing";
-            File.Delete($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\temp.txt");
-            ResourcePack copy = JsonConvert.DeserializeObject<ResourcePack>(JsonConvert.SerializeObject(pack));
-            Register.downloadedRegistry.Add(pack.uniqueKey, copy);
-            copy.PackActionable = false;
-            copy.PackState = "Up To Date";
-            pack.PackState = "Downloaded";
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, $"Error Downloading {pack.name}", MessageBoxButton.OK, MessageBoxImage.Error);
+                pack.PackState = "Try Downloading Again";
+                pack.PackActionable = true;
+                return false;
+            }
+            return true;
         }
 
         public ResourcePack GetDownloadedPackInfo(string uniqueKey)
