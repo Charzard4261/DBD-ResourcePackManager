@@ -216,7 +216,7 @@ namespace DBD_ResourcePackManager.Classes
             if (save.allKillers != "" && File.Exists($"{first}{save.allKillers}{second}"))
                 folder = save.allKillers;
 
-            if (save.allKillerPortraits != "" && File.Exists($"{first}{save.allKillerPortraits}{second}"))
+            if (save.allKillerPowers != "" && File.Exists($"{first}{save.allKillerPowers}{second}"))
                 folder = save.allKillerPortraits;
 
             if (save.overrides.ContainsKey(character.powers[0]))
