@@ -571,11 +571,11 @@ namespace DBD_ResourcePackManager
         public async Task<bool> DownloadPack(string uniqueKey)
         {
             if (!Register.packRegistry.ContainsKey(uniqueKey))
-                return;
+                return false;
             ResourcePack pack = Register.packRegistry[uniqueKey];
 
             if (pack.downloadLink == "")
-                return;
+                return false;
 
             Directory.CreateDirectory($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}");
             File.WriteAllText($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\temp.txt", "Placeholder file whilst the pack is still downloading");
