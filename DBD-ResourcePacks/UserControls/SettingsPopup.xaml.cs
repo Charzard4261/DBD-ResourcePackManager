@@ -1,5 +1,7 @@
 ﻿using DBD_ResourcePackManager.Classes;
 using DBD_ResourcePackManager.Properties;
+using GameFinder.StoreHandlers.EGS;
+using GameFinder.StoreHandlers.Steam;
 using Microsoft.Win32;
 using Octokit;
 using System.Diagnostics;
@@ -135,6 +137,72 @@ namespace DBD_ResourcePackManager.UserControls
         private void OpenCache_Click(object sender, RoutedEventArgs e)
         {
             Process.Start("explorer.exe", $"{_mainWindow.appFolder}\\{Constants.DIR_CACHE}");
+        }
+
+        private void DetectGameInstallationFolder_Click(object sender, RoutedEventArgs e)
+        {
+            var firstResult = 
+                MessageBox.Show("Do you install Dead by Daylight using Steam?", 
+                "Quick question", 
+                MessageBoxButton.YesNo);
+            if (firstResult == MessageBoxResult.Yes)
+            {
+                //Steam handler from GameFinder library.
+                var handler = new SteamHandler();
+                //SteamDB said, DBD ID is 381210
+                var dbd = handler.FindOneGameById(381210, out _);
+                if (dbd is not null)
+                {
+                    Settings.Default.GameInstallationPath = dbd.Path;
+                    GamePath.Text = dbd.Path;
+                    Settings.Default.Save();
+                    MessageBox.Show("We've gone ahead and set it as installation path for you!", 
+                        "Game installation detected!", 
+                        MessageBoxButton.OK, 
+                        MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("We can't find your Dead by Daylight installation from Steam!", 
+                        "Unfortunately!", 
+                        MessageBoxButton.OK, 
+                        MessageBoxImage.Error);
+                }
+                return;
+            }
+
+            var secondResult = 
+                MessageBox.Show("Perhaps you install Dead by Daylight using Epic Games Store?", 
+                "Follow up question", 
+                MessageBoxButton.YesNo);
+            if (secondResult == MessageBoxResult.Yes)
+            {
+                var handler = new EGSHandler();
+                //Search
+                var dbd = handler.FindOneGameById("611482b8586142cda48a0786eb8a127c:467a7bed47ec44d9b1c9da0c2dae58f7:Brill", out _);
+                if (dbd is not null)
+                {
+                    Settings.Default.GameInstallationPath = dbd.InstallLocation;
+                    GamePath.Text = dbd.InstallLocation;
+                    Settings.Default.Save();
+                    MessageBox.Show("We've gone ahead and set it as installation path for you!", 
+                        "Game installation detected!", 
+                        MessageBoxButton.OK, 
+                        MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("We can't find your Dead by Daylight installation from Epic Game Store!", 
+                        "Unfortunately!", 
+                        MessageBoxButton.OK, 
+                        MessageBoxImage.Error);
+                }
+                return;
+            }
+
+            MessageBox.Show("We won't be able to help you locate the game on Xbox Game Pass", 
+                "Bad news!", 
+                MessageBoxButton.OK);
         }
     }
 }
