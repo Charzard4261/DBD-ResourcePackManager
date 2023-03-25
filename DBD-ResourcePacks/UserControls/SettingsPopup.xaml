@@ -24,14 +24,15 @@
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
                         <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
                     </Grid.RowDefinitions>
 
                     <!-- DBD Install Path -->
                     <Label   Grid.Row="0" Grid.Column="0" Content="Game Installation Path"/>
                     <TextBox Grid.Row="0" Grid.Column="1" KeyUp="GamePath_KeyUp" ToolTip="Press Enter to save" x:Name="GamePath"/>
                     <!-- Theme -->
-                    <Label    Grid.Row="1" Grid.Column="0" Content="Theme"/>
-                    <ComboBox Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" SelectionChanged="Theme_SelectionChanged" x:Name="Theme">
+                    <Label    Grid.Row="2" Grid.Column="0" Content="Theme"/>
+                    <ComboBox Grid.Row="2" Grid.Column="1" HorizontalAlignment="Right" SelectionChanged="Theme_SelectionChanged" x:Name="Theme">
                         <ComboBoxItem Content="Auto"/>
                         <ComboBoxItem Content="Light"/>
                         <ComboBoxItem Content="Dark"/>
