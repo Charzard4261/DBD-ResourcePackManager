@@ -28,10 +28,10 @@ namespace DBD_ResourcePackManager.Classes
 
         public bool ShouldShowUpIn(string search)
         {
-            if (name.Contains(search) || uniqueKey.Contains(search))
+            if (name.ToLower().Contains(search.ToLower()) || uniqueKey.ToLower().Contains(search.ToLower()))
                 return true;
             foreach (string tag in tags)
-                if (tag.Contains(search))
+                if (tag.ToLower().Contains(search.ToLower()))
                     return true;
             return false;
         }

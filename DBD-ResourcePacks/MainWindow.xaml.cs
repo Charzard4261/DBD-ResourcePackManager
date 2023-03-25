@@ -583,14 +583,15 @@ namespace DBD_ResourcePackManager
 
             try
             {
-                using (WebClient client = new WebClient())
+                using (FileDownloader fileDownloader = new FileDownloader())
                 {
                     pack.PackState = "Downloading Banner";
                     string bannerFile = $"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\{Constants.GetUniqueFilename(pack.bannerLink)}";
                     if (pack.bannerLink != "" && !File.Exists(bannerFile))
-                        await client.DownloadFileTaskAsync(new Uri(pack.bannerLink), bannerFile);
+                        await fileDownloader.DownloadFileTaskAsync(pack.bannerLink, bannerFile);
+                    
                     pack.PackState = "Downloading Zip";
-                    await client.DownloadFileTaskAsync(new Uri(pack.downloadLink), $"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\pack.zip");
+                    await fileDownloader.DownloadFileTaskAsync(pack.downloadLink, $"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\pack.zip");
 
                     if (Directory.Exists($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack"))
                     {
