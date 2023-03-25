@@ -33,6 +33,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="GameFinder.StoreHandlers.EGS" Version="2.2.0" />
+    <PackageReference Include="GameFinder.StoreHandlers.Steam" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Octokit" Version="5.0.2" />
   </ItemGroup>
