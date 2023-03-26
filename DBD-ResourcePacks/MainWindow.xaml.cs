@@ -367,7 +367,7 @@ namespace DBD_ResourcePackManager
                     Rectangle rect = new Rectangle();
                     rect.Fill = new SolidColorBrush(Color.FromArgb(50, 10, 10, 10));
                     Grid.SetColumn(rect, i % Constants.PACKS_WIDTH);
-                    Grid.SetRow(rect, (i / Constants.PACKS_WIDTH) + 2);
+                    Grid.SetRow(rect, (i / Constants.PACKS_WIDTH) + 1);
                     downloadedGrid.Children.Add(rect);
                 }
 
@@ -380,7 +380,7 @@ namespace DBD_ResourcePackManager
                 packUC.action2.Tag = i;
                 packUC.action2.Visibility = Visibility.Visible;
                 Grid.SetColumn(packUC, i % Constants.PACKS_WIDTH);
-                Grid.SetRow(packUC, (i / Constants.PACKS_WIDTH) + 2);
+                Grid.SetRow(packUC, (i / Constants.PACKS_WIDTH) + 1);
                 downloadedGrid.Children.Add(packUC);
                 _downloadedPackUCs.Add(packUC);
             }
@@ -393,7 +393,7 @@ namespace DBD_ResourcePackManager
                     Rectangle rect = new Rectangle();
                     rect.Fill = new SolidColorBrush(Color.FromArgb(50, 10, 10, 10));
                     Grid.SetColumn(rect, i % Constants.PACKS_WIDTH);
-                    Grid.SetRow(rect, (i / Constants.PACKS_WIDTH) + 2);
+                    Grid.SetRow(rect, (i / Constants.PACKS_WIDTH) + 1);
                     browseGrid.Children.Add(rect);
                 }
 
@@ -402,7 +402,7 @@ namespace DBD_ResourcePackManager
                 packUC.action.Click += new RoutedEventHandler(DownloadPack);
                 packUC.action.Tag = i;
                 Grid.SetColumn(packUC, i % Constants.PACKS_WIDTH);
-                Grid.SetRow(packUC, (i / Constants.PACKS_WIDTH) + 2);
+                Grid.SetRow(packUC, (i / Constants.PACKS_WIDTH) + 1);
                 browseGrid.Children.Add(packUC);
                 _browsePackUCs.Add(packUC);
             }

@@ -355,7 +355,7 @@ namespace DBD_ResourcePackManager.Classes
         public string GetChapter(float chapter)
         {
             if (_chapters.ContainsKey(chapter.ToString()))
-                return $"Chapter {chapter}: {_chapters[chapter.ToString()]}";
+                return $"{_chapters[chapter.ToString()]}";
             return $"Chapter {chapter}";
         }
     }
