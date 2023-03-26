@@ -1,11 +1,11 @@
-﻿using System.Windows.Controls;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
-using System.Windows.Documents;
+﻿using DBD_ResourcePackManager.Classes;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
-using DBD_ResourcePackManager.Classes;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Windows.Controls;
+using System.Windows.Documents;
 
 namespace DBD_ResourcePackManager.UserControls
 {
@@ -51,7 +51,8 @@ namespace DBD_ResourcePackManager.UserControls
                         stringBuilder.Append(_packInfo.contains[i]);
                     }
                     tags.Text = stringBuilder.ToString();
-                } else
+                }
+                else
                     tags.Text = "";
                 banner.Visibility = (System.Windows.Visibility)1;
                 Visibility = 0;

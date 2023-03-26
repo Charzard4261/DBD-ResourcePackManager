@@ -1,7 +1,5 @@
 ﻿using DBD_ResourcePackManager.Classes;
 using DBD_ResourcePackManager.Properties;
-using Microsoft.Win32;
-using Octokit;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;

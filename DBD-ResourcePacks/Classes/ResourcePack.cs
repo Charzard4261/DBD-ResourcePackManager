@@ -22,6 +22,7 @@ namespace DBD_ResourcePackManager.Classes
         public float packVersion;
         public string bannerLink = "";
         public string downloadLink = "";
+        public string fileType = "";
         public List<Credit> credits;
         public List<string> contains;
         public List<string> tags;

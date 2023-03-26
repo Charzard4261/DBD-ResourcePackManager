@@ -4,14 +4,14 @@ using DBD_ResourcePackManager.UserControls;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Octokit;
+using SharpCompress.Common;
+using SharpCompress.Readers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Net;
-using System.Security.Policy;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
@@ -71,12 +71,12 @@ namespace DBD_ResourcePackManager
                 // Check if the program hasn't tried updating for 12 hours
                 if (Settings.Default.LastUpdateCheck == null || DateTime.Now - Settings.Default.LastUpdateCheck > TimeSpan.FromHours(12))
                 {
-                    Settings.Default.LastUpdateCheck = DateTime.Now;
-                    Settings.Default.Save();
                     if (CheckForProgramUpdate() == 1)
                         return;
                     CheckForResourcesUpdate();
                     CheckForPacksUpdate();
+                    Settings.Default.LastUpdateCheck = DateTime.Now;
+                    Settings.Default.Save();
                 }
                 // If an update was found the last time it checked, inform the user
                 else if (Settings.Default.UpdateAvailable != "")
@@ -581,6 +581,8 @@ namespace DBD_ResourcePackManager
             File.WriteAllText($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\temp.txt", "Placeholder file whilst the pack is still downloading");
             File.WriteAllText($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\pack.json", JsonConvert.SerializeObject(pack, Formatting.Indented));
 
+            string packFile = $"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\pack.{(pack.fileType == "" ? "zip" : pack.fileType)}";
+
             try
             {
                 using (FileDownloader fileDownloader = new FileDownloader())
@@ -589,9 +591,9 @@ namespace DBD_ResourcePackManager
                     string bannerFile = $"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\{Constants.GetUniqueFilename(pack.bannerLink)}";
                     if (pack.bannerLink != "" && !File.Exists(bannerFile))
                         await fileDownloader.DownloadFileTaskAsync(pack.bannerLink, bannerFile);
-                    
-                    pack.PackState = "Downloading Zip";
-                    await fileDownloader.DownloadFileTaskAsync(pack.downloadLink, $"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\pack.zip");
+
+                    pack.PackState = "Downloading Archive";
+                    await fileDownloader.DownloadFileTaskAsync(pack.downloadLink, packFile);
 
                     if (Directory.Exists($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack"))
                     {
@@ -599,10 +601,26 @@ namespace DBD_ResourcePackManager
                         Directory.Delete($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack", true);
                     }
 
-                    pack.PackState = "Unzipping";
-                    ZipFile.ExtractToDirectory($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\pack.zip", $"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack");
-                    pack.PackState = "Deleting Zip";
-                    File.Delete($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\pack.zip");
+                    pack.PackState = "Extracting";
+                    Directory.CreateDirectory($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack");
+                    using (Stream stream = File.OpenRead(packFile))
+                    using (var reader = ReaderFactory.Open(stream))
+                    {
+                        while (reader.MoveToNextEntry())
+                        {
+                            if (!reader.Entry.IsDirectory)
+                            {
+                                Console.WriteLine(reader.Entry.Key);
+                                reader.WriteEntryToDirectory($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\Pack", new ExtractionOptions()
+                                {
+                                    ExtractFullPath = true,
+                                    Overwrite = true
+                                });
+                            }
+                        }
+                    }
+                    pack.PackState = "Deleting Archive";
+                    File.Delete(packFile);
                 }
                 pack.PackState = "Finishing";
                 File.Delete($"{appFolder}\\{Constants.DIR_DOWNLOADED}\\{pack.uniqueKey}\\temp.txt");

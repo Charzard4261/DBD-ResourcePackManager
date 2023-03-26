@@ -1,13 +1,13 @@
 ﻿using DBD_ResourcePackManager.Properties;
 using Microsoft.Win32;
 using System;
+using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 using System.Windows;
-using System.IO;
-using System.IO.Compression;
+using System.Windows.Media.Imaging;
 
 namespace DBD_ResourcePackManager.Classes
 {
@@ -86,7 +86,8 @@ namespace DBD_ResourcePackManager.Classes
                 image.UriSource = new Uri(filePath);
                 image.EndInit();
                 return image;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return null;
             }
