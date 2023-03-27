@@ -141,68 +141,64 @@ namespace DBD_ResourcePackManager.UserControls
 
         private void DetectGameInstallationFolder_Click(object sender, RoutedEventArgs e)
         {
-            var firstResult = 
-                MessageBox.Show("Do you install Dead by Daylight using Steam?", 
-                "Quick question", 
+            MessageBoxResult firstResult = 
+                MessageBox.Show("Is Dead by Daylight installed through Steam?",
+                "Game Installation Finder", 
                 MessageBoxButton.YesNo);
             if (firstResult == MessageBoxResult.Yes)
             {
                 //Steam handler from GameFinder library.
-                var handler = new SteamHandler();
+                SteamHandler handler = new SteamHandler();
                 //SteamDB said, DBD ID is 381210
-                var dbd = handler.FindOneGameById(381210, out _);
+                SteamGame? dbd = handler.FindOneGameById(381210, out _);
                 if (dbd is not null)
                 {
                     Settings.Default.GameInstallationPath = dbd.Path;
                     GamePath.Text = dbd.Path;
                     Settings.Default.Save();
-                    MessageBox.Show("We've gone ahead and set it as installation path for you!", 
-                        "Game installation detected!", 
+                    MessageBox.Show("Steam installation found!",
+                        "Game Installation Finder", 
                         MessageBoxButton.OK, 
                         MessageBoxImage.Information);
                 }
                 else
                 {
-                    MessageBox.Show("We can't find your Dead by Daylight installation from Steam!", 
-                        "Unfortunately!", 
+                    MessageBox.Show("Steam installation not found.",
+                        "Game Installation Finder", 
                         MessageBoxButton.OK, 
                         MessageBoxImage.Error);
                 }
                 return;
             }
 
-            var secondResult = 
-                MessageBox.Show("Perhaps you install Dead by Daylight using Epic Games Store?", 
-                "Follow up question", 
+            MessageBoxResult secondResult = 
+                MessageBox.Show("Is Dead by Daylight installed through the Epic Games Store?",
+                "Game Installation Finder", 
                 MessageBoxButton.YesNo);
             if (secondResult == MessageBoxResult.Yes)
             {
-                var handler = new EGSHandler();
+                EGSHandler handler = new EGSHandler();
                 //Search
-                var dbd = handler.FindOneGameById("611482b8586142cda48a0786eb8a127c:467a7bed47ec44d9b1c9da0c2dae58f7:Brill", out _);
+                EGSGame? dbd = handler.FindOneGameById("611482b8586142cda48a0786eb8a127c:467a7bed47ec44d9b1c9da0c2dae58f7:Brill", out _);
                 if (dbd is not null)
                 {
                     Settings.Default.GameInstallationPath = dbd.InstallLocation;
                     GamePath.Text = dbd.InstallLocation;
                     Settings.Default.Save();
-                    MessageBox.Show("We've gone ahead and set it as installation path for you!", 
-                        "Game installation detected!", 
+                    MessageBox.Show("Epic Games Store installation found!",
+                        "Game Installation Finder", 
                         MessageBoxButton.OK, 
                         MessageBoxImage.Information);
                 }
                 else
                 {
-                    MessageBox.Show("We can't find your Dead by Daylight installation from Epic Game Store!", 
-                        "Unfortunately!", 
+                    MessageBox.Show("Epic Games Store installation not found.",
+                        "Game Installation Finder", 
                         MessageBoxButton.OK, 
                         MessageBoxImage.Error);
                 }
                 return;
             }
-
-            MessageBox.Show("We won't be able to help you locate the game on Xbox Game Pass", 
-                "Bad news!", 
-                MessageBoxButton.OK);
         }
     }
 }

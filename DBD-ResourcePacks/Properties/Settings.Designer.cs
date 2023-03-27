@@ -43,7 +43,7 @@ namespace DBD_ResourcePackManager.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("7")]
+        [global::System.Configuration.DefaultSettingValueAttribute("8")]
         public int ProgramVersionPatch {
             get {
                 return ((int)(this["ProgramVersionPatch"]));
