@@ -1,5 +1,9 @@
-﻿using DBD_ResourcePackManager.Classes;
+using DBD_ResourcePackManager.Classes;
 using DBD_ResourcePackManager.Properties;
+using GameFinder.StoreHandlers.EGS;
+using GameFinder.StoreHandlers.Steam;
+using Microsoft.Win32;
+using Octokit;
 using System.Diagnostics;
 using System.IO;
 using System.Windows;
@@ -133,6 +137,68 @@ namespace DBD_ResourcePackManager.UserControls
         private void OpenCache_Click(object sender, RoutedEventArgs e)
         {
             Process.Start("explorer.exe", $"{_mainWindow.appFolder}\\{Constants.DIR_CACHE}");
+        }
+
+        private void DetectGameInstallationFolder_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBoxResult firstResult = 
+                MessageBox.Show("Is Dead by Daylight installed through Steam?",
+                "Game Installation Finder", 
+                MessageBoxButton.YesNo);
+            if (firstResult == MessageBoxResult.Yes)
+            {
+                //Steam handler from GameFinder library.
+                SteamHandler handler = new SteamHandler();
+                //SteamDB said, DBD ID is 381210
+                SteamGame? dbd = handler.FindOneGameById(381210, out _);
+                if (dbd is not null)
+                {
+                    Settings.Default.GameInstallationPath = dbd.Path;
+                    GamePath.Text = dbd.Path;
+                    Settings.Default.Save();
+                    MessageBox.Show("Steam installation found!",
+                        "Game Installation Finder", 
+                        MessageBoxButton.OK, 
+                        MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Steam installation not found.",
+                        "Game Installation Finder", 
+                        MessageBoxButton.OK, 
+                        MessageBoxImage.Error);
+                }
+                return;
+            }
+
+            MessageBoxResult secondResult = 
+                MessageBox.Show("Is Dead by Daylight installed through the Epic Games Store?",
+                "Game Installation Finder", 
+                MessageBoxButton.YesNo);
+            if (secondResult == MessageBoxResult.Yes)
+            {
+                EGSHandler handler = new EGSHandler();
+                //Search
+                EGSGame? dbd = handler.FindOneGameById("611482b8586142cda48a0786eb8a127c:467a7bed47ec44d9b1c9da0c2dae58f7:Brill", out _);
+                if (dbd is not null)
+                {
+                    Settings.Default.GameInstallationPath = dbd.InstallLocation;
+                    GamePath.Text = dbd.InstallLocation;
+                    Settings.Default.Save();
+                    MessageBox.Show("Epic Games Store installation found!",
+                        "Game Installation Finder", 
+                        MessageBoxButton.OK, 
+                        MessageBoxImage.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Epic Games Store installation not found.",
+                        "Game Installation Finder", 
+                        MessageBoxButton.OK, 
+                        MessageBoxImage.Error);
+                }
+                return;
+            }
         }
     }
 }
