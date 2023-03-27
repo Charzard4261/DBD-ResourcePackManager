@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -216,7 +215,7 @@ namespace DBD_ResourcePackManager.Classes
             if (save.allKillers != "" && File.Exists($"{first}{save.allKillers}{second}"))
                 folder = save.allKillers;
 
-            if (save.allKillerPortraits != "" && File.Exists($"{first}{save.allKillerPortraits}{second}"))
+            if (save.allKillerPowers != "" && File.Exists($"{first}{save.allKillerPowers}{second}"))
                 folder = save.allKillerPortraits;
 
             if (save.overrides.ContainsKey(character.powers[0]))
@@ -356,7 +355,7 @@ namespace DBD_ResourcePackManager.Classes
         public string GetChapter(float chapter)
         {
             if (_chapters.ContainsKey(chapter.ToString()))
-                return $"Chapter {chapter}: {_chapters[chapter.ToString()]}";
+                return $"{_chapters[chapter.ToString()]}";
             return $"Chapter {chapter}";
         }
     }

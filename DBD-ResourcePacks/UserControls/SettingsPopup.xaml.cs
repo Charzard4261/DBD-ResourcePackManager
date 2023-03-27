@@ -1,4 +1,4 @@
-﻿using DBD_ResourcePackManager.Classes;
+using DBD_ResourcePackManager.Classes;
 using DBD_ResourcePackManager.Properties;
 using GameFinder.StoreHandlers.EGS;
 using GameFinder.StoreHandlers.Steam;

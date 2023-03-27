@@ -9,7 +9,7 @@
       <Value Profile="(Default)">9</Value>
     </Setting>
     <Setting Name="ProgramVersionPatch" Type="System.Int32" Scope="Application">
-      <Value Profile="(Default)">4</Value>
+      <Value Profile="(Default)">7</Value>
     </Setting>
     <Setting Name="ResourcesVersionMajor" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>

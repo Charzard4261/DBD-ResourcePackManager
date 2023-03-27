@@ -1,7 +1,7 @@
-﻿using System.Windows.Controls;
+﻿using DBD_ResourcePackManager.Classes;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using DBD_ResourcePackManager.Classes;
+using System.Windows.Controls;
 
 namespace DBD_ResourcePackManager.UserControls
 {

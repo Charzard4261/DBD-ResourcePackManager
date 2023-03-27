@@ -1,13 +1,13 @@
 ﻿using DBD_ResourcePackManager.Properties;
 using Microsoft.Win32;
 using System;
+using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 using System.Windows;
-using System.IO;
-using System.IO.Compression;
+using System.Windows.Media.Imaging;
 
 namespace DBD_ResourcePackManager.Classes
 {
@@ -50,13 +50,13 @@ namespace DBD_ResourcePackManager.Classes
         public const string FOLDER_POWERS         = "Powers";
         public const string FOLDER_STATUS_EFFECTS = "StatusEffects";
 
-        public const string CONTAINS_PORTRAITS = "portraits";
-        public const string CONTAINS_PERKS     = "perks";
-        public const string CONTAINS_ITEMS     = "items";
-        public const string CONTAINS_ADDONS    = "addons";
-        public const string CONTAINS_POWERS    = "powers";
-        public const string CONTAINS_OFFERINGS = "offerings";
-        public const string CONTAINS_MISC_UI   = "misc_ui";
+        public const string CONTAINS_PORTRAITS = "Portraits";
+        public const string CONTAINS_PERKS     = "Perks";
+        public const string CONTAINS_ITEMS     = "Items";
+        public const string CONTAINS_ADDONS    = "Addons";
+        public const string CONTAINS_POWERS    = "Powers";
+        public const string CONTAINS_OFFERINGS = "Offerings";
+        public const string CONTAINS_MISC_UI   = "Miscellaneous UI";
 
 
         public static async Task DownloadImage(string url, string directory)
@@ -86,7 +86,8 @@ namespace DBD_ResourcePackManager.Classes
                 image.UriSource = new Uri(filePath);
                 image.EndInit();
                 return image;
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 return null;
             }
