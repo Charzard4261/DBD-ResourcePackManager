@@ -4,7 +4,6 @@ using SharpCompress.Common;
 using SharpCompress.Readers;
 using System;
 using System.IO;
-using System.IO.Abstractions;
 using System.Linq;
 using System.Windows;
 
@@ -41,6 +40,9 @@ namespace DBD_ResourcePackManager.UserControls
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
                 string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+
+                bool isFolder = File.GetAttributes(files[0]).HasFlag(FileAttributes.Directory);
+
                 string fileName = Path.GetFileNameWithoutExtension(files[0]);
 
                 _fileActions              = "";
@@ -81,19 +83,26 @@ namespace DBD_ResourcePackManager.UserControls
 
                     Directory.CreateDirectory(tempDirectory);
 
-                    using (Stream stream = File.OpenRead(files[0]))
-                    using (var reader = ReaderFactory.Open(stream))
+                    if (isFolder)
                     {
-                        while (reader.MoveToNextEntry())
+                        Constants.CopyFilesRecursively(files[0], tempDirectory);
+                    }
+                    else
+                    {
+                        using (Stream stream = File.OpenRead(files[0]))
+                        using (var reader = ReaderFactory.Open(stream))
                         {
-                            if (!reader.Entry.IsDirectory)
+                            while (reader.MoveToNextEntry())
                             {
-                                Console.WriteLine(reader.Entry.Key);
-                                reader.WriteEntryToDirectory(tempDirectory, new ExtractionOptions()
+                                if (!reader.Entry.IsDirectory)
                                 {
-                                    ExtractFullPath = true,
-                                    Overwrite = true
-                                });
+                                    Console.WriteLine(reader.Entry.Key);
+                                    reader.WriteEntryToDirectory(tempDirectory, new ExtractionOptions()
+                                    {
+                                        ExtractFullPath = true,
+                                        Overwrite = true
+                                    });
+                                }
                             }
                         }
                     }
