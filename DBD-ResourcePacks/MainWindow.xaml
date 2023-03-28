@@ -28,13 +28,15 @@
                     </Grid.RowDefinitions>
 
                     <!-- Default "No Packs Downloaded" Message -->
-                    <Label x:Name="noPacksDownloaded" Grid.RowSpan="99" Grid.ColumnSpan="99" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <Label Visibility="Hidden" x:Name="noPacksDownloaded" Grid.RowSpan="99" Grid.ColumnSpan="99" HorizontalAlignment="Center" VerticalAlignment="Center">
                         <TextBlock TextAlignment="Center">No Packs downloaded.<LineBreak/>Head to Browse to discover some!</TextBlock>
                     </Label>
 
                     <!-- Pack Search Controls -->
                     <Grid Grid.Row="0" Grid.ColumnSpan="99" HorizontalAlignment="Right">
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="auto"/>
                             <ColumnDefinition Width="auto"/>
                             <ColumnDefinition Width="10"/>
@@ -42,18 +44,19 @@
                             <ColumnDefinition Width="auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <Label Content="Filter:" Grid.Column="0"/>
-                        <StackPanel Orientation="Horizontal" Grid.Column="1" Background="{x:Null}">
-                            <CheckBox VerticalAlignment="Center" Content="Portraits" x:Name="downloadPortraits" IsChecked="{Binding Path=Register.DownloadPortraits, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
-                            <CheckBox VerticalAlignment="Center" Content="Perks"     x:Name="downloadPerks"     IsChecked="{Binding Path=Register.DownloadPerks, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
-                            <CheckBox VerticalAlignment="Center" Content="Items"     x:Name="downloadItems"     IsChecked="{Binding Path=Register.DownloadItems, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
-                            <CheckBox VerticalAlignment="Center" Content="Addons"    x:Name="downloadAddons"    IsChecked="{Binding Path=Register.DownloadAddons, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
-                            <CheckBox VerticalAlignment="Center" Content="Powers"    x:Name="downloadPowers"    IsChecked="{Binding Path=Register.DownloadPowers, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
-                            <CheckBox VerticalAlignment="Center" Content="Offerings" x:Name="downloadOfferings" IsChecked="{Binding Path=Register.DownloadOfferings, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
-                            <CheckBox VerticalAlignment="Center" Content="MiscUI"    x:Name="downloadMiscUI"    IsChecked="{Binding Path=Register.DownloadMiscUI, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                        <Button Content="Import"             Grid.Column="0" VerticalAlignment="Center" Click="Import_Click"/>
+                        <Label Content="Filter:"             Grid.Column="2" VerticalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal" Grid.Column="3" VerticalAlignment="Center" Background="{x:Null}">
+                            <CheckBox Content="Portraits" x:Name="downloadPortraits" IsChecked="{Binding Path=Register.DownloadPortraits, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                            <CheckBox Content="Perks"     x:Name="downloadPerks"     IsChecked="{Binding Path=Register.DownloadPerks, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                            <CheckBox Content="Items"     x:Name="downloadItems"     IsChecked="{Binding Path=Register.DownloadItems, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                            <CheckBox Content="Addons"    x:Name="downloadAddons"    IsChecked="{Binding Path=Register.DownloadAddons, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                            <CheckBox Content="Powers"    x:Name="downloadPowers"    IsChecked="{Binding Path=Register.DownloadPowers, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                            <CheckBox Content="Offerings" x:Name="downloadOfferings" IsChecked="{Binding Path=Register.DownloadOfferings, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                            <CheckBox Content="Misc UI"   x:Name="downloadMiscUI"    IsChecked="{Binding Path=Register.DownloadMiscUI, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                         </StackPanel>
-                        <Label Content="Search:" Grid.Column="3"/>
-                        <TextBox x:Name="downloadSearch" Grid.Column="4" Width="200" VerticalContentAlignment="Center" KeyUp="DownloadSearch_KeyUp"/>
+                        <Label Content="Search:"             Grid.Column="5" VerticalAlignment="Center"/>
+                        <TextBox x:Name="downloadSearch"     Grid.Column="6" VerticalContentAlignment="Center" Width="200" KeyUp="DownloadSearch_KeyUp"/>
                     </Grid>
 
                     <!-- Page Navigation -->
@@ -96,7 +99,7 @@
                             <CheckBox VerticalAlignment="Center" Content="Addons"    x:Name="browseAddons"    IsChecked="{Binding Path=Register.BrowseAddons, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                             <CheckBox VerticalAlignment="Center" Content="Powers"    x:Name="browsePowers"    IsChecked="{Binding Path=Register.BrowsePowers, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                             <CheckBox VerticalAlignment="Center" Content="Offerings" x:Name="browseOfferings" IsChecked="{Binding Path=Register.BrowseOfferings, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
-                            <CheckBox VerticalAlignment="Center" Content="MiscUI"    x:Name="browseMiscUI"    IsChecked="{Binding Path=Register.BrowseMiscUI, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
+                            <CheckBox VerticalAlignment="Center" Content="Misc UI"   x:Name="browseMiscUI"    IsChecked="{Binding Path=Register.BrowseMiscUI, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Window}}"/>
                         </StackPanel>
                         <Label Content="Search:" Grid.Column="3"/>
                         <TextBox x:Name="browseSearch" Grid.Column="4" Width="200" VerticalContentAlignment="Center" KeyUp="BrowseSearch_KeyUp"/>

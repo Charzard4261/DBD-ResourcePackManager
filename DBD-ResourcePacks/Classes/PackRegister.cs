@@ -64,7 +64,7 @@ namespace DBD_ResourcePackManager.Classes
             _mainWindow = mainWindow;
         }
 
-        void RebuildDownloadList()
+        public void RebuildDownloadList()
         {
             // Filter the potential packs by search name
             List<ResourcePack> packs = downloadedRegistry.Values.Where(pack => pack.ShouldShowUpIn(_downloadSearch)).ToList();
@@ -114,7 +114,7 @@ namespace DBD_ResourcePackManager.Classes
             return packs;
         }
 
-        void RebuildBrowseList()
+        public void RebuildBrowseList()
         {
             // Filter the potential packs by search name
             List<ResourcePack> packs = packRegistry.Values.Where(pack => pack.ShouldShowUpIn(_browseSearch)).ToList();

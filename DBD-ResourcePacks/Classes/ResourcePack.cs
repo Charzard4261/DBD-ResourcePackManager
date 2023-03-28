@@ -15,17 +15,18 @@ namespace DBD_ResourcePackManager.Classes
         [JsonIgnore] public string PackState { get => _state; set { _state = value; NotifyPropertyChanged(); } }
         [JsonIgnore] public bool PackActionable { get => _actionable; set { _actionable = value; NotifyPropertyChanged(); } }
 
+        [JsonIgnore] public string folder = "";
         public string uniqueKey = "";
         public string name = "";
         public float chapter;
-        [JsonIgnore] public string chapterName;
+        [JsonIgnore] public string chapterName = "";
         public float packVersion;
         public string bannerLink = "";
         public string downloadLink = "";
         public string fileType = "";
-        public List<Credit> credits;
-        public List<string> contains;
-        public List<string> tags;
+        public List<Credit> credits = new();
+        public List<string> contains = new();
+        public List<string> tags = new();
 
         public bool ShouldShowUpIn(string search)
         {

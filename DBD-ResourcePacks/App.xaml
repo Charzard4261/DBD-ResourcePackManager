@@ -35,6 +35,13 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+        <Style x:Key="Adaptive" TargetType="{x:Type Grid}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Source={x:Static properties:Settings.Default}, Path=ThemeActual}" Value="Dark">
+                    <Setter Property="Background" Value="{StaticResource DarkThemeBackgroundB}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
 
         <Style TargetType="{x:Type ToolBarTray}">
             <Style.Triggers>

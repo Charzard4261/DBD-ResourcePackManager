@@ -42,6 +42,8 @@ namespace DBD_ResourcePackManager.UserControls
                     else
                         credits.Inlines.Add(run3);
                 }
+                if (_packInfo.credits.Count <= 0)
+                    credits.Inlines.Clear();
                 if (_packInfo.contains.Count > 0)
                 {
                     StringBuilder stringBuilder = new StringBuilder("");

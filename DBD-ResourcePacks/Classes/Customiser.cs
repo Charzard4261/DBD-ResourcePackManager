@@ -101,41 +101,40 @@ namespace DBD_ResourcePackManager.Classes
         /// <returns>A copy of the image</returns>
         public BitmapImage GetImageForPerk(Perk perk)
         {
-            string folder = "";
-            string first = $"{_mainWindow.appFolder}\\{Constants.DIR_DOWNLOADED}\\";
+            string packKey = "";
             string second = $"\\Pack\\{Constants.FOLDER_PERKS}\\{perk.filePath}";
 
-            if (save.everything != "" && File.Exists($"{first}{save.everything}{second}"))
-                folder = save.everything;
+            if (save.everything != "" && DoesPackContainFile(save.everything, second))
+                packKey = save.everything;
 
-            if (save.allPerks != "" && File.Exists($"{first}{save.allPerks}{second}"))
-                folder = save.allPerks;
+            if (save.allPerks != "" && DoesPackContainFile(save.allPerks, second))
+                packKey = save.allPerks;
 
             if (perk.forSurvivor)
             {
-                if (save.allSurvivors != "" && File.Exists($"{first}{save.allSurvivors}{second}"))
-                    folder = save.allSurvivors;
+                if (save.allSurvivors != "" && DoesPackContainFile(save.allSurvivors, second))
+                    packKey = save.allSurvivors;
 
-                if (save.allSurvivorPerks != "" && File.Exists($"{first}{save.allSurvivorPerks}{second}"))
-                    folder = save.allSurvivorPerks;
+                if (save.allSurvivorPerks != "" && DoesPackContainFile(save.allSurvivorPerks, second))
+                    packKey = save.allSurvivorPerks;
             }
             else
             {
-                if (save.allKillers != "" && File.Exists($"{first}{save.allKillers}{second}"))
-                    folder = save.allKillers;
+                if (save.allKillers != "" && DoesPackContainFile(save.allKillers, second))
+                    packKey = save.allKillers;
 
-                if (save.allKillerPerks != "" && File.Exists($"{first}{save.allKillerPerks}{second}"))
-                    folder = save.allKillerPerks;
+                if (save.allKillerPerks != "" && DoesPackContainFile(save.allKillerPerks, second))
+                    packKey = save.allKillerPerks;
             }
 
             if (save.overrides.ContainsKey(perk.key))
-                folder = save.overrides[perk.key];
+                packKey = save.overrides[perk.key];
 
             string file;
-            if (folder == "" || folder == "default")
+            if (packKey == "" || packKey == "default")
                 file = $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}\\{Constants.GetUniqueFilename(perk.defaultImage)}";
             else
-                file = $"{first}{folder}{second}";
+                file = GetFileFromPack(packKey, second);
 
             // A final check in case the default image is corrupted
             if (File.Exists(file))
@@ -153,41 +152,40 @@ namespace DBD_ResourcePackManager.Classes
         /// <returns>A copy of the image</returns>
         public BitmapImage GetImageForCharacter(Character character)
         {
-            string folder = "";
-            string first = $"{_mainWindow.appFolder}\\{Constants.DIR_DOWNLOADED}\\";
+            string packKey = "";
             string second = $"\\Pack\\{Constants.FOLDER_PORTRAITS}\\{character.portrait}";
 
-            if (save.everything != "" && File.Exists($"{first}{save.everything}{second}"))
-                folder = save.everything;
+            if (save.everything != "" && DoesPackContainFile(save.everything, second))
+                packKey = save.everything;
 
-            if (save.allPortraits != "" && File.Exists($"{first}{save.allPortraits}{second}"))
-                folder = save.allPortraits;
+            if (save.allPortraits != "" && DoesPackContainFile(save.allPortraits, second))
+                packKey = save.allPortraits;
 
             if (character is Survivor)
             {
-                if (save.allSurvivors != "" && File.Exists($"{first}{save.allSurvivors}{second}"))
-                    folder = save.allSurvivors;
+                if (save.allSurvivors != "" && DoesPackContainFile(save.allSurvivors, second))
+                    packKey = save.allSurvivors;
 
-                if (save.allSurvivorPortraits != "" && File.Exists($"{first}{save.allSurvivorPortraits}{second}"))
-                    folder = save.allSurvivorPortraits;
+                if (save.allSurvivorPortraits != "" && DoesPackContainFile(save.allSurvivorPortraits, second))
+                    packKey = save.allSurvivorPortraits;
             }
             else if (character is Killer)
             {
-                if (save.allKillers != "" && File.Exists($"{first}{save.allKillers}{second}"))
-                    folder = save.allKillers;
+                if (save.allKillers != "" && DoesPackContainFile(save.allKillers, second))
+                    packKey = save.allKillers;
 
-                if (save.allKillerPortraits != "" && File.Exists($"{first}{save.allKillerPortraits}{second}"))
-                    folder = save.allKillerPortraits;
+                if (save.allKillerPortraits != "" && DoesPackContainFile(save.allKillerPortraits, second))
+                    packKey = save.allKillerPortraits;
             }
 
             if (save.overrides.ContainsKey(character.key))
-                folder = save.overrides[character.key];
+                packKey = save.overrides[character.key];
 
             string file;
-            if (folder == "" || folder == "default")
+            if (packKey == "" || packKey == "default")
                 file = $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}\\{Constants.GetUniqueFilename(character.defaultPortrait)}";
             else
-                file = $"{first}{folder}{second}";
+                file = GetFileFromPack(packKey, second);
 
             // A final check in case the default image is corrupted
             if (File.Exists(file))
@@ -205,32 +203,49 @@ namespace DBD_ResourcePackManager.Classes
         /// <returns>A copy of the image</returns>
         public BitmapImage GetImageForPower(Killer character)
         {
-            string folder = "";
-            string first = $"{_mainWindow.appFolder}\\{Constants.DIR_DOWNLOADED}\\";
+            string packKey = "";
             string second = $"\\Pack\\{Constants.FOLDER_POWERS}\\{character.powers[0]}";
 
-            if (save.everything != "" && File.Exists($"{first}{save.everything}{second}"))
-                folder = save.everything;
+            if (save.everything != "" && DoesPackContainFile(save.everything, second))
+                packKey = save.everything;
 
-            if (save.allKillers != "" && File.Exists($"{first}{save.allKillers}{second}"))
-                folder = save.allKillers;
+            if (save.allKillers != "" && DoesPackContainFile(save.allKillers, second))
+                packKey = save.allKillers;
 
-            if (save.allKillerPowers != "" && File.Exists($"{first}{save.allKillerPowers}{second}"))
-                folder = save.allKillerPortraits;
+            if (save.allKillerPowers != "" && DoesPackContainFile(save.allKillerPowers, second))
+                packKey = save.allKillerPortraits;
 
             if (save.overrides.ContainsKey(character.powers[0]))
-                folder = save.overrides[character.powers[0]];
+                packKey = save.overrides[character.powers[0]];
 
             string file;
-            if (folder == "" || folder == "default")
+            if (packKey == "" || packKey == "default")
                 file = $"{_mainWindow.appFolder}\\{Constants.DIR_DEFAULT_ICONS}\\{Constants.GetUniqueFilename(character.defaultPower)}";
             else
-                file = $"{first}{folder}{second}";
+                file = GetFileFromPack(packKey, second);
 
             // A final check in case the default image is corrupted
             if (File.Exists(file))
                 return Constants.LoadImage(file);
             return null;
+        }
+
+        public bool DoesPackContainFile(string packKey, string filePath)
+        {
+            if (!_mainWindow.Register.downloadedRegistry.ContainsKey(packKey))
+                return false;
+            ResourcePack pack = _mainWindow.Register.downloadedRegistry[packKey];
+
+            return File.Exists($"{pack.folder}\\{filePath}");
+        }
+
+        public string GetFileFromPack(string packKey, string filePath)
+        {
+            if (!_mainWindow.Register.downloadedRegistry.ContainsKey(packKey))
+                return "";
+            ResourcePack pack = _mainWindow.Register.downloadedRegistry[packKey];
+
+            return $"{pack.folder}\\{filePath}";
         }
 
         public string GetPackName(string key)

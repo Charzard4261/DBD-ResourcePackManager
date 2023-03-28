@@ -21,20 +21,26 @@ namespace DBD_ResourcePackManager.Classes
 
         public const string LINK_SUBMISSION = "https://docs.google.com/forms/d/e/1FAIpQLSeoz3gwXeL4Ml_ziA1u8PWeClTN1xW4ejai6iWBiVq_I4kb0w/viewform";
 
+        // Resource Folders
         public const string DIR_CACHE         = "Cache";
         public const string DIR_CACHE_BROWSE  = "Cache/Browse Cache";
+        public const string DIR_CACHE_IMPORT  = "Cache/Import Cache";
         public const string DIR_DEFAULT_ICONS = "Cache/Default Images";
         public const string DIR_PACKS         = "Packs";
         public const string DIR_DOWNLOADED    = "Downloaded";
+        public const string DIR_IMPORTED      = "Imported";
         public const string DIR_RESOURCES     = "Resources";
+        // Resource Files
         public const string FILE_SURVIVORS    = $"{DIR_RESOURCES}/survivors.json";
         public const string FILE_KILLERS      = $"{DIR_RESOURCES}/killers.json";
         public const string FILE_CHAPTERS     = $"{DIR_RESOURCES}/chapters.json";
         public const string FILE_CUSTOMISER   = $"custom.json";
 
+        // Width and Height of the Browse & Download Tabs
         public const int PACKS_WIDTH  = 3;
         public const int PACKS_HEIGHT = 3;
 
+        // Game Files - Image Folders
         public const string FOLDER_ACTIONS        = "Actions";
         public const string FOLDER_PORTRAITS      = "CharPortraits";
         public const string FOLDER_CUSTOMIZATION  = "Customization";
@@ -50,6 +56,7 @@ namespace DBD_ResourcePackManager.Classes
         public const string FOLDER_POWERS         = "Powers";
         public const string FOLDER_STATUS_EFFECTS = "StatusEffects";
 
+        // Packs - Valid "Contains" Elements
         public const string CONTAINS_PORTRAITS = "Portraits";
         public const string CONTAINS_PERKS     = "Perks";
         public const string CONTAINS_ITEMS     = "Items";
@@ -129,13 +136,13 @@ namespace DBD_ResourcePackManager.Classes
         {
             DirectoryInfo source = new DirectoryInfo(sourcePath);
 
+            Directory.CreateDirectory(targetPath);
+
             foreach (DirectoryInfo info in source.GetDirectories())
-            {
-                Directory.CreateDirectory($"{targetPath}/{info.Name}");
-                foreach (FileInfo file in info.GetFiles())
-                    File.Copy(file.FullName, $"{targetPath}/{info.Name}/{file.Name}", true);
-                CopyFilesRecursively(info.FullName, $"{targetPath}/{info.Name}");
-            }
+                CopyFilesRecursively(info.FullName, $"{targetPath}\\{info.Name}");
+
+            foreach (FileInfo file in source.GetFiles())
+                File.Copy(file.FullName, $"{targetPath}\\{file.Name}", true);
         }
         public static void CopyFile(string source, string target)
         {
